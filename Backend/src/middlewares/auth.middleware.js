@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { handleErrorClient } from "../Handlers/responseHandlers.js";
 
+
 /**
  * @brief Middleware de autenticación que verifica la existencia y validez de un token JWT.
  *        Agrega la información de la entidad y el ID del usuario al objeto req.user.
@@ -43,4 +44,5 @@ export function autorizeEntities(...allowedRoles) {
     }
     next()
   }
+
 }
