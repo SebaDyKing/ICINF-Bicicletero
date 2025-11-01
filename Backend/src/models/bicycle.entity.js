@@ -3,7 +3,7 @@ import { EntitySchema } from "typeorm";
 
 const Bicycle = new EntitySchema({
   name: "Bicycle",
-  tableName: "bicycles",
+  tableName: "bicycle",
   columns: {
     id_bicycle: {
       type: "varchar",
@@ -41,7 +41,7 @@ const Bicycle = new EntitySchema({
         name: "rut_owner",
         referencedColumnName: "rut_owner",
       },
-      inverseSide: "bicycles",
+      inverseSide: "bicycle",
     },
   },
   indices: [
