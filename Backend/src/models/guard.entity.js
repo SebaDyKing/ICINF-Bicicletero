@@ -1,12 +1,11 @@
 "use strict";
 import { EntitySchema } from "typeorm";
-import Bicycle from "./bicycle.entity";
 
-const Owner = new EntitySchema({
-  name: "Owner",
-  tableName: "owner",
+const Guard = new EntitySchema({
+  name: "Guard",
+  tableName: "guard",
   columns: {
-    rut_owner: {
+    rut_guard: {
       type: "varchar",
       length: 15,
       primary: true,
@@ -23,16 +22,6 @@ const Owner = new EntitySchema({
       length: 100,
       nullable: false,
     },
-    rol: {
-      type: "varchar",
-      length: 100,
-      nullable: false,
-    },
-    telefono: {
-      type: "varchar",
-      length: 12,
-      nullable: false,
-    },
     correo: {
       type: "varchar",
       length: 50,
@@ -40,29 +29,24 @@ const Owner = new EntitySchema({
     },
     contrasenia: {
       type: "varchar",
-      length: 200, 
-      nullable: false,
-    },
-    datos_qr: {
-      type: "varchar",
       length: 200,
       nullable: false,
     },
   },
   relations: {
-    Bicycle: {
+    Store: {
       type: "one-to-many",
-      target: "Bicycle",
-      inverseSide: "owner",
+      target: "Store",
+      inverseSide: "guard",
     },
   },
   indices: [
     {
-      name: "IDX_OWNER_RUT",
-      columns: ["rut_owner"],
+      name: "IDX_GUARD_RUT",
+      columns: ["rut_guard"],
       unique: true,
     },
   ],
 });
 
-export default Owner;
+export default Guard;
