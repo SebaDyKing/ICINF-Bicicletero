@@ -39,11 +39,13 @@ const Owner = new EntitySchema({
       length: 50,
       nullable: false,
     },
+    /*
     contrasenia: {
       type: "varchar",
       length: 200, 
       nullable: false,
     },
+    */ 
     datos_qr: {
       type: "varchar",
       length: 200,
