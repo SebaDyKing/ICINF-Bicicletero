@@ -32,6 +32,8 @@ export function authMiddleware(req, res, next) {
   }
 }
 
+
+
 /**
  * @brief Middleware de autorización que valida si la entidad del usuario está permitida en la ruta.
  * @param {...string} allowedEntities - Lista de entidades permitidas para acceder a la ruta (ej. "owner", "guardia", "central").
