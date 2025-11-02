@@ -1,5 +1,12 @@
 import Joi from 'Joi'
 
+/**
+ * @brief Middleware de validación de datos para el registro de guardias.
+ *        Verifica que los campos del cuerpo de la solicitud cumplan con las restricciones de formato y longitud.
+ *        Utiliza Joi para la validación de los campos como nombre, apellido, teléfono, correo electrónico y contraseña.
+ * @param {Object} input - Objeto que representa el cuerpo de la solicitud que se desea validar.
+ * @return {Object} - El resultado de la validación, con detalles de los errores si los hay.
+ */
 export const guardBodyValition = Joi.object({
   name: Joi.string().min(3).required().messages({
     'string.base': `El campo nombre debe ser un texto`,
@@ -35,10 +42,24 @@ export const guardBodyValition = Joi.object({
   }),
 })
 
+/**
+ * @brief Función que valida los datos del guardia utilizando el esquema guardBodyValition.
+ *        Retorna un objeto con los resultados de la validación, incluyendo los errores si los hay.
+ * @param {Object} input - Objeto que contiene los datos del guardia a validar.
+ * @return {Object} - El resultado de la validación, incluyendo los errores encontrados.
+ */
 function validateGuardBody(input) {
   return guardBodyValition.validate(input, { abortEarly: false });
 }
 
+/**
+ * @brief Función que valida parcialmente los datos del guardia.
+ *        Permite la validación de campos opcionales, al hacer que algunos de ellos sean opcionales durante la validación.
+ * @param {Object} input - Objeto con los datos a validar, permitiendo campos opcionales.
+ * @return {Object} - El resultado de la validación parcial, con detalles de errores si los hay.
+ */
 function guardBodyPartialValidation(input) {
   return validateGuardBody.fork(Object.keys(guardBodyPartialValidation.describe().keys), (schema) => schema.optional()).validate(input,{abortEarly:false})
 }
+
+export {validateGuardBody, guardBodyPartialValidation}
