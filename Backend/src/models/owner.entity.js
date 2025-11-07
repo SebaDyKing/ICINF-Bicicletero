@@ -1,68 +1,19 @@
-"use strict";
-import { EntitySchema } from "typeorm";
-import Bicycle from "./bicycle.entity";
+import { ChildEntity, Column, OneToMany } from "typeorm";
+import { User } from "./user.entity.js";
+import { Store } from "./store.entity.js";
 
-const Owner = new EntitySchema({
-  name: "Owner",
-  tableName: "owner",
-  columns: {
-    rut_owner: {
-      type: "varchar",
-      length: 15,
-      primary: true,
-      nullable: false,
-      unique: true,
-    },
-    nombre: {
-      type: "varchar",
-      length: 100,
-      nullable: false,
-    },
-    apellido: {
-      type: "varchar",
-      length: 100,
-      nullable: false,
-    },
-    rol: {
-      type: "varchar",
-      length: 100,
-      nullable: false,
-    },
-    telefono: {
-      type: "varchar",
-      length: 12,
-      nullable: false,
-    },
-    correo: {
-      type: "varchar",
-      length: 50,
-      nullable: false,
-    },
-    contrasenia: {
-      type: "varchar",
-      length: 200, 
-      nullable: false,
-    },
-    datos_qr: {
-      type: "varchar",
-      length: 200,
-      nullable: false,
-    },
-  },
-  relations: {
-    Bicycle: {
-      type: "one-to-many",
-      target: "Bicycle",
-      inverseSide: "owner",
-    },
-  },
-  indices: [
-    {
-      name: "IDX_OWNER_RUT",
-      columns: ["rut_owner"],
-      unique: true,
-    },
-  ],
-});
+@ChildEntity()
+export class Owner extends User {
+  @Column({ type: "varchar", length: 50, nullable: false })
+  nombre;
 
-export default Owner;
+  @Column({ type: "varchar", length: 50, nullable: false })
+  apellido;
+
+  @Column({ name: "qr_data", type: "varchar", length: 255, nullable: true })
+  qrData;
+
+  //permite que la relacion sea bidireccional 
+  @OneToMany(() => Store, (store) => store.owner)
+  stores;
+}
