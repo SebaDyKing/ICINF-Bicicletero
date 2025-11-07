@@ -1,80 +1,30 @@
-"use strict";
-import { EntitySchema } from "typeorm";
-import BicycleRack from "./bicycleRack.entity";
+import { Entity, ManyToOne, Column, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
+import { BicycleRack } from "./bicycleRack.entity.js";
+import { Bicycle } from "./bicycle.entity.js";
 
-const Store = new EntitySchema({
-  name: "Store",
-  tableName: "store",
-  columns: {
-    id_registro: {
-      type: "int",
-      primary: true,
-      generated: true,
-    },
-    tipo_movimiento: {
-      type: "varchar",
-      length: 50,
-      nullable: false, 
-    },
-    fecha: {
-      type: "datetime",
-      nullable: false,
-      default: () => "CURRENT_TIMESTAMP",
-    },
-    id_bicicletero: {
-      type: "int",
-      nullable: false,
-    },
-    rut_guardia: {
-      type: "varchar",
-      length: 15,
-      nullable: false,
-    },
-    id_bicicleta: {
-      type: "varchar",
-      length: 15,
-      nullable: false,
-    },
-  },
-  relations: {
-    BicycleRack: {
-      type: "many-to-one",
-      target: "bicycleRack",
-      joinColumn: {
-        name: "id_bicicletero",
-        referencedColumnName: "id_bicicletero"
-      },
-      inverseSide: "store",
-    },
-    guard: {
-      type: "many-to-one",
-      target: "guard",
-      joinColumn: {
-        name: "rut_guardia",
-        referencedColumnName: "rut_guardia"
-      },
-      inverseSide: "store",
-    },
-    bicycle: {
-      type: "many-to-one",
-      target: "bicycle",
-      joinColumn: {
-        name: "id_bicicleta",
-        referencedColumnName: "id_bicicleta"
-      },
-      inverseSide: "store",
-    },
-  },
-  indices: [
-    {
-      name: "IDX_ALMACEN_FECHA",
-      columns: ["fecha"],
-    },
-    {
-      name: "IDX_STORE_BICYCLE_RACK",
-      columns: ["id_bicicletero"],
-    },
-  ],
-});
+@Entity
+export class Store {
+  @PrimaryGeneratedColumn({ name: "id_registro" })
+  idRegistro;
 
-export default Almacenadas;
+  @Column({ name: "tipo_movimiento", type: "varchar", length: 10 })
+  tipoMovimiento;
+
+  @Column({ name: "fecha_salida", type: "timestamp", nullable: true })
+  fechaSalida;
+
+  @Column({ name: "fecha_ingreso", type: "timestamp", nullable: true })
+  fechaIngreso;
+
+  @ManyToOne(() => BicycleRack, bicycleRack => bicycleRack.stores)
+  @JoinColumn({ name: "id_bicicletero" })
+  bicycleRack;
+
+  @ManyToOne(() => Guard, guard => guard.stores)
+  @JoinColumn({ name: "id_bicicletero" })
+  guard;
+  
+  @ManyToOne(() => Bicycle, bicycle => bicycle.stores)
+  @JoinColumn({ name: "id_bicicletero" })
+  bicycle;
+}
