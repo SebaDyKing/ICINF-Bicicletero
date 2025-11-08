@@ -23,3 +23,21 @@ export async function getBicicletero(req, res) {
 }
 }
 
+export async function deleteBicicletero(req, res) {
+
+  try {
+    const bicicleteroRepository = AppDataSource.getRepository(bicycleRack);
+
+    const resultado = await bicicleteroRepository.delete(req.params.id);
+
+    if(resultado.affected === 0){
+      return handleErrorClient(res, 404, "Bicicletero no encontrado o ya eliminado");
+    }
+    handleSuccess(res, 200, "Bicicletero eliminado exitosamente", {
+      message: `El bicicletero con ID ${req.params.id} ha sido eliminado.`,
+    })
+
+  }catch(error){
+    return handleErrorServer(res, 500, "Error del servidor", error.message);
+  }
+}
