@@ -9,9 +9,6 @@ export class User {
   @Column({ type: "varchar", length: 100, nullable:false })
   email;
 
-  @Column({ type: "varchar", length: 20, nullable:false })
-  tipoUsuario;
-
   @Column({ type: "varchar", length: 254, nullable:false })
   contrasenia;
 

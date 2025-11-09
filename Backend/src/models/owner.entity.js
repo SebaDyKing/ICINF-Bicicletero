@@ -1,6 +1,6 @@
 import { ChildEntity, Column, OneToMany } from "typeorm";
 import { User } from "./user.entity.js";
-import { Store } from "./store.entity.js";
+import { Bicycle } from "./bicycle.entity.js";
 
 @ChildEntity()
 export class Owner extends User {
@@ -14,6 +14,6 @@ export class Owner extends User {
   qrData;
 
   //permite que la relacion sea bidireccional 
-  @OneToMany(() => Store, (store) => store.owner)
-  stores;
+  @OneToMany(() => Bicycle, bicycle => bicycle.owner)
+  bicycles;
 }
