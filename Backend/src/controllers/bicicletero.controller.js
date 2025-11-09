@@ -1,7 +1,17 @@
 import { AppDataSource } from "../../../../Ayudantias-ISW/Backend/src/config/configDb";
 import { handleSuccess,handleErrorClient,handleErrorServer } from "../../../../Ayudantias-ISW/Backend/src/Handlers/responseHandlers";
 import { bicycleRack } from "../entities/bicicletero.entity.js";
-
+import { validatePartialBicicletero } from "../validations/bicicletero.validations.js";
+/**
+ * @brief Obtiene todos los bicicleteros almacenados en la base de datos.
+ * 
+ * Esta función consulta el repositorio de bicicleteros y retorna una lista con los datos
+ * principales de cada uno. Si no se encuentran registros, devuelve un mensaje de error 404.
+ *
+ * @param {import("express").Request} req - Objeto de solicitud HTTP de Express.
+ * @param {import("express").Response} res - Objeto de respuesta HTTP de Express.
+ * @return {Promise<void>} Envía una respuesta JSON con la lista de bicicleteros o un mensaje de error.
+ */
 export async function getBicicletero(req, res) {
   try {
     const bicicleteroRepository = AppDataSource.getRepository(bicycleRack);
@@ -23,18 +33,122 @@ export async function getBicicletero(req, res) {
 }
 }
 
-export async function deleteBicicletero(req, res) {
 
+/**
+ * @brief Actualiza parcialmente los datos de un bicicletero existente.
+ * 
+ * Esta función permite modificar los campos de un bicicletero identificado por su ID,
+ * validando primero los datos recibidos. Si el bicicletero no existe o los datos son inválidos,
+ * devuelve una respuesta de error correspondiente.
+ *
+ * @param {import("express").Request} req - Objeto de solicitud HTTP de Express.
+ * @param {import("express").Response} res - Objeto de respuesta HTTP de Express.
+ * @return {Promise<void>} Envía una respuesta JSON con los datos actualizados o un mensaje de error.
+ */
+export async function updateBicicletero(req, res) {
   try {
+    const {error,value} = validatePartialBicicletero(req.body);
+
+    if(error){
+      const errorMessages = error.details.map((detail) => detail.message);
+      return handleErrorClient(res, 400, "Error de validación", errorMessages);
+    }
+
+    const bicicleteroId = req.params.id;
     const bicicleteroRepository = AppDataSource.getRepository(bicycleRack);
 
-    const resultado = await bicicleteroRepository.delete(req.params.id);
+    const bicicletero = await bicicleteroRepository.findOneBy({id: bicicleteroId});
+    if(!bicicletero){
+      return handleErrorClient(res, 404, "Bicicletero no encontrado");
+    }
+    Object.assign(bicicletero, value);
+
+    if(value.id && value.id !== bicicleteroId){
+      delete value.id;
+    }
+
+    await bicicleteroRepository.save(bicicletero);
+    handleSuccess(res, 200, "Bicicletero actualizado exitosamente", {
+      id: bicicletero.id,
+      name: bicicletero.name,
+      Latitud: bicicletero.Latitud,
+      Longitud: bicicletero.Longitud,
+      CapacidadMaxima: bicicletero.CapacidadMaxima,
+      imageURL: bicicletero.imageURL
+    });
+
+  }catch(error){
+    return handleErrorServer(res, 500, "Error del servidor", error.message);
+  }
+}
+
+
+/**
+ * @brief Crea un nuevo bicicletero en la base de datos.
+ * 
+ * Esta función recibe los datos del bicicletero desde el cuerpo de la solicitud (`req.body`),
+ * valida la información (si corresponde), y luego la guarda en la base de datos mediante el repositorio.
+ * Finalmente, retorna un mensaje de éxito con los datos del bicicletero creado.
+ *
+ * @param {import("express").Request} req - Objeto de solicitud HTTP de Express, que debe incluir en el cuerpo:
+ *   @param {string} req.body.name - Nombre del bicicletero.
+ *   @param {number} req.body.Latitud - Coordenada de latitud.
+ *   @param {number} req.body.Longitud - Coordenada de longitud.
+ *   @param {number} req.body.CapacidadMaxima - Número máximo de bicicletas que puede albergar.
+ *   @param {string} [req.body.imageURL] - URL de la imagen representativa del bicicletero.
+ * 
+ * @param {import("express").Response} res - Objeto de respuesta HTTP de Express.
+ * 
+ * @return {Promise<void>} Envía una respuesta JSON con los datos del bicicletero creado
+ * o un mensaje de error si ocurre algún problema en el servidor.
+ */
+export async function createBicicletero(req, res) {
+  const {error} = validatePartialBicicletero(req.body);
+
+  if(error){
+    const errorMessages = error.details.map((detail) => detail.message);
+    return handleErrorClient(res, 400, "Error de validación", errorMessages);
+  }
+  
+  try {
+    const bicicleteroRepository = AppDataSource.getRepository(bicycleRack);
+    const { name, Latitud, Longitud, CapacidadMaxima, imageURL } = req.body;
+
+    const newBicicletero = bicicleteroRepository.create({
+      name,
+      Latitud,
+      Longitud,
+      CapacidadMaxima,
+      imageURL
+    })
+
+    await bicicleteroRepository.save(newBicicletero);
+
+      handleSuccess(res, 201, "Bicicletero creado exitosamente", {
+        id: newBicicletero.id,
+        name: newBicicletero.name,
+        Latitud: newBicicletero.Latitud,
+        Longitud: newBicicletero.Longitud,
+        CapacidadMaxima: newBicicletero.CapacidadMaxima,
+        imageURL: newBicicletero.imageURL
+      })
+  }catch(error){
+    return handleErrorServer(res, 500, "Error del servidor", error.message);
+  }
+}
+
+export async function deleteBicicletero(req, res) {
+  try {
+    const bicicleteroRepository = AppDataSource.getRepository(bicycleRack);
+    const {id} = req.params;
+    
+    const resultado = await bicicleteroRepository.delete(id);
 
     if(resultado.affected === 0){
       return handleErrorClient(res, 404, "Bicicletero no encontrado o ya eliminado");
     }
     handleSuccess(res, 200, "Bicicletero eliminado exitosamente", {
-      message: `El bicicletero con ID ${req.params.id} ha sido eliminado.`,
+      message: `El bicicletero con ID ${id} ha sido eliminado.`,
     })
 
   }catch(error){
