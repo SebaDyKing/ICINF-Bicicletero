@@ -1,43 +1,57 @@
+// src/routes/guard.routes.js
 "use strict";
 import { Router } from "express";
-
 import {
-  getOwners,
   registrarIngreso,
   registrarRetiro,
-  getRegistrosActivos
+  getRegistrosActivos,
+  getCapacidadesBicicleteros
 } from "../controllers/guard.controller.js";
 
-import { authMiddleware, autorizeEntities } from "../middlewares/auth.middleware.js";
+// import { authMiddleware, autorizeEntities } from "../middlewares/auth.middleware.js";
+// (Importa las validaciones)
+// import { validateSchema } from "../middlewares/validate.middleware.js";
+// import { ... } from "../validations/store.validation.js";
 
 const router = Router();
 
-// --- Rutas para "Owners" ---
-router.get(
-  "/owners",
-  // authMiddleware,
-  // autorizeEntities("guard", "central"),
-  getOwners
-);
+// --- Rutas de Ingreso/Retiro  ---
 
-// --- Rutas para "Ingresos/Retiros" ---
+// POST /api/guards/ingreso
 router.post(
   "/ingreso",
   // authMiddleware,
   // autorizeEntities("guard"),
+  // validateSchema(ingresoSchema),
   registrarIngreso
 );
-router.post(
+
+// PUT /api/guards/retiro
+// (Usamos PUT porque estamos ACTUALIZANDO un registro existente)
+router.put(
   "/retiro",
   // authMiddleware,
   // autorizeEntities("guard"),
+  // validateSchema(retiroSchema),
   registrarRetiro
 );
+
+// --- Rutas de Consulta  ---
+
+// GET /api/guards/activos
 router.get(
   "/activos",
   // authMiddleware,
   // autorizeEntities("guard", "central"),
   getRegistrosActivos
+);
+
+// GET /api/guards/capacidades
+router.get(
+  "/capacidades",
+  // authMiddleware,
+  // autorizeEntities("guard", "owner", "central"), // Todos pueden ver esto
+  getCapacidadesBicicleteros
 );
 
 export default router;
