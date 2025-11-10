@@ -1,3 +1,4 @@
+
 import { Entity, PrimaryColumn, Column, TableInheritance } from "typeorm";
 
 @Entity()
@@ -15,3 +16,42 @@ export class User {
   @Column({ type: "varchar", length: 15, nullable:false })
   telefono;
 }
+
+/* 
+"use strict";
+import { EntitySchema } from "typeorm";
+
+export const User = new EntitySchema({
+  name: "User",
+  tableName: "user",
+
+  columns: {
+    rut: {
+      type: "varchar",
+      length: 12,
+      primary: true,
+      nullable: false,
+    },
+    email: {
+      type: "varchar",
+      length: 100,
+      nullable: false,
+    },
+    contrasenia: {
+      type: "varchar",
+      length: 254,
+      nullable: false,
+    },
+    telefono: {
+      type: "varchar",
+      length: 15,
+      nullable: false,
+    },
+  },
+
+  inheritance: {
+    pattern: "STI", 
+    column: { type: "varchar", name: "type" }, // Para diferenciar a los hijos
+  },
+});
+*/
