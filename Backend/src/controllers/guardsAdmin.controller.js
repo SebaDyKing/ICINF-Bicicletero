@@ -219,3 +219,30 @@ export const getGuard = async (req, res) => {
     }
 }
 
+export const getAllGuards = async (req, res) => {
+    //verifica que la bdd este iniciada
+    if (!AppDataSource.isInitialized) {
+        await AppDataSource.initialize();
+    }
+
+    // consulta SQL para ingresar a tabla Users
+    const query = `
+        SELECT
+        u.rut,
+        u.email,
+        u.telefono,
+        u.tipo_usuario,
+        g.nombre,
+        g.apellido
+        FROM users u JOIN guard g ON u.rut = g.rut
+    `;
+    try {
+        // Ejecuta consultas (consulta, valoresConsulta)
+        const resultQuery = await AppDataSource.query(query);
+        handleSucess(res, 200, "Usuario obtenido correctamente", {
+            resultQuery
+        });
+    } catch (error) {
+        return handleErrorServer(res, 500, "Error del servidor", error.message);
+    }
+}
