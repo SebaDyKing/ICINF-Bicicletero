@@ -108,7 +108,7 @@ export async function createBicicletero(req, res) {
   
   try {
     const bicicleteroRepository = AppDataSource.getRepository(BicycleRack);
-    const { nombre, latitud, longitud, capacidad_maxima,} = req.body;
+    const { nombre, latitud, longitud, capacidad_maxima,imagen} = req.body;
 
     const newBicicletero = bicicleteroRepository.create({
       nombre,
