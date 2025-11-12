@@ -9,7 +9,6 @@ import {
 } from "../controllers/guard.controller.js";
 
 // import { authMiddleware, autorizeEntities } from "../middlewares/auth.middleware.js";
-// (Importa las validaciones)
 // import { validateSchema } from "../middlewares/validate.middleware.js";
 // import { ... } from "../validations/store.validation.js";
 
@@ -50,7 +49,7 @@ router.get(
 router.get(
   "/capacidades",
   // authMiddleware,
-  // autorizeEntities("guard", "owner", "central"), // Todos pueden ver esto
+  // autorizeEntities("guard", "owner", "central"), 
   getCapacidadesBicicleteros
 );
 
