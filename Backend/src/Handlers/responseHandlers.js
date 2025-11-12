@@ -8,7 +8,7 @@
  * @return {void} - Envía la respuesta con los datos y el estado de éxito.
  */
 
-export const handleSucess = (res, statusCode, message, data = null) => {
+export const handleSuccess = (res, statusCode, message, data = null) => {
   res.status(statusCode).json({
     message,
     data,
