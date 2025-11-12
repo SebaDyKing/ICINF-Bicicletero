@@ -1,10 +1,13 @@
 import React from "react"
-import InfoMain from "./components/infoMain"
+import AppRoutes from "./routes/main.routes.jsx"
+import {BrowserRouter} from 'react-router-dom'
 function App() {
-
   return (
-    <InfoMain />
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   )
 }
 
-export default App
+export default App;
+
