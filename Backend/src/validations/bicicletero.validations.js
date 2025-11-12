@@ -1,4 +1,4 @@
-import Joi from 'Joi';
+import Joi from 'joi';
 
 /**
  * @brief Esquema de validación para los datos del bicicletero.
@@ -8,25 +8,29 @@ import Joi from 'Joi';
  * @return {Object} - Resultado de la validación con información sobre los errores, si los hay.
  */
 export const bicicleteroBodyValition = Joi.object({
-  name: Joi.string().min(3).required().messages({
+  nombre: Joi.string().min(3).required().messages({
     'string.base': `El campo nombre debe ser un texto`,
     'string.min': `El campo nombre debe tener al menos 3 caracteres`,
     'any.required': `El campo nombre es obligatorio`,
     'string.empty': `El campo nombre no puede estar vacío`,
   }),
-  Latitud: Joi.number().required().messages({
-    'number.base': `El campo Latitud debe ser un número`,
-    'any.required': `El campo Latitud es obligatorio`,
+  latitud: Joi.number().required().messages({
+    'number.base': `El campo latitud debe ser un número`,
+    'any.required': `El campo latitud es obligatorio`,
   }),
-  Longitud: Joi.number().required().messages({
-    'number.base': `El campo Longitud debe ser un número`,
-    'any.required': `El campo Longitud es obligatorio`,
+  longitud: Joi.number().required().messages({
+    'number.base': `El campo longitud debe ser un número`,
+    'any.required': `El campo longitud es obligatorio`,
   }),
-  CapacidadMaxima: Joi.number().required().messages({
-    'number.base': `El campo CapacidadMaxima debe ser un número`,
-    'any.required': `El campo CapacidadMaxima es obligatorio`,
+  capacidad_maxima: Joi.number().positive().required().messages({
+    'number.base': `El campo Capacidad Maxima debe ser un número`,
+    'any.required': `El campo Capacidad Maxima es obligatorio`,
+    'number.positive': `El campo Capacidad Maxima debe ser un número positivo`,
   }),
-})
+  imagen: Joi.string().uri().optional().messages({
+    'string.uri': `El campo imageURL debe ser una URL válida`
+  })
+});
 
 /**
  * @brief Función que valida los datos completos del bicicletero según el esquema definido.

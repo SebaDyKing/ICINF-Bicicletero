@@ -1,7 +1,8 @@
-import { AppDataSource } from "../../../../Ayudantias-ISW/Backend/src/config/configDb";
-import { handleSuccess,handleErrorClient,handleErrorServer } from "../../../../Ayudantias-ISW/Backend/src/Handlers/responseHandlers";
-import { bicycleRack } from "../entities/bicicletero.entity.js";
-import { validatePartialBicicletero } from "../validations/bicicletero.validations.js";
+import { AppDataSource } from "../config/configDb.js";
+import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
+import { BicycleRack } from "../models/bicycleRack.entity.js";
+import { bicicleteroBodyPartialValidation } from "../validations/bicicletero.validations.js";
+
 /**
  * @brief Obtiene todos los bicicleteros almacenados en la base de datos.
  * 
@@ -14,10 +15,10 @@ import { validatePartialBicicletero } from "../validations/bicicletero.validatio
  */
 export async function getBicicletero(req, res) {
   try {
-    const bicicleteroRepository = AppDataSource.getRepository(bicycleRack);
+    const bicicleteroRepository = AppDataSource.getRepository(BicycleRack);
 
     const bicicleteros = await bicicleteroRepository.find({
-      select: ["id", "name", "Latitud", "Longitud", "CapacidadMaxima","imageURL"],
+      select: ["id_bicicletero", "nombre", "latitud", "longitud", "capacidad_maxima","imagen"],
     });
 
     if(bicicleteros.length === 0){
@@ -47,7 +48,7 @@ export async function getBicicletero(req, res) {
  */
 export async function updateBicicletero(req, res) {
   try {
-    const {error,value} = validatePartialBicicletero(req.body);
+    const {error,value} = bicicleteroBodyPartialValidation(req.body);
 
     if(error){
       const errorMessages = error.details.map((detail) => detail.message);
@@ -55,17 +56,13 @@ export async function updateBicicletero(req, res) {
     }
 
     const bicicleteroId = req.params.id;
-    const bicicleteroRepository = AppDataSource.getRepository(bicycleRack);
+    const bicicleteroRepository = AppDataSource.getRepository(BicycleRack);
 
-    const bicicletero = await bicicleteroRepository.findOneBy({id: bicicleteroId});
+    const bicicletero = await bicicleteroRepository.findOneBy({id_bicicletero: bicicleteroId});
     if(!bicicletero){
       return handleErrorClient(res, 404, "Bicicletero no encontrado");
     }
     Object.assign(bicicletero, value);
-
-    if(value.id && value.id !== bicicleteroId){
-      delete value.id;
-    }
 
     await bicicleteroRepository.save(bicicletero);
     handleSuccess(res, 200, "Bicicletero actualizado exitosamente", {
@@ -74,7 +71,6 @@ export async function updateBicicletero(req, res) {
       Latitud: bicicletero.Latitud,
       Longitud: bicicletero.Longitud,
       CapacidadMaxima: bicicletero.CapacidadMaxima,
-      imageURL: bicicletero.imageURL
     });
 
   }catch(error){
@@ -103,7 +99,7 @@ export async function updateBicicletero(req, res) {
  * o un mensaje de error si ocurre algún problema en el servidor.
  */
 export async function createBicicletero(req, res) {
-  const {error} = validatePartialBicicletero(req.body);
+  const {error} = bicicleteroBodyPartialValidation(req.body);
 
   if(error){
     const errorMessages = error.details.map((detail) => detail.message);
@@ -111,26 +107,26 @@ export async function createBicicletero(req, res) {
   }
   
   try {
-    const bicicleteroRepository = AppDataSource.getRepository(bicycleRack);
-    const { name, Latitud, Longitud, CapacidadMaxima, imageURL } = req.body;
+    const bicicleteroRepository = AppDataSource.getRepository(BicycleRack);
+    const { nombre, latitud, longitud, capacidad_maxima,imagen} = req.body;
 
     const newBicicletero = bicicleteroRepository.create({
-      name,
-      Latitud,
-      Longitud,
-      CapacidadMaxima,
-      imageURL
+      nombre,
+      latitud,
+      longitud,
+      capacidad_maxima,
+      imagen,
     })
 
     await bicicleteroRepository.save(newBicicletero);
 
       handleSuccess(res, 201, "Bicicletero creado exitosamente", {
-        id: newBicicletero.id,
-        name: newBicicletero.name,
-        Latitud: newBicicletero.Latitud,
-        Longitud: newBicicletero.Longitud,
-        CapacidadMaxima: newBicicletero.CapacidadMaxima,
-        imageURL: newBicicletero.imageURL
+      id_bicicletero: newBicicletero.id_bicicletero,
+      nombre: newBicicletero.nombre,
+      latitud: newBicicletero.latitud,
+      longitud: newBicicletero.longitud,
+      capacidad_maxima: newBicicletero.capacidad_maxima,
+      imagen: newBicicletero.imagen,
       })
   }catch(error){
     return handleErrorServer(res, 500, "Error del servidor", error.message);
@@ -139,10 +135,10 @@ export async function createBicicletero(req, res) {
 
 export async function deleteBicicletero(req, res) {
   try {
-    const bicicleteroRepository = AppDataSource.getRepository(bicycleRack);
+    const bicicleteroRepository = AppDataSource.getRepository(BicycleRack);
     const {id} = req.params;
     
-    const resultado = await bicicleteroRepository.delete(id);
+    const resultado = await bicicleteroRepository.delete({ id_bicicletero: id });
 
     if(resultado.affected === 0){
       return handleErrorClient(res, 404, "Bicicletero no encontrado o ya eliminado");
