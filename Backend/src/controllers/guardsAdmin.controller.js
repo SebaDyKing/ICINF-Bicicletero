@@ -73,3 +73,36 @@ export const createGuard = async (req, res) => {
         return handleErrorServer(res, 500, "Error del servidor", error.message);
     }
 }
+
+export const deleteGuard = async (req, res) => {
+    const {rut} = req.body
+
+    if (!AppDataSource.isInitialized) {
+        await AppDataSource.initialize();
+    }
+    const user = AppDataSource.getRepository(Users);
+    const isValid = await user.findOneBy({rut});
+    if (!isValid) return handleErrorClient(res, 404, `El RUT ${rut} no se encuentra registrado.`);
+
+    const queryUsers = `
+        DELETE from users WHERE rut = ($1)
+        RETURNING *;
+    `;
+
+    const queryGuard = `
+        DELETE from guard WHERE rut = ($1)
+        RETURNING *;
+    `;
+
+    try {      
+        const resultUsers = await AppDataSource.query(queryUsers, [rut]);  
+        const resultGuard = await AppDataSource.query(queryGuard, [rut]);
+        
+        // Si usaste RETURNING *, rawResult[0] contendrá el objeto insertado.
+        console.log(resultGuard[0]); 
+        handleSucess(res, 200, "Guardia eliminado exitosamente");
+    } catch (error) {
+        return handleErrorServer(res, 500, "Error del servidor", error.message);
+    }
+}
+
