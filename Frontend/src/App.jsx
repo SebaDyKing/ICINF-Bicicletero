@@ -13,6 +13,7 @@ function App() {
     <div>
       <Header />
       <HeroCarousel />
+      {/*sospechocho <CardBicycleRack />*/}
       <InfoMain />
       <BusquedaIncidente />
     </div>
