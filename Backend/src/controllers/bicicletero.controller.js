@@ -18,7 +18,7 @@ export async function getBicicletero(req, res) {
     const bicicleteroRepository = AppDataSource.getRepository(BicycleRack);
 
     const bicicleteros = await bicicleteroRepository.find({
-      select: ["id", "name", "Latitud", "Longitud", "CapacidadMaxima","imageURL"],
+      select: ["id_bicicletero", "nombre", "latitud", "longitud", "capacidad_maxima","imagen"],
     });
 
     if(bicicleteros.length === 0){
@@ -58,15 +58,11 @@ export async function updateBicicletero(req, res) {
     const bicicleteroId = req.params.id;
     const bicicleteroRepository = AppDataSource.getRepository(BicycleRack);
 
-    const bicicletero = await bicicleteroRepository.findOneBy({id: bicicleteroId});
+    const bicicletero = await bicicleteroRepository.findOneBy({id_bicicletero: bicicleteroId});
     if(!bicicletero){
       return handleErrorClient(res, 404, "Bicicletero no encontrado");
     }
     Object.assign(bicicletero, value);
-
-    if(value.id && value.id !== bicicleteroId){
-      delete value.id;
-    }
 
     await bicicleteroRepository.save(bicicletero);
     handleSuccess(res, 200, "Bicicletero actualizado exitosamente", {
@@ -112,13 +108,14 @@ export async function createBicicletero(req, res) {
   
   try {
     const bicicleteroRepository = AppDataSource.getRepository(BicycleRack);
-    const { nombre, latitud, longitud, capacidad_maxima} = req.body;
+    const { nombre, latitud, longitud, capacidad_maxima,} = req.body;
 
     const newBicicletero = bicicleteroRepository.create({
       nombre,
       latitud,
       longitud,
       capacidad_maxima,
+      imagen,
     })
 
     await bicicleteroRepository.save(newBicicletero);
@@ -129,6 +126,7 @@ export async function createBicicletero(req, res) {
       latitud: newBicicletero.latitud,
       longitud: newBicicletero.longitud,
       capacidad_maxima: newBicicletero.capacidad_maxima,
+      imagen: newBicicletero.imagen,
       })
   }catch(error){
     return handleErrorServer(res, 500, "Error del servidor", error.message);
@@ -140,7 +138,7 @@ export async function deleteBicicletero(req, res) {
     const bicicleteroRepository = AppDataSource.getRepository(BicycleRack);
     const {id} = req.params;
     
-    const resultado = await bicicleteroRepository.delete(id);
+    const resultado = await bicicleteroRepository.delete({ id_bicicletero: id });
 
     if(resultado.affected === 0){
       return handleErrorClient(res, 404, "Bicicletero no encontrado o ya eliminado");
