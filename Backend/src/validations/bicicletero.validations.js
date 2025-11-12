@@ -22,9 +22,10 @@ export const bicicleteroBodyValition = Joi.object({
     'number.base': `El campo longitud debe ser un número`,
     'any.required': `El campo longitud es obligatorio`,
   }),
-  capacidad_maxima: Joi.number().required().messages({
-    'number.base': `El campo capacidad_maxima debe ser un número`,
-    'any.required': `El campo capacidad_maxima es obligatorio`,
+  capacidad_maxima: Joi.number().positive().required().messages({
+    'number.base': `El campo Capacidad Maxima debe ser un número`,
+    'any.required': `El campo Capacidad Maxima es obligatorio`,
+    'number.positive': `El campo Capacidad Maxima debe ser un número positivo`,
   }),
   imagen: Joi.string().uri().optional().messages({
     'string.uri': `El campo imageURL debe ser una URL válida`
