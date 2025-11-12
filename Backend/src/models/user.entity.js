@@ -1,30 +1,17 @@
-
-import { Entity, PrimaryColumn, Column, TableInheritance } from "typeorm";
-
-@Entity()
-@TableInheritance({ column: { type: "varchar", name: "type" } })
-export class User {
-  @PrimaryColumn({ type: "varchar", length: 12, nullable:false })
-  rut;
-
-  @Column({ type: "varchar", length: 100, nullable:false })
-  email;
-
-  @Column({ type: "varchar", length: 254, nullable:false })
-  contrasenia;
-
-  @Column({ type: "varchar", length: 15, nullable:false })
-  telefono;
-}
-
-/* 
 "use strict";
 import { EntitySchema } from "typeorm";
 
-export const User = new EntitySchema({
-  name: "User",
-  tableName: "user",
+export const Users = new EntitySchema({
+  name: "Users",
+  tableName: "users",
 
+  inheritance: {
+    pattern: "CTI",
+    column: {
+      name: "tipoUsuario",
+      type: "varchar",
+    },
+  },
   columns: {
     rut: {
       type: "varchar",
@@ -47,11 +34,9 @@ export const User = new EntitySchema({
       length: 15,
       nullable: false,
     },
-  },
-
-  inheritance: {
-    pattern: "STI", 
-    column: { type: "varchar", name: "type" }, // Para diferenciar a los hijos
+    Tipo_De_Usuario: {
+      type: "varchar",
+      nullable: false,
+    },
   },
 });
-*/
