@@ -106,3 +106,68 @@ export const deleteGuard = async (req, res) => {
     }
 }
 
+export const updateGuard = async (req, res) => {
+    const {rut, email, contrasenia, telefono} = req.body
+
+    // const {error} = validateGuardBody(rut, email, contrasenia, telefono, nombre, apellido);
+    
+        // if(error){
+        //   const errorMessages = error.details.map((detail) => detail.message);
+        //   return handleErrorClient(res, 400, "Error de validación", errorMessages);
+        // }
+    
+    //verifica que la bdd este iniciada
+    if (!AppDataSource.isInitialized) {
+        await AppDataSource.initialize();
+    }
+
+    const user = AppDataSource.getRepository(Users);
+    const isValid = await user.findOneBy({rut});
+    if (!isValid) return handleErrorClient(res, 404, `El RUT ${rut} no se encuentra registrado.`);
+
+    // consulta SQL para ingresar a tabla Users
+    const queryUsers = `
+        UPDATE users SET email = $2, contrasenia = $3, telefono = $4
+        WHERE rut = $1
+        RETURNING *; -- Para obtener el registro insertado
+    `;
+
+    //consulta SQL para ingresar a guardia
+    const queryGuard = `
+        UPDATE users SET email = $2, contrasenia = $3, telefono = $4
+        WHERE rut = $1
+        RETURNING *; -- Para obtener el registro insertado
+    `;
+    
+    // Crea el array de valores en el mismo orden que los marcadores de posición
+    const valuesUsers = [
+        rut,
+        email,
+        contrasenia,
+        telefono
+    ];
+
+    const valuesGuards = [
+        rut,
+        email,
+        contrasenia,
+        telefono
+    ];
+
+    try {
+        // Ejecuta consultas (consulta, valoresConsulta)
+        const resultUsers = await AppDataSource.query(queryUsers, valuesUsers);
+        const resultGuard = await AppDataSource.query(queryGuard, valuesGuards);
+
+        console.log(resultGuard[0]); 
+        handleSucess(res, 200, "Guardia actualizado exitosamente", {
+              rut,
+              email,
+              contrasenia,
+              telefono
+            });
+    } catch (error) {
+        return handleErrorServer(res, 500, "Error del servidor", error.message);
+    }
+}
+
