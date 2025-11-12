@@ -4,15 +4,14 @@ import {BrowserRouter} from 'react-router-dom'
 import {BusquedaIncidente } from './components/BusquedaIncidente'
 import HeroCarousel from './components/HeroCarousel'
 import {CardBicycleRack} from './components/CardBicycleRack'
+import InfoMain from "./components/InfoMain.jsx"
 
 function App() {
   return (
     <>
     <div> 
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
       <HeroCarousel />
+      <InfoMain />
       <BusquedaIncidente />
     </div>
     </>
