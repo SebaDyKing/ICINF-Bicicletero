@@ -3,7 +3,6 @@
 import { Router } from "express";
 import guardRouter from "./guard.routes.js";
 import guardsAdmin from './guardsAdmin.routes.js'
-import guardsAdmin from './guardsAdmin.routes.js'
 
 export function routerApi(app) {
   const router = Router();
