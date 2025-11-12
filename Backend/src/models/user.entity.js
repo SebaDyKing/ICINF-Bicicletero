@@ -8,7 +8,7 @@ export const Users = new EntitySchema({
   inheritance: {
     pattern: "CTI",
     column: {
-      name: "tipoUsuario",
+      name: "tipo_usuario",
       type: "varchar",
     },
   },
@@ -34,7 +34,7 @@ export const Users = new EntitySchema({
       length: 15,
       nullable: false,
     },
-    Tipo_De_Usuario: {
+    tipo_usuario: {
       type: "varchar",
       nullable: false,
     },

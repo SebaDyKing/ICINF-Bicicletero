@@ -5,10 +5,11 @@ import { AppDataSource } from "../config/configDb.js";
 import { Store } from "../models/store.entity.js";
 import { BicycleRack } from "../models/bicycleRack.entity.js";
 import { 
-  handleSucess, 
+  handleSuccess, 
   handleErrorClient, 
   handleErrorServer 
-} from "../handlers/responseHandlers.js";
+} from "../Handlers/responseHandlers.js";
+
 import { IsNull } from "typeorm";
 import { 
   validateIngresoBody, 
@@ -50,7 +51,7 @@ export const registrarIngreso = async (req, res) => {
     });
 
     await storeRepository.save(nuevoIngreso);
-    handleSucess(res, 201, "Ingreso registrado exitosamente.", nuevoIngreso);
+    handleSuccess(res, 201, "Ingreso registrado exitosamente.", nuevoIngreso);
 
   } catch (error) {
     handleErrorServer(res, 500, "Error al registrar el ingreso.", error.message);
@@ -85,7 +86,7 @@ export const registrarRetiro = async (req, res) => {
     registro.tipoMovimiento = "Salida";
 
     await storeRepository.save(registro);
-    handleSucess(res, 200, "Retiro registrado exitosamente.", registro);
+    handleSuccess(res, 200, "Retiro registrado exitosamente.", registro);
 
   } catch (error) {
     handleErrorServer(res, 500, "Error al registrar el retiro.", error.message);
