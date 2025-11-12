@@ -1,5 +1,5 @@
 import { AppDataSource } from "../config/configDb.js";
-import {handleErrorClient, handleErrorServer, handleSucess} from '../Handlers/responseHandlers.js'
+import {handleErrorClient, handleErrorServer, handleSuccess} from '../Handlers/responseHandlers.js'
 import {Users} from '../models/user.entity.js'
 import {guardBodyPartialValidation, validateGuardBody} from '../validations/guardia.validations.js'
 import bcrypt from 'bcrypt'
@@ -64,7 +64,7 @@ export const createGuard = async (req, res) => {
         const resultGuard = await AppDataSource.query(queryGuard, valuesGuards);
 
         console.log(resultGuard[0]); 
-        handleSucess(res, 200, "Guardia creado exitosamente", {
+        handleSuccess(res, 200, "Guardia creado exitosamente", {
               rut,
               nombre,
               apellido
@@ -106,7 +106,7 @@ export const deleteGuard = async (req, res) => {
         
         // Si usaste RETURNING *, rawResult[0] contendrá el objeto insertado.
         console.log(resultGuard[0]); 
-        handleSucess(res, 200, "Guardia eliminado exitosamente");
+        handleSuccess(res, 200, "Guardia eliminado exitosamente");
     } catch (error) {
         return handleErrorServer(res, 500, "Error del servidor", error.message);
     }
@@ -166,7 +166,7 @@ export const updateGuard = async (req, res) => {
         const resultGuard = await AppDataSource.query(queryGuard, valuesGuards);
 
         console.log(resultGuard[0]); 
-        handleSucess(res, 200, "Guardia actualizado exitosamente", {
+        handleSuccess(res, 200, "Guardia actualizado exitosamente", {
               rut,
               email,
               contrasenia,
@@ -212,7 +212,7 @@ export const getGuard = async (req, res) => {
         // Ejecuta consultas (consulta, valoresConsulta)
         const resultQuery = await AppDataSource.query(query, [rut]);
         console.log(resultQuery)
-        handleSucess(res, 200, "Usuario obtenido correctamente", {
+        handleSuccess(res, 200, "Usuario obtenido correctamente", {
             rut: resultQuery[0].rut,
             nombre: resultQuery[0].nombre,
             apellido: resultQuery[0].apellido,
@@ -245,7 +245,7 @@ export const getAllGuards = async (req, res) => {
     try {
         // Ejecuta consultas (consulta, valoresConsulta)
         const resultQuery = await AppDataSource.query(query);
-        handleSucess(res, 200, "Usuarios obtenido correctamente", {
+        handleSuccess(res, 200, "Usuarios obtenido correctamente", {
             resultQuery
         });
     } catch (error) {
