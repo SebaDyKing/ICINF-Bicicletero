@@ -1,4 +1,4 @@
-import Joi from 'Joi'
+import Joi from 'joi'
 
 /**
  * @brief Middleware de validación de datos para el registro de guardias.
@@ -8,6 +8,14 @@ import Joi from 'Joi'
  * @return {Object} - El resultado de la validación, con detalles de los errores si los hay.
  */
 export const guardBodyValition = Joi.object({
+  rut : Joi.string().required().min(8).max(12).pattern(/^(\d{1,2}\.\d{3}\.\d{3}-[\dkK]|\d{7,8}-[\dkK])$/).required().messages({
+    'string.base': `El campo rut debe ser un texto`,
+    'string.min': `El campo rut debe tener al menos 8 caracteres`,
+    'string.max': `El campo rut no debe exceder los 12 caracteres`,
+    'any.required': `El campo rut es obligatorio`,
+    'string.empty': `El campo rut no puede estar vacío`,
+    'string.pattern.base': `El formato del rut no es válido`,
+  }),
   name: Joi.string().min(3).required().messages({
     'string.base': `El campo nombre debe ser un texto`,
     'string.min': `El campo nombre debe tener al menos 3 caracteres`,

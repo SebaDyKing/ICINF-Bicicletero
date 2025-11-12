@@ -1,12 +1,15 @@
 
 import {BusquedaIncidente } from './components/BusquedaIncidente'
-import { SolicitarButton } from './components/SolicitarButton'
+import HeroCarousel from './components/HeroCarousel'
+import {CardBicycleRack} from './components/CardBicycleRack'
 
 function App() {
 
   return (
     <>
-    <div>
+    <div> 
+      
+      <HeroCarousel />
       <BusquedaIncidente />
     </div>
     </>
