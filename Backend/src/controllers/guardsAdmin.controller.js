@@ -1,20 +1,19 @@
 import { AppDataSource } from "../config/configDb.js";
 import {handleErrorClient, handleErrorServer, handleSucess} from '../Handlers/responseHandlers.js'
 import {Users} from '../models/user.entity.js'
-import {guardBodyValition, validateGuardBody} from '../validations/guardia.validations.js'
+import {guardBodyPartialValidation, validateGuardBody} from '../validations/guardia.validations.js'
 import bcrypt from 'bcrypt'
 import {config} from 'dotenv'
 config()
 
 export const createGuard = async (req, res) => {
-    const {rut, email, contrasenia, telefono, tipo_usuario, nombre, apellido} = req.body
+    const {rut, email, contrasenia, telefono, nombre, apellido} = req.body
 
-    // const {error} = validateGuardBody(rut, email, contrasenia, telefono, nombre, apellido);
-    
-        // if(error){
-        //   const errorMessages = error.details.map((detail) => detail.message);
-        //   return handleErrorClient(res, 400, "Error de validación", errorMessages);
-        // }
+    const {error} = validateGuardBody(req.body)
+    if (error) {
+        const errorMessages = error.details.map((detail) => detail.message)
+        return handleErrorClient(res, 400, "Error de validación", errorMessages)
+    }
     
     //verifica que la bdd este iniciada
     if (!AppDataSource.isInitialized) {
@@ -44,6 +43,7 @@ export const createGuard = async (req, res) => {
     const hashedPassword = await bcrypt.hash(contrasenia, parseInt(process.env.HSH_VALUE))
     
     // Crea el array de valores en el mismo orden que los marcadores de posición
+    const tipo_usuario = 'guardia'
     const valuesUsers = [
         rut,
         email,
@@ -76,6 +76,12 @@ export const createGuard = async (req, res) => {
 
 export const deleteGuard = async (req, res) => {
     const {rut} = req.body
+
+    // const {error} = validateGuardBody(req.body)
+    // if (error) {
+    //     const errorMessages = error.details.map((detail) => detail.message)
+    //     return handleErrorClient(res, 400, "Error de validación", errorMessages)
+    // }
 
     if (!AppDataSource.isInitialized) {
         await AppDataSource.initialize();
@@ -239,7 +245,7 @@ export const getAllGuards = async (req, res) => {
     try {
         // Ejecuta consultas (consulta, valoresConsulta)
         const resultQuery = await AppDataSource.query(query);
-        handleSucess(res, 200, "Usuario obtenido correctamente", {
+        handleSucess(res, 200, "Usuarios obtenido correctamente", {
             resultQuery
         });
     } catch (error) {
