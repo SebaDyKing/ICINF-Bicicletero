@@ -171,3 +171,51 @@ export const updateGuard = async (req, res) => {
     }
 }
 
+export const getGuard = async (req, res) => {
+    const {rut} = req.body
+
+    // const {error} = validateGuardBody(rut, email, contrasenia, telefono, nombre, apellido);
+    
+        // if(error){
+        //   const errorMessages = error.details.map((detail) => detail.message);
+        //   return handleErrorClient(res, 400, "Error de validación", errorMessages);
+        // }
+    
+    //verifica que la bdd este iniciada
+    if (!AppDataSource.isInitialized) {
+        await AppDataSource.initialize();
+    }
+
+    const user = AppDataSource.getRepository(Users);
+    const isValid = await user.findOneBy({rut});
+    if (!isValid) return handleErrorClient(res, 404, `El RUT ${rut} no se encuentra registrado.`);
+
+    // consulta SQL para ingresar a tabla Users
+    const query = `
+        SELECT
+        u.rut,
+        u.email,
+        u.telefono,
+        u.tipo_usuario,
+        g.nombre,
+        g.apellido
+        FROM users u JOIN guard g ON u.rut = g.rut
+        WHERE u.rut = $1;
+    `;
+    try {
+        // Ejecuta consultas (consulta, valoresConsulta)
+        const resultQuery = await AppDataSource.query(query, [rut]);
+        console.log(resultQuery)
+        handleSucess(res, 200, "Usuario obtenido correctamente", {
+            rut: resultQuery[0].rut,
+            nombre: resultQuery[0].nombre,
+            apellido: resultQuery[0].apellido,
+            correo: resultQuery[0].email,
+            telefono: resultQuery[0].telefono,
+            tipo_usuario: resultQuery[0].tipo_usuario
+        });
+    } catch (error) {
+        return handleErrorServer(res, 500, "Error del servidor", error.message);
+    }
+}
+
