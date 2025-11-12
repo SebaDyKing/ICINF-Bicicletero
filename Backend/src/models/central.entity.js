@@ -1,7 +1,17 @@
-import { Entity, ChildEntity } from "typeorm";
-import { User } from "./user.entity.js";
+"use strict";
+import { EntitySchema } from "typeorm";
 
-@ChildEntity()
-export class Central extends User {
-  //Hereda todas los campos de User
-}
+export const Central = new EntitySchema({
+  name: "Central",
+  tableName: "central",
+  extends: "Users",
+
+  columns: {
+    rut: {
+      type: "varchar",
+      length: 12,
+      primary: true,
+      nullable: false,
+    },
+  },
+});

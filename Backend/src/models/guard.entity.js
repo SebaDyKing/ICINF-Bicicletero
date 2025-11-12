@@ -1,15 +1,35 @@
-import { ChildEntity, Column, OneToMany } from "typeorm";
-import { User } from "./user.entity.js";
-import { Store } from "./store.entity.js";
+"use strict";
+import { EntitySchema } from "typeorm";
 
-@ChildEntity()
-export class Guard extends User {
-  @Column({type: 'varchar', length:50, nullable:false})
-  nombre;
+export const Guard = new EntitySchema({
+  name: "Guard",
+  tableName: "guard",
+  extends: "Users",
 
-  @Column({type: 'varchar', length:50, nullable:false})
-  apellido;
+  columns: {
+    rut: {
+      type: "varchar",
+      length: 12,
+      primary: true,
+      nullable: false,
+    },
+    nombre: {
+      type: "varchar",
+      length: 50,
+      nullable: false,
+    },
+    apellido: {
+      type: "varchar",
+      length: 50,
+      nullable: false,
+    },
+  },
 
-  @OneToMany(() => Store, store => store.guard) 
-  stores;
-}
+  relations: {
+    stores: {
+      type: "one-to-many",
+      target: "Store",
+      inverseSide: "guard",
+    },
+  },
+});

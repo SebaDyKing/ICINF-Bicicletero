@@ -1,19 +1,41 @@
-import { ChildEntity, Column, OneToMany } from "typeorm";
-import { User } from "./user.entity.js";
-import { Bicycle } from "./bicycle.entity.js";
+"use strict";
+import { EntitySchema } from "typeorm";
 
-@ChildEntity()
-export class Owner extends User {
-  @Column({ type: "varchar", length: 50, nullable: false })
-  nombre;
+export const Owner = new EntitySchema({
+  name: "Owner",
+  tableName: "owner",
+  extends: "Users",
 
-  @Column({ type: "varchar", length: 50, nullable: false })
-  apellido;
+  columns: {
+    rut: {
+      type: "varchar",
+      length: 12,
+      primary: true,
+      nullable: false,
+    },
+    nombre: {
+      type: "varchar",
+      length: 50,
+      nullable: false,
+    },
+    apellido: {
+      type: "varchar",
+      length: 50,
+      nullable: false,
+    },
+    qrData: {
+      name: "qr_data",
+      type: "varchar",
+      length: 255,
+      nullable: true,
+    },
+  },
 
-  @Column({ name: "qr_data", type: "varchar", length: 255, nullable: true })
-  qrData;
-
-  //permite que la relacion sea bidireccional 
-  @OneToMany(() => Bicycle, bicycle => bicycle.owner)
-  bicycles;
-}
+  relations: {
+    bicycles: {
+      type: "one-to-many",
+      target: "Bicycle",
+      inverseSide: "owner",
+    },
+  },
+});

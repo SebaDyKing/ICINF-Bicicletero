@@ -1,23 +1,40 @@
-import {Column, JoinColumn, ManyToOne, OneToMany, PrimaryColumn, Entity } from "typeorm";
-import { Owner } from "./owner.entity.js";
-import { Store } from "./store.entity.js";
+"use strict";
+import { EntitySchema } from "typeorm";
 
-@Entity()
-export class Bicycle {
-  @PrimaryColumn({ type: "varchar", length: 15 })
-  id_bicicleta;
+export const Bicycle = new EntitySchema({
+  name: "Bicycle",
+  tableName: "bicycle",
 
-  @Column({ type: "varchar", length: 30 })
-  color;
+  columns: {
+    id_bicicleta: {
+      type: "varchar",
+      length: 15,
+      primary: true,
+    },
+    color: {
+      type: "varchar",
+      length: 30,
+    },
+    modelo: {
+      type: "varchar",
+      length: 50,
+    },
+  },
 
-  @Column({ type: "varchar", length: 50 })
-  modelo;
-
-  //Relaciones
-  @ManyToOne(() => Owner, owner => owner.bicycles)
-  @JoinColumn({ name: "rut_duenio", referencedColumnName: "rut" })
-  owner;
-
-  @OneToMany(() => Store, store => store.bicycle)
-  stores;
-}
+  relations: {
+    owner: {
+      type: "many-to-one",
+      target: "Owner",
+      inverseSide: "bicycles",
+      joinColumn: {
+        name: "rut_duenio",
+        referencedColumnName: "rut",
+      },
+    },
+    stores: {
+      type: "one-to-many",
+      target: "Store",
+      inverseSide: "bicycle",
+    },
+  },
+});
