@@ -1,4 +1,4 @@
-import Joi from 'Joi'
+import Joi from 'joi'
 
 /**
  * @brief Middleware de validación de datos para el registro de guardias.
@@ -8,20 +8,28 @@ import Joi from 'Joi'
  * @return {Object} - El resultado de la validación, con detalles de los errores si los hay.
  */
 export const guardBodyValition = Joi.object({
-  name: Joi.string().min(3).required().messages({
+  rut : Joi.string().required().min(8).max(12).pattern(/^(\d{1,2}\.\d{3}\.\d{3}-[\dkK]|\d{7,8}-[\dkK])$/).required().messages({
+    'string.base': `El campo rut debe ser un texto`,
+    'string.min': `El campo rut debe tener al menos 8 caracteres`,
+    'string.max': `El campo rut no debe exceder los 12 caracteres`,
+    'any.required': `El campo rut es obligatorio`,
+    'string.empty': `El campo rut no puede estar vacío`,
+    'string.pattern.base': `El formato del rut no es válido`,
+  }),
+  nombre: Joi.string().min(3).required().messages({
     'string.base': `El campo nombre debe ser un texto`,
     'string.min': `El campo nombre debe tener al menos 3 caracteres`,
     'any.required': `El campo nombre es obligatorio`,
     'string.empty': `El campo nombre no puede estar vacío`,
   }),
 
-  lastName: Joi.string().min(3).required().messages({
+  apellido: Joi.string().min(3).required().messages({
     'string.base': `El campo apellido debe ser un texto`,
     'any.required': `El campo apellido es obligatorio`,
     'string.empty': `El campo apellido no puede estar vacío`,
     'string.min': `El campo apellido debe tener al menos 3 caracteres`}),
 
-  phone: Joi.string().min(7).max(15).required().message({
+  telefono: Joi.string().min(7).max(15).required().messages({
     'string.base': `El campo teléfono debe ser un texto`,
     'string.min': `El campo teléfono debe tener al menos 7 caracteres`,
     'string.max': `El campo teléfono no debe exceder los 15 caracteres`,
@@ -34,7 +42,7 @@ export const guardBodyValition = Joi.object({
     'any.required': `El campo correo electrónico es obligatorio`,
     'string.empty': `El campo correo electrónico no puede estar vacío`,
   }),
-  password: Joi.string().min(6).required().messages({
+  contrasenia: Joi.string().min(6).required().messages({
     'string.base': `El campo contraseña debe ser un texto`,
     'string.min': `El campo contraseña debe tener al menos 6 caracteres`,
     'any.required': `El campo contraseña es obligatorio`,
