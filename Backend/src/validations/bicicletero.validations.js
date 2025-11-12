@@ -26,7 +26,7 @@ export const bicicleteroBodyValition = Joi.object({
     'number.base': `El campo capacidad_maxima debe ser un número`,
     'any.required': `El campo capacidad_maxima es obligatorio`,
   }),
-  imageURL: Joi.string().uri().optional().messages({
+  imagen: Joi.string().uri().optional().messages({
     'string.uri': `El campo imageURL debe ser una URL válida`
   })
 });
