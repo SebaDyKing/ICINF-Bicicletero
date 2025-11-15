@@ -179,12 +179,11 @@ export const updateGuard = async (req, res) => {
 export const getGuard = async (req, res) => {
     const {rut} = req.body
 
-    // const {error} = validateGuardBody(rut, email, contrasenia, telefono, nombre, apellido);
-    
-        // if(error){
-        //   const errorMessages = error.details.map((detail) => detail.message);
-        //   return handleErrorClient(res, 400, "Error de validación", errorMessages);
-        // }
+    const {error} = guardBodyPartialValidation({rut})
+    if (error) {
+        const errorMessages = error.details.map((detail) => detail.message)
+        return handleErrorClient(res, 400, "Error de validación", errorMessages)
+    }
     
     //verifica que la bdd este iniciada
     if (!AppDataSource.isInitialized) {
