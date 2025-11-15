@@ -236,8 +236,7 @@ export const getAllGuards = async (req, res) => {
         u.telefono,
         u.tipo_usuario,
         g.nombre,
-        g.apellido,
-        u.contrasenia
+        g.apellido
         FROM users u JOIN guard g ON u.rut = g.rut
     `;
     try {
