@@ -1,9 +1,10 @@
+"use strict";
 import "dotenv/config";
 import express from "express";
 import morgan from "morgan";
-import { connectDB } from "./config/configDB.js";
+import { connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
-import { port } from "./Backend/src/config/configEnv.js"
+import { port } from "./config/configEnv.js"
 
 const app = express();
 app.use(express.json());
