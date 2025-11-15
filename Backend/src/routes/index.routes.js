@@ -10,8 +10,8 @@ import authRoutes from '../routes/auth.routes.js'
 export function routerApi(app) {
   const router = Router();
   app.use("/api", router);
-  //falta rutas auth
   router.use('/auth', authRoutes)
+  
   //Conecta el router de guardia a /api/guards
   router.use("/guards", guardRouter);
   router.use('/guardsAdmin', guardsAdmin)

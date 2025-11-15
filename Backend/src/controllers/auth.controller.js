@@ -11,10 +11,11 @@ export const loginUser = async (req, res) => {
     const {rut, contrasenia} = req.body
 
     try{
-        // 1. Validaciones de formato
         if (!AppDataSource.isInitialized) {
             await AppDataSource.initialize();
         }
+
+        // 1. Validaciones de formato
         let validation = guardBodyPartialValidation({rut})
         if (validation.error) {
             const errorMessages = validation.error.details.map((detail) => detail.message)
@@ -34,7 +35,6 @@ export const loginUser = async (req, res) => {
         if (!userFound) return handleErrorClient(res, 404, `El rut ${rut} no se encuentra registrado.`);
 
         //  3. Validar contraseña
-        console.log(contrasenia, user.contrasenia)
         const isValidPass = await bcrypt.compare(contrasenia, userFound.contrasenia)
         if(!isValidPass) throw new Error('Login fallido. Contraseña incorrecta')
 
