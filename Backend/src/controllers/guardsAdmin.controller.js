@@ -76,12 +76,11 @@ export const createGuard = async (req, res) => {
 
 export const deleteGuard = async (req, res) => {
     const {rut} = req.body
-
-    // const {error} = validateGuardBody(req.body)
-    // if (error) {
-    //     const errorMessages = error.details.map((detail) => detail.message)
-    //     return handleErrorClient(res, 400, "Error de validación", errorMessages)
-    // }
+    const {error} = guardBodyPartialValidation({rut})
+    if (error) {
+        const errorMessages = error.details.map((detail) => detail.message)
+        return handleErrorClient(res, 400, "Error de validación", errorMessages)
+    }
 
     if (!AppDataSource.isInitialized) {
         await AppDataSource.initialize();
