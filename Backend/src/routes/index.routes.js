@@ -3,6 +3,7 @@
 import { Router } from "express";
 import guardRouter from "./guard.routes.js";
 import guardsAdmin from './guardsAdmin.routes.js'
+import ownerRouter from "./owner.routes.js";
 import bicicleteroRouter from "./bicicletero.routes.js";
 
 export function routerApi(app) {
@@ -13,5 +14,6 @@ export function routerApi(app) {
   //Conecta el router de guardia a /api/guards
   router.use("/guards", guardRouter);
   router.use('/guardsAdmin', guardsAdmin)
+  router.use('/owners', ownerRouter)
   router.use("/bicicleteros", bicicleteroRouter); // Asegúrate de importar el router correcto
 }
