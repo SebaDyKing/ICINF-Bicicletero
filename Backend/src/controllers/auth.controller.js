@@ -11,10 +11,11 @@ export const loginUser = async (req, res) => {
     const {rut, contrasenia} = req.body
 
     try{
-        // 1. Validaciones de formato
         if (!AppDataSource.isInitialized) {
             await AppDataSource.initialize();
         }
+
+        // 1. Validaciones de formato
         let validation = guardBodyPartialValidation({rut})
         if (validation.error) {
             const errorMessages = validation.error.details.map((detail) => detail.message)
