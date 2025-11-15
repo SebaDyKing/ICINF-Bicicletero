@@ -67,7 +67,7 @@ function validateGuardBody(input) {
  * @return {Object} - El resultado de la validación parcial, con detalles de errores si los hay.
  */
 function guardBodyPartialValidation(input) {
-  return validateGuardBody.fork(Object.keys(validateGuardBody.describe().keys), (schema) => schema.optional()).validate(input,{abortEarly:false})
+  return guardBodyValition.fork(Object.keys(guardBodyValition.describe().keys), (schema) => schema.optional()).validate(input,{abortEarly:false})
 }
 
 export {validateGuardBody, guardBodyPartialValidation}
