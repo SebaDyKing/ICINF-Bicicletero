@@ -34,7 +34,6 @@ export const loginUser = async (req, res) => {
         if (!userFound) return handleErrorClient(res, 404, `El rut ${rut} no se encuentra registrado.`);
 
         //  3. Validar contraseña
-        console.log(contrasenia, user.contrasenia)
         const isValidPass = await bcrypt.compare(contrasenia, userFound.contrasenia)
         if(!isValidPass) throw new Error('Login fallido. Contraseña incorrecta')
 
