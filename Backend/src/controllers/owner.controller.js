@@ -8,6 +8,7 @@ import {
 import { AppDataSource } from "../config/configDb.js";
 import { Owner } from "../models/owner.entity.js";
 import { Users } from "../models/user.entity.js";
+import { solicitarGuardService } from "../service/owner.service.js";
 
 export async function createOwner(req, res) {
   try {
@@ -159,7 +160,22 @@ export async function getAllOwners(req, res) {
   }
 }
 
+export const solicitarGuard = async (req, res) => {
+  try {
+    const { lat, lon } = req.body;
+    
+    if(lat === undefined || lon === undefined){
+      return handleErrorClient(res, 400, "Latitud y longitud son requeridos");
+    }
 
+    const resultado = await solicitarGuardService(lat, lon);
+
+    return handleSuccess(res, resultado.status, "Solicitud enviada", resultado.payload);
+
+  }catch(error){
+    return handleErrorServer(res, 500, "Error interno del servidor", error.message);
+  }
+}
 
 
 
