@@ -108,7 +108,7 @@ export const getRegistrosActivos = async (req, res) => {
         guard: true
       }
     });
-    handleSucess(res, 200, "Registros activos obtenidos.", registrosActivos);
+    handleSuccess(res, 200, "Registros activos obtenidos.", registrosActivos);
   } catch (error) {
     handleErrorServer(res, 500, "Error al obtener registros activos.", error.message);
   }
@@ -133,7 +133,7 @@ export const getCapacidadesBicicleteros = async (req, res) => {
       capacidadActual: parseInt(rack.ocupados, 10) 
     }));
 
-    handleSucess(res, 200, "Capacidades obtenidas.", resultadoFinal);
+    handleSuccess(res, 200, "Capacidades obtenidas.", resultadoFinal);
   } catch (error) {
     handleErrorServer(res, 500, "Error al calcular las capacidades.", error.message);
   }
