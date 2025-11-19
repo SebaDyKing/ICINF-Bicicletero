@@ -24,17 +24,17 @@ export const Users = new EntitySchema({
       length: 100,
       nullable: false,
     },
-    contrasenia: {
+      contrasenia: {
       type: "varchar",
       length: 254,
       nullable: false,
     },
-    telefono: {
+      telefono: {
       type: "varchar",
       length: 15,
       nullable: false,
     },
-    tipo_usuario: {
+      tipo_usuario: {
       type: "varchar",
       nullable: false,
     },
@@ -46,6 +46,14 @@ export const Users = new EntitySchema({
       type: "varchar",
       length: 6,
       nullable: true,
+    },
+  },
+
+  relations: {
+    reports: {
+      type: "many-to-many",
+      target: "Report", 
+      inverseSide: "users", 
     },
   },
 });
