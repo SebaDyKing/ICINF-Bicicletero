@@ -3,8 +3,7 @@ import {handleErrorClient, handleErrorServer, handleSuccess} from '../Handlers/r
 import {Users} from '../models/user.entity.js'
 import {guardBodyPartialValidation, validateGuardBody} from '../validations/guardia.validations.js'
 import bcrypt from 'bcrypt'
-import {config} from 'dotenv'
-config()
+import { HASH_VALUE } from "../config/configEnv.js";
 
 export const createGuard = async (req, res) => {
     const {rut, email, contrasenia, telefono, nombre, apellido} = req.body
@@ -40,7 +39,7 @@ export const createGuard = async (req, res) => {
     `;
 
     //Se encripta contrseña (se necesitara la funcion compare)
-    const hashedPassword = await bcrypt.hash(contrasenia, parseInt(process.env.HSH_VALUE))
+    const hashedPassword = await bcrypt.hash(contrasenia, parseInt(HASH_VALUE))
     
     // Crea el array de valores en el mismo orden que los marcadores de posición
     const tipo_usuario = 'guardia'

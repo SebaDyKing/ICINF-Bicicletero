@@ -23,11 +23,6 @@ const ownerCreationSchema = Joi.object({
     "string.min": "El campo apellido debe tener al menos 3 caracteres.",
     "any.required": "El campo apellido es obligatorio.",
   }),
-  /* 
-  rol: Joi.string().required().messages({
-    'any.required': 'El campo rol es obligatorio.',
-    'string.empty': 'El campo rol no puede estar vacío.',
-  }), */
 
   telefono: Joi.string().required().messages({
     "any.required": "El campo teléfono es obligatorio.",
@@ -40,7 +35,6 @@ const ownerCreationSchema = Joi.object({
   }),
 
   datos_qr: Joi.string().optional().messages({
-    //'any.required': 'El campo datos_qr es obligatorio.',
     "string.empty": "El campo datos_qr no puede estar vacío.",
   }),
 
@@ -58,4 +52,8 @@ const ownerCreationSchema = Joi.object({
 
 export function validateOwnerBody(input) {
   return ownerCreationSchema.validate(input, { abortEarly: false });
+}
+
+export function ownerBodyPartialValidation(input) {
+  return ownerCreationSchema.fork(Object.keys(ownerCreationSchema.describe().keys), (schema) => schema.optional()).validate(input,{abortEarly:false})
 }

@@ -38,6 +38,15 @@ export const Users = new EntitySchema({
       type: "varchar",
       nullable: false,
     },
+    verificado: {
+      type: "boolean",
+      default: false,
+    },
+    codigo_verificacion: {
+      type: "varchar",
+      length: 6,
+      nullable: true,
+    },
   },
 
   relations: {
