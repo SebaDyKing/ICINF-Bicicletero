@@ -6,16 +6,13 @@ import {BusquedaIncidente } from './components/BusquedaIncidente'
 import HeroCarousel from './components/HeroCarousel'
 import {CardBicycleRack} from './components/CardBicycleRack'
 import InfoMain from "./components/InfoMain.jsx"
+import { CentralPage } from "./features/Central/CentralPage.jsx"
 
 function App() {
   return (
     <>
     <div>
-      <Header />
-      <HeroCarousel />
-      {/*sospechocho <CardBicycleRack />*/}
-      <InfoMain />
-      <BusquedaIncidente />
+    <CentralPage/>
     </div>
     </>
   )
