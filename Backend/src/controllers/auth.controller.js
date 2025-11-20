@@ -46,7 +46,8 @@ export const loginUser = async (req, res) => {
         //  4. JWT - Guarda en un JWT todas las variables que tenga dentro del sign
         const token = jwt.sign({
                 rut: userFound.rut,
-                nombre: userFound.nombre
+                nombre: userFound.nombre,
+                entity: userFound.tipo_usuario
             }, SECRET_JWT_KEY, {
                 expiresIn: JWT_EXPIRES_IN
             })

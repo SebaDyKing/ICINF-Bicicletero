@@ -8,9 +8,15 @@ import {
   getCapacidadesBicicleteros
 } from "../controllers/guard.controller.js";
 
+import { createReport, deleteReport, updateReport, getReport, getAllReports } from "../controllers/reports.controller.js";
+
+import reportRoutes from '../routes/reports.routes.js'
+
 // import { authMiddleware, autorizeEntities } from "../middlewares/auth.middleware.js";
 // import { validateSchema } from "../middlewares/validate.middleware.js";
 // import { ... } from "../validations/store.validation.js";
+
+
 
 const router = Router();
 
@@ -52,5 +58,8 @@ router.get(
   // autorizeEntities("guard", "owner", "central"), 
   getCapacidadesBicicleteros
 );
+
+//Con esto puede utilizar las rutas de reportes
+router.use(reportRoutes)
 
 export default router;
