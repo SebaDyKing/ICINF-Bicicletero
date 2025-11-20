@@ -8,6 +8,8 @@ import {
   getCapacidadesBicicleteros
 } from "../controllers/guard.controller.js";
 
+import { createReport, deleteReport, updateReport, getReport, getAllReports } from "../controllers/reports.controller.js";
+
 // import { authMiddleware, autorizeEntities } from "../middlewares/auth.middleware.js";
 // import { validateSchema } from "../middlewares/validate.middleware.js";
 // import { ... } from "../validations/store.validation.js";
@@ -52,5 +54,13 @@ router.get(
   // autorizeEntities("guard", "owner", "central"), 
   getCapacidadesBicicleteros
 );
+
+
+//rutas de reportes
+router.post('/createReport', createReport)
+router.delete('/deleteReport', deleteReport)
+router.put('/updateReport', updateReport)
+router.get('/getReport', getReport)
+router.get('/getAllReports', getAllReports)
 
 export default router;
