@@ -155,19 +155,13 @@ export const getAllReports = async (req, res) => {
 
     // consulta SQL para ingresar a tabla Users
     const query = `
-        SELECT
-        u.rut,
-        u.email,
-        u.telefono,
-        u.tipo_usuario,
-        g.nombre,
-        g.apellido
-        FROM users u JOIN guard g ON u.rut = g.rut
+        SELECT * from report;
     `;
     try {
         // Ejecuta consultas (consulta, valoresConsulta)
         const resultQuery = await AppDataSource.query(query);
-        handleSuccess(res, 200, "Usuarios obtenido correctamente", {
+        console.log(resultQuery)
+        handleSuccess(res, 200, "Usuario obtenido correctamente", {
             resultQuery
         });
     } catch (error) {
