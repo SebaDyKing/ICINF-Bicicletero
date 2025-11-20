@@ -161,7 +161,7 @@ export const getAllReports = async (req, res) => {
         // Ejecuta consultas (consulta, valoresConsulta)
         const resultQuery = await AppDataSource.query(query);
         console.log(resultQuery)
-        handleSuccess(res, 200, "Usuario obtenido correctamente", {
+        handleSuccess(res, 200, "Usuarios obtenidos correctamente", {
             resultQuery
         });
     } catch (error) {
