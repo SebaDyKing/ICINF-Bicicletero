@@ -1,4 +1,3 @@
-// src/routes/guard.routes.js
 "use strict";
 import { Router } from "express";
 import {
@@ -8,58 +7,81 @@ import {
   getCapacidadesBicicleteros
 } from "../controllers/guard.controller.js";
 
-import { createReport, deleteReport, updateReport, getReport, getAllReports } from "../controllers/reports.controller.js";
+import {
+  createOwner,
+  getAllOwners,
+  getOwner,
+  updateOwner,
+  deleteOwner,
+} from "../controllers/owner.controller.js";
 
-import reportRoutes from '../routes/reports.routes.js'
-
-// import { authMiddleware, autorizeEntities } from "../middlewares/auth.middleware.js";
-// import { validateSchema } from "../middlewares/validate.middleware.js";
-// import { ... } from "../validations/store.validation.js";
-
-
+import { authMiddleware, autorizeEntities } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-// --- Rutas de Ingreso/Retiro  ---
-
-// POST /api/guards/ingreso
+// Rutas para la gestión de ingresos y retiros
 router.post(
   "/ingreso",
-  // authMiddleware,
-  // autorizeEntities("guard"),
-  // validateSchema(ingresoSchema),
+  authMiddleware,
+  autorizeEntities("guard"),
   registrarIngreso
 );
 
-// PUT /api/guards/retiro
-// (Usamos PUT porque estamos ACTUALIZANDO un registro existente)
 router.put(
   "/retiro",
-  // authMiddleware,
-  // autorizeEntities("guard"),
-  // validateSchema(retiroSchema),
+  authMiddleware,
+  autorizeEntities("guard"),
   registrarRetiro
 );
 
-// --- Rutas de Consulta  ---
-
-// GET /api/guards/activos
 router.get(
   "/activos",
-  // authMiddleware,
-  // autorizeEntities("guard", "central"),
+  authMiddleware,
+  autorizeEntities("guard", "central"),
   getRegistrosActivos
 );
 
-// GET /api/guards/capacidades
 router.get(
   "/capacidades",
-  // authMiddleware,
-  // autorizeEntities("guard", "owner", "central"), 
+  authMiddleware,
+  autorizeEntities("guard", "owner", "central"), 
   getCapacidadesBicicleteros
 );
 
-//Con esto puede utilizar las rutas de reportes
-router.use(reportRoutes)
+// Rutas para la gestión de propietarios
+router.post(
+  "/owner/create", 
+  authMiddleware,
+  autorizeEntities("guard", "central"), 
+  createOwner
+);
+
+router.get(
+  "/owner/get",
+  authMiddleware,
+  autorizeEntities("guard", "central"),
+  getOwner
+);
+
+router.get(
+  "/owner/getAll",
+  authMiddleware,
+  autorizeEntities("guard", "central"),
+  getAllOwners
+);
+
+router.put(
+  "/owner/update",
+  authMiddleware,
+  autorizeEntities("guard", "central"),
+  updateOwner
+);
+
+router.delete(
+  "/owner/delete",
+  authMiddleware,
+  autorizeEntities("guard", "central"),
+  deleteOwner
+);
 
 export default router;

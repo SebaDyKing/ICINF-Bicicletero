@@ -8,13 +8,13 @@ import {
 } from "../service/guard.service.js"; 
 
 import { 
-  handleSuccess, 
-  handleErrorClient, 
-  handleErrorServer 
+  handleSuccess, 
+  handleErrorClient, 
+  handleErrorServer 
 } from "../Handlers/responseHandlers.js";
 import { 
-  validateIngresoBody, 
-  validateRetiroBody 
+  validateIngresoBody, 
+  validateRetiroBody 
 } from "../validations/store.validations.js";
 
 // ================================
@@ -23,19 +23,19 @@ import {
 
 export const registrarIngreso = async (req, res) => {
   // Validación
-  const { error } = validateIngresoBody(req.body);
-  if (error) {
-    const validationErrors = error.details.map(detail => detail.message);
-    return handleErrorClient(res, 400, "Error en los datos de entrada.", validationErrors);
-  }
+  const { error } = validateIngresoBody(req.body);
+  if (error) {
+    const validationErrors = error.details.map(detail => detail.message);
+    return handleErrorClient(res, 400, "Error en los datos de entrada.", validationErrors);
+  }
 
-  try {
+  try {
     // Llamamos al servicio para registrar el ingreso
     const datosIngreso = {
-      ...req.body
-      // rut_guardia: req.user.rut
+      ...req.body,
+      rut_guardia: req.user.rut // Descomenté esto para obtener el rut del guardia desde el token
     };
-    const nuevoIngreso = await registrarIngresoService(datosIngreso);
+    const nuevoIngreso = await registrarIngresoService(datosIngreso);
 
     // El servicio devuelve 'null' si la bici ya está adentro
     if (!nuevoIngreso) {
@@ -43,62 +43,62 @@ export const registrarIngreso = async (req, res) => {
     }
 
     // Respondemos
-    handleSuccess(res, 201, "Ingreso registrado exitosamente.", nuevoIngreso);
+    handleSuccess(res, 201, "Ingreso registrado exitosamente.", nuevoIngreso);
 
-  } catch (error) {
-    handleErrorServer(res, 500, "Error al registrar el ingreso.", error.message);
-  }
+  } catch (error) {
+    handleErrorServer(res, 500, "Error al registrar el ingreso.", error.message);
+  }
 };
 
 export const registrarRetiro = async (req, res) => {
   // Validación
-  const { error } = validateRetiroBody(req.body);
-  if (error) {
-    const validationErrors = error.details.map(detail => detail.message);
-    return handleErrorClient(res, 400, "Error en los datos de entrada.", validationErrors);
-  }
+  const { error } = validateRetiroBody(req.body);
+  if (error) {
+    const validationErrors = error.details.map(detail => detail.message);
+    return handleErrorClient(res, 400, "Error en los datos de entrada.", validationErrors);
+  }
 
-  try {
-    const { id_bicicleta } = req.body;
+  try {
+    const { id_bicicleta } = req.body;
     
     // Llamamos al servicio
-    const registro = await registrarRetiroService(id_bicicleta);
+    const registro = await registrarRetiroService(id_bicicleta);
 
     // El servicio devuelve 'null' si no encontró la bici
-    if (!registro) {
-      return handleErrorClient(res, 404, "No se encontró un ingreso activo para esta bicicleta.");
-    }
+    if (!registro) {
+      return handleErrorClient(res, 404, "No se encontró un ingreso activo para esta bicicleta.");
+    }
 
     // Respondemos
-    handleSuccess(res, 200, "Retiro registrado exitosamente.", registro);
+    handleSuccess(res, 200, "Retiro registrado exitosamente.", registro);
 
-  } catch (error) {
-    handleErrorServer(res, 500, "Error al registrar el retiro.", error.message);
-  }
+  } catch (error) {
+    handleErrorServer(res, 500, "Error al registrar el retiro.", error.message);
+  }
 };
 
 export const getRegistrosActivos = async (req, res) => {
-  try {
+  try {
     // Llamamos al servicio
-    const registrosActivos = await getRegistrosActivosService();
+    const registrosActivos = await getRegistrosActivosService();
     
     // Respondemos
-    handleSuccess(res, 200, "Registros activos obtenidos.", registrosActivos);
+    handleSuccess(res, 200, "Registros activos obtenidos.", registrosActivos);
 
-  } catch (error) {
-    handleErrorServer(res, 500, "Error al obtener registros activos.", error.message);
+  } catch (error) {
+    handleErrorServer(res, 500, "Error al obtener registros activos.", error.message);
 }
 };
 
 export const getCapacidadesBicicleteros = async (req, res) => {
-  try {
+  try {
     // Llamamos al servicio
-    const resultadoFinal = await getCapacidadesBicicleterosService();
+    const resultadoFinal = await getCapacidadesBicicleterosService();
     
     // Respondemos
-    handleSuccess(res, 200, "Capacidades obtenidas.", resultadoFinal);
+    handleSuccess(res, 200, "Capacidades obtenidas.", resultadoFinal);
 
-  } catch (error) {
-    handleErrorServer(res, 500, "Error al calcular las capacidades.", error.message);
+  } catch (error) {
+    handleErrorServer(res, 500, "Error al calcular las capacidades.", error.message);
 }
 };
