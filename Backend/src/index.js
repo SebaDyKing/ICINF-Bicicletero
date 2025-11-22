@@ -43,7 +43,8 @@ io.on("connection", (socket) => {
 })
 
 connectDB()
-  .then(() => {
+  .then( async () => {
+    await createCentral();
     routerApi(app);
     server.listen(port, () => {
       console.log(`Servidor iniciado en ${host}:${port}`);
