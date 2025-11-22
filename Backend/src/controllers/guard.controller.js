@@ -1,21 +1,12 @@
 "use strict";
 
-import {
-  registrarIngresoService,
-  registrarRetiroService,
-  getRegistrosActivosService,
-  getCapacidadesBicicleterosService
-} from "../service/guard.service.js"; 
-
-import { 
-  handleSuccess, 
-  handleErrorClient, 
-  handleErrorServer 
-} from "../Handlers/responseHandlers.js";
-import { 
-  validateIngresoBody, 
-  validateRetiroBody 
-} from "../validations/store.validations.js";
+import { AppDataSource } from "../config/configDb.js";
+import { Store } from "../models/store.entity.js";
+import { BicycleRack } from "../models/bicycleRack.entity.js";
+import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
+import { IsNull } from "typeorm";
+import { validateIngresoBody, validateRetiroBody } from "../validations/store.validations.js";
+import { actualizarDashboard } from "../service/webSocket.service.js";
 
 // ================================
 // --- Lógica de Ingreso/Retiro ---
@@ -42,7 +33,17 @@ export const registrarIngreso = async (req, res) => {
       return handleErrorClient(res, 400, "Esta bicicleta ya se encuentra registrada como 'Ingreso' activo.");
     }
 
-    // Respondemos
+    // Crea el nuevo registro
+    const nuevoIngreso = storeRepository.create({
+      owner: { rut: rut_owner },
+      bicycle: { id_bicicleta: id_bicicleta },
+      bicycleRack: { id_bicicletero: id_bicicletero },
+      tipoMovimiento: "Ingreso",
+    });
+
+    await storeRepository.save(nuevoIngreso);
+    await actualizarDashboard(); 
+    
     handleSuccess(res, 201, "Ingreso registrado exitosamente.", nuevoIngreso);
 
   } catch (error) {
@@ -69,7 +70,12 @@ export const registrarRetiro = async (req, res) => {
       return handleErrorClient(res, 404, "No se encontró un ingreso activo para esta bicicleta.");
     }
 
-    // Respondemos
+    // 2. Actualizar el registro
+    registro.fechaSalida = new Date();
+    registro.tipoMovimiento = "Salida";
+
+    await storeRepository.save(registro);
+    await actualizarDashboard(); 
     handleSuccess(res, 200, "Retiro registrado exitosamente.", registro);
 
   } catch (error) {
