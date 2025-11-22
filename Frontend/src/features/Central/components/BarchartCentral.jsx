@@ -32,7 +32,7 @@ export const BarchartCentral = ({ data }) => {
             contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
           />
           
-          {/* Usamos el azul moderno */}
+   
           <Bar dataKey="ingresos" fill="#3B82F6" radius={[4, 4, 0, 0]} barSize={30} />
         </BarChart>
       </ResponsiveContainer>

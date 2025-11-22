@@ -16,3 +16,4 @@ export const StatCardCentral = ({ title, value, subtext, icon, trendColor = "tex
     </p>
   </div>
 );
+
