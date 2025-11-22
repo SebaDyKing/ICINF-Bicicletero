@@ -4,10 +4,11 @@ import express from "express";
 import morgan from "morgan";
 import { connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
-import { port } from "./config/configEnv.js"
+import { host,port } from "./config/configEnv.js"
 import http from "http";
 import cors from "cors";
 import {Server} from "socket.io";
+import { actualizarDashboard } from "./service/webSocket.service.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -23,6 +24,10 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(morgan("dev"));
+app.use((req,res,next)=> {
+  req.io = io;
+  next();
+})
 
 const io = new Server(server, {
   cors: corsOptions
@@ -30,6 +35,7 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log("Nuevo cliente conectado:", socket.id);
+  actualizarDashboard(io);
 
   socket.on("disconnect", () => {
     console.log("Cliente desconectado:", socket.id);
@@ -40,7 +46,7 @@ connectDB()
   .then(() => {
     routerApi(app);
     server.listen(port, () => {
-      console.log(`Servidor iniciado en http://localhost:${port}`);
+      console.log(`Servidor iniciado en ${host}:${port}`);
     });
   })
   .catch((error) => {
