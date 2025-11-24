@@ -10,7 +10,7 @@ import { IsNull } from "typeorm";
  * Contiene la lógica de negocio para validar y crear el registro.
  */
 export const registrarIngresoService = async (datosIngreso) => {
-  const { rut_owner, id_bicicleta, id_bicicletero } = datosIngreso;
+  const { rut_owner, id_bicicleta, id_bicicletero, rut_guardia } = datosIngreso;
   const storeRepository = AppDataSource.getRepository(Store);
 
   // Validamos que la bici no esté ya adentro
@@ -31,7 +31,7 @@ export const registrarIngresoService = async (datosIngreso) => {
     owner: { rut: rut_owner },
     bicycle: { id_bicicleta: id_bicicleta },
     bicycleRack: { id_bicicletero: id_bicicletero },
-    // rut_guardia: req.user.rut, 
+    guard: { rut: rut_guardia },
     tipoMovimiento: "Ingreso",
   });
 
