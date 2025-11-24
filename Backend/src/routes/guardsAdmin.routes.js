@@ -1,6 +1,6 @@
 import {Router} from 'express'
 import {createGuard, deleteGuard, updateGuard, getGuard, getAllGuards} from '../controllers/guardsAdmin.controller.js'
-import {getOwner, getAllOwners} from '../controllers/owner.controller.js'
+import {getOwner, getAllOwners, deleteOwner} from '../controllers/owner.controller.js'
 
 const router = Router()
 
@@ -10,7 +10,8 @@ router.put('/updateGuard', updateGuard)
 router.delete('/deleteGuard', deleteGuard)
 router.get('/getGuard', getGuard)
 router.get('/getAllGuards', getAllGuards)
-router.get('/getUser/:rut', getOwner)
+router.get('/getUser', getOwner)
 router.get('/getAllUsers', getAllOwners)
+router.delete('/deleteOwner', deleteOwner)
 
 export default router
