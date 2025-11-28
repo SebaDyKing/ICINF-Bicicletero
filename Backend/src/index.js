@@ -2,12 +2,14 @@
 import "dotenv/config";
 import express from "express";
 import morgan from "morgan";
+import cors from "cors"; // AÑADIDO
 import { connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
 import { port } from "./config/configEnv.js"
 import { createCentral } from './config/initialSetup.js'
 
 const app = express();
+app.use(cors()); // AÑADIDO
 app.use(express.json());
 app.use(morgan("dev"));
 connectDB()

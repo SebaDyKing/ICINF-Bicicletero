@@ -4,7 +4,8 @@ import {
   registrarIngresoService,
   registrarRetiroService,
   getRegistrosActivosService,
-  getCapacidadesBicicleterosService
+  getCapacidadesBicicleterosService,
+  getEstadisticasService
 } from "../service/guard.service.js"; 
 
 import { 
@@ -101,4 +102,13 @@ export const getCapacidadesBicicleteros = async (req, res) => {
   } catch (error) {
     handleErrorServer(res, 500, "Error al calcular las capacidades.", error.message);
 }
+};
+
+export const getEstadisticas = async (req, res) => {
+  try {
+    const stats = await getEstadisticasService();
+    handleSuccess(res, 200, "Estadísticas obtenidas.", stats);
+  } catch (error) {
+    handleErrorServer(res, 500, "Error al obtener estadísticas.", error.message);
+  }
 };
