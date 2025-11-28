@@ -4,14 +4,23 @@ import express from "express";
 import morgan from "morgan";
 import { connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
-import { port } from "./config/configEnv.js"
-import { createCentral } from './config/initialSetup.js'
+import { port } from "./config/configEnv.js";
+import { createCentral } from "./config/initialSetup.js";
+import cors from "cors";
 
 const app = express();
+
+app.use(
+  cors({
+    credentials: true,
+    origin: true,
+  })
+);
+
 app.use(express.json());
 app.use(morgan("dev"));
 connectDB()
-  .then( async () => {
+  .then(async () => {
     await createCentral();
     routerApi(app);
     app.listen(port, () => {

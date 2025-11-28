@@ -6,7 +6,6 @@ import bcrypt from 'bcrypt'
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../Handlers/responseHandlers.js"
 import { AppDataSource } from "../config/configDb.js"
 
-
 export const loginUser = async (req, res) => {
     const {rut, contrasenia} = req.body
 
@@ -34,14 +33,13 @@ export const loginUser = async (req, res) => {
         //  2. Validacion si se encuentra registrado
         if (!userFound) return handleErrorClient(res, 404, `El rut ${rut} no se encuentra registrado.`);
 
-        //!Agregado por junjometro
         if (!userFound.verificado) {
             return handleErrorClient(res, 403, "Tu cuenta no ha sido verificada. Por favor, revisa tu email.");
         }
 
         //  3. Validar contraseña
         const isValidPass = await bcrypt.compare(contrasenia, userFound.contrasenia)
-        if(!isValidPass) throw new Error('Login fallido. Contraseña incorrecta')
+        if(!isValidPass) handleErrorClient(res, 404, 'Contraseña incorrecta')
 
         //  4. JWT - Guarda en un JWT todas las variables que tenga dentro del sign
         const token = jwt.sign({
@@ -51,13 +49,15 @@ export const loginUser = async (req, res) => {
                 expiresIn: JWT_EXPIRES_IN
             })
         return handleSuccess(res, 200, 'Usuario logeado exitosamente', {
-            token
-        })
+            token: token,
+            rut: userFound.rut,
+            email: userFound.email,
+            tipo_usuario: userFound.tipo_usuario,
+        }) 
     } catch(error){
         return handleErrorServer(res, 500, 'Error del servidor', error.message)
     }
 }
-
 
 export async function verifyAccount(req, res) {
   try {
@@ -69,15 +69,14 @@ export async function verifyAccount(req, res) {
     if (!user) {
       return handleErrorClient(res, 404, "Usuario no encontrado");
     }
-
-    if (user.isVerified) {
+    if (user.verificado) {
        return handleErrorClient(res, 400, "Esta cuenta ya ha sido verificada.");
     }
 
-    if (user.verificationCode !== code) {
+    if (user.codigo_verificacion !== code) {
       return handleErrorClient(res, 400, "Código de verificación incorrecto.");
     }
-
+    
     //Verificacion  correcta
     user.verificado = true;
     user.codigo_verificacion = null;

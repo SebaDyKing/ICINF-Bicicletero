@@ -32,6 +32,10 @@ const transporter = nodemailer.createTransport({
  * @returns {Promise<void>} No retorna datos, pero lanza error si el envío falla.
  */
 export async function sendVerificationEmail(toEmail, code) {
+
+  const FRONTEND_URL = 'http://localhost:5173' //! Se debe cambiar cuando se suba a produccion
+  const link = `${FRONTEND_URL}/verify?email=${toEmail}`
+
   const mailOptions = {
     from: `"PeppaCode" <${process.env.EMAIL_USER}>`, // Quién envía
     to: toEmail, // Quién recibe
@@ -49,7 +53,10 @@ export async function sendVerificationEmail(toEmail, code) {
         </h1>
         <p>Por favor, ingresa este código en la aplicación para activar tu cuenta.</p>
         <hr/>
-        <p>Si no te registraste, por favor ignora este email.</p>
+        <p>Si cerraste la página, puedes volver a entrar haciendo clic aquí:</p>
+        <a href="${link}" style="color: #004D99; font-weight: bold;">
+          Ir a verificar mi cuenta
+        </a>
       </div>
     `,
   };
@@ -57,9 +64,8 @@ export async function sendVerificationEmail(toEmail, code) {
   try {
     // Enviar el correo
     await transporter.sendMail(mailOptions);
-    console.log(`Email de verificación enviado exitosamente a ${toEmail}`);
+    console.log(`Email de verificación enviado a ${toEmail}`);
   } catch (error) {
     console.error(`Error al enviar el email a ${toEmail}:`, error);
-    throw new Error('Error al enviar el email de verificación');
   }
 }
