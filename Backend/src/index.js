@@ -4,13 +4,22 @@ import express from "express";
 import morgan from "morgan";
 import { connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
+import { createCentral } from './config/initialSetup.js'
+import path from 'path'; //utilizar path para crear carpeta upload
+import { fileURLToPath } from 'url'; //tampoco se
 import { host,port } from "./config/configEnv.js"
 import http from "http";
 import cors from "cors";
 import {Server} from "socket.io";
 import { actualizarDashboard } from "./service/webSocket.service.js";
+import { createCentral } from './config/initialSetup.js'
 
 const app = express();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadsPath = path.resolve(__dirname, '../../../uploads');
+
 const server = http.createServer(app);
 
 
@@ -21,6 +30,7 @@ const corsOptions = {
   credentials : true
 };
 
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(morgan("dev"));
@@ -28,6 +38,7 @@ app.use((req,res,next)=> {
   req.io = io;
   next();
 })
+app.use('/uploads', express.static(uploadsPath));
 
 const io = new Server(server, {
   cors: corsOptions

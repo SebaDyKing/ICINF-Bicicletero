@@ -7,6 +7,13 @@ import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers
 import { IsNull } from "typeorm";
 import { validateIngresoBody, validateRetiroBody } from "../validations/store.validations.js";
 import { actualizarDashboard } from "../service/webSocket.service.js";
+import {
+  registrarIngresoService,
+  registrarRetiroService,
+  getRegistrosActivosService,
+  getCapacidadesBicicleterosService
+} from "../service/guard.service.js";
+
 
 // ================================
 // --- Lógica de Ingreso/Retiro ---
@@ -32,14 +39,6 @@ export const registrarIngreso = async (req, res) => {
     if (!nuevoIngreso) {
       return handleErrorClient(res, 400, "Esta bicicleta ya se encuentra registrada como 'Ingreso' activo.");
     }
-
-    // Crea el nuevo registro
-    const nuevoIngreso = storeRepository.create({
-      owner: { rut: rut_owner },
-      bicycle: { id_bicicleta: id_bicicleta },
-      bicycleRack: { id_bicicletero: id_bicicletero },
-      tipoMovimiento: "Ingreso",
-    });
 
     await storeRepository.save(nuevoIngreso);
     await actualizarDashboard(); 
