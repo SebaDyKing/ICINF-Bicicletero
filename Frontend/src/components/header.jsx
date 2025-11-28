@@ -16,7 +16,7 @@ function Header() {
 
   {/* Izquierda: Logo */}
   <div className="flex items-center">
-    <img src="/LogoUBB2.png" alt="UBB Logo" className="h-15" />
+    <img src="/LogoUBB2.png" alt="UBB Logo" className="h-15 ml-10 mr-3" />
     <p className="font-bold text-xl tracking-wide ml-3">Universidad del Bío-Bío</p>
   </div>
 
