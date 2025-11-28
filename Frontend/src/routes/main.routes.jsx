@@ -22,6 +22,7 @@ const AppRoutes = () => {
             <Route path='/incidentes' element={<IncidentesPage/>} /> 
 
             <Route path="*" element={<h1>404 - Página no encontrada</h1>} />
+        </Routes>
       );
 };
 

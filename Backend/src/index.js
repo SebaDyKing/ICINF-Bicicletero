@@ -12,7 +12,6 @@ import http from "http";
 import cors from "cors";
 import {Server} from "socket.io";
 import { actualizarDashboard } from "./service/webSocket.service.js";
-import { createCentral } from './config/initialSetup.js'
 
 const app = express();
 
