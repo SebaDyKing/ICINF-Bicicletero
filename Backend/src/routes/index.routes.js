@@ -18,4 +18,3 @@ export function routerApi(app) {
   router.use('/owners', ownerRouter)
   router.use("/bicicleteros", bicicleteroRouter); // Asegúrate de importar el router correcto
 }
-
