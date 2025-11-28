@@ -1,9 +1,9 @@
 "use strict";
 import { EntitySchema } from "typeorm";
 
-export const Report = new EntitySchema({
-  name: "Report",       
-  tableName: "report", 
+export const Reports = new EntitySchema({
+  name: "Reports",       
+  tableName: "reports", 
 
   columns: {
     id_informe: {
@@ -32,6 +32,11 @@ export const Report = new EntitySchema({
       name: "InformeURL",
       type: "varchar",
       length: 255,
+      nullable: true,
+    },
+    imagenesURL: {
+      name: "ImagenesURL",
+      type: "simple-json",
       nullable: true,
     },
   },

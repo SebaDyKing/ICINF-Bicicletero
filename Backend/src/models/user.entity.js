@@ -52,7 +52,7 @@ export const Users = new EntitySchema({
   relations: {
     reports: {
       type: "many-to-many",
-      target: "Report", 
+      target: "Reports", 
       inverseSide: "users", 
     },
   },
