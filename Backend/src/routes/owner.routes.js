@@ -3,9 +3,6 @@
 import { Router } from "express";
 import { createOwner, getAllOwners, getOwner, solicitarGuard} from "../controllers/owner.controller.js";
 import {
-  createOwner,
-  getAllOwners,
-  getOwner,
   updateOwner,
   deleteOwner,
 } from "../controllers/owner.controller.js";
