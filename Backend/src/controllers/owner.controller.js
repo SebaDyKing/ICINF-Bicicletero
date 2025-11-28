@@ -12,12 +12,13 @@ import {
 import { AppDataSource } from "../config/configDb.js";
 import { Owner } from "../models/owner.entity.js";
 import { Users } from "../models/user.entity.js";
-import { sendVerificationEmail } from "../service/email.service.js";
+import { solicitarGuardService } from "../service/owner.service.js";
 
+import { sendVerificationEmail } from "../service/email.service.js";
 
 /**
  * @brief Controlador para crear un nuevo dueño (Owner).
- * 
+ *
  * Este controlador valida los datos enviados, verifica que el RUT y el email no estén
  * previamente registrados, encripta la contraseña, genera un código de verificación
  * y finalmente guarda los registros en la base de datos para Owner y Users.
@@ -27,17 +28,18 @@ import { sendVerificationEmail } from "../service/email.service.js";
  */
 export async function createOwner(req, res) {
   try {
+    const { rut, email, contrasenia, telefono, nombre, apellido } = req.body;
     // Validacion del cuerpo de la solicitud
+
     const { error } = validateOwnerBody(req.body);
     if (error) {
-      return handleErrorClient(res, 400, "Datos no validos", error.message);
+      const errorMessages =  error.details.map((detail) => detail.message);
+      return handleErrorClient(res, 400, errorMessages);
     }
 
-    // Repositorio de Owner y Users 
+    // Repositorio de Owner y Users
     const ownerRepository = AppDataSource.getRepository(Owner);
     const userRepository = AppDataSource.getRepository(Users);
-
-    const { rut, email, contrasenia, telefono, nombre, apellido } = req.body;
 
     // Verifica que los rut existan
     const rutExists =
@@ -235,6 +237,22 @@ export async function getAllOwners(req, res) {
   }
 }
 
+export const solicitarGuard = async (req, res) => {
+  try {
+    const { lat, lon } = req.body;
+    
+    if(lat === undefined || lon === undefined){
+      return handleErrorClient(res, 400, "Latitud y longitud son requeridos");
+    }
+
+    const resultado = await solicitarGuardService(lat, lon);
+
+    return handleSuccess(res, resultado.status, "Solicitud enviada", resultado.payload);
+
+  }catch(error){
+    return handleErrorServer(res, 500, "Error interno del servidor", error.message);
+  }
+}
 /**
  * @brief Controlador para actualizar parcialmente la información de un dueño (Owner).
  *
@@ -254,7 +272,7 @@ export async function updateOwner(req, res) {
     }
 
     const { rut, contrasenia, telefono, nombre, apellido } = req.body;
-    
+
     // Repositorios de Owner y Users
     const ownerRepository = AppDataSource.getRepository(Owner);
     const userRepository = AppDataSource.getRepository(Users);
@@ -307,7 +325,7 @@ export async function updateOwner(req, res) {
       updatedData
     );
   } catch (error) {
-    // Manejo de errores del servidor 
+    // Manejo de errores del servidor
     handleErrorServer(res, 500, "Error interno del servidor", error.message);
   }
 }
@@ -353,7 +371,7 @@ export async function deleteOwner(req, res) {
         }
       }
     );
-    
+
     //Respuesta exitosa
     handleSuccess(res, 200, "Dueño de bicicleta eliminado exitosamente");
   } catch (error) {

@@ -8,10 +8,10 @@ const ownerCreationSchema = Joi.object({
     .pattern(/^(\d{1,2}\.\d{3}\.\d{3}-[\dkK]|\d{7,8}-[\dkK])$/)
     .required()
     .messages({
-      "string.pattern.base": "El formato del rut_owner no es válido.",
-      "any.required": "El campo rut_owner es obligatorio.",
-      "string.min": "El rut_owner debe tener al menos 8 caracteres.",
-      "string.max": "El rut_owner no debe exceder los 12 caracteres.",
+      "string.pattern.base": "El formato del rut no es válido.",
+      "any.required": "El campo rut es obligatorio.",
+      "string.min": "El rut debe tener al menos 8 caracteres.",
+      "string.max": "El rut no debe exceder los 12 caracteres.",
     }),
 
   nombre: Joi.string().min(3).required().messages({
