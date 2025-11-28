@@ -43,7 +43,7 @@ io.on("connection", (socket) => {
 })
 
 connectDB()
-  .then( async () => {
+  .then(async () => {
     await createCentral();
     routerApi(app);
     server.listen(port, () => {
