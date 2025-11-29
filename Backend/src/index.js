@@ -24,11 +24,10 @@ const server = http.createServer(app);
 
 const corsOptions = {
   origin: ['http://localhost:5173','http://146.83.198.35:1354'],
-  methods: ['GET','POST','PATCH','DELETE'],
+  methods: ['GET','POST','PATCH','DELETE', 'PUT'],
   allowedHeaders: ['Content-Type','Authorization','Accept'],
   credentials : true
 };
-
 
 app.use(cors(corsOptions));
 app.use(express.json());
