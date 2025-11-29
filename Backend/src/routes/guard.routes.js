@@ -4,7 +4,8 @@ import {
   registrarIngreso,
   registrarRetiro,
   getRegistrosActivos,
-  getCapacidadesBicicleteros
+  getCapacidadesBicicleteros,
+  getEstadisticas
 } from "../controllers/guard.controller.js";
 
 import {
@@ -12,7 +13,7 @@ import {
   getAllOwners,
   getOwner,
   updateOwner,
-  deleteOwner,
+  deleteOwner
 } from "../controllers/owner.controller.js";
 
 import { authMiddleware, autorizeEntities } from "../middlewares/auth.middleware.js";
@@ -23,64 +24,71 @@ const router = Router();
 router.post(
   "/ingreso",
   authMiddleware,
-  autorizeEntities("guard"),
+  autorizeEntities("guardia"),
   registrarIngreso
 );
 
 router.put(
   "/retiro",
   authMiddleware,
-  autorizeEntities("guard"),
+  autorizeEntities("guardia"),
   registrarRetiro
 );
 
 router.get(
   "/activos",
   authMiddleware,
-  autorizeEntities("guard", "central"),
+  autorizeEntities("guardia", "Central"),
   getRegistrosActivos
 );
 
 router.get(
   "/capacidades",
   authMiddleware,
-  autorizeEntities("guard", "owner", "central"), 
+  autorizeEntities("guardia", "Owner", "Central"), 
   getCapacidadesBicicleteros
+);
+
+router.get(
+  "/estadisticas",
+  authMiddleware,
+  autorizeEntities("guardia", "Central"),
+  getEstadisticas
 );
 
 // Rutas para la gestión de propietarios
 router.post(
   "/owner/create", 
   authMiddleware,
-  autorizeEntities("guard", "central"), 
+  autorizeEntities("guardia", "Central"), 
   createOwner
 );
 
 router.get(
   "/owner/get",
   authMiddleware,
-  autorizeEntities("guard", "central"),
+  autorizeEntities("guardia", "Central"),
   getOwner
 );
 
 router.get(
   "/owner/getAll",
   authMiddleware,
-  autorizeEntities("guard", "central"),
+  autorizeEntities("guardia", "Central"),
   getAllOwners
 );
 
 router.put(
   "/owner/update",
   authMiddleware,
-  autorizeEntities("guard", "central"),
+  autorizeEntities("guardia", "Central"),
   updateOwner
 );
 
 router.delete(
   "/owner/delete",
   authMiddleware,
-  autorizeEntities("guard", "central"),
+  autorizeEntities("guardia", "Central"),
   deleteOwner
 );
 

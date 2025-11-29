@@ -3,14 +3,14 @@
 import { AppDataSource } from "../config/configDb.js";
 import { Store } from "../models/store.entity.js";
 import { BicycleRack } from "../models/bicycleRack.entity.js";
-import { IsNull } from "typeorm";
+import { IsNull, Between } from "typeorm";
 
 /**
  * @brief Servicio para registrar un nuevo ingreso.
  * Contiene la lógica de negocio para validar y crear el registro.
  */
 export const registrarIngresoService = async (datosIngreso) => {
-  const { rut_owner, id_bicicleta, id_bicicletero } = datosIngreso;
+  const { rut_owner, id_bicicleta, id_bicicletero, rut_guardia } = datosIngreso;
   const storeRepository = AppDataSource.getRepository(Store);
 
   // Validamos que la bici no esté ya adentro
@@ -31,7 +31,7 @@ export const registrarIngresoService = async (datosIngreso) => {
     owner: { rut: rut_owner },
     bicycle: { id_bicicleta: id_bicicleta },
     bicycleRack: { id_bicicletero: id_bicicletero },
-    // rut_guardia: req.user.rut, 
+    guard: { rut: rut_guardia },
     tipoMovimiento: "Ingreso",
   });
 
@@ -112,4 +112,29 @@ export const getCapacidadesBicicleterosService = async () => {
   }));
 
   return resultadoFinal;
+};
+
+export const getEstadisticasService = async () => {
+  const storeRepository = AppDataSource.getRepository(Store);
+  
+  // Calculamos el inicio y fin del día de hoy
+  const today = new Date();
+  const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+  const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+  // Contamos cuántas bicis entraron hoy
+  const ingresosHoy = await storeRepository.count({
+    where: {
+      fechaIngreso: Between(startOfDay, endOfDay)
+    }
+  });
+
+  // Contamos cuántas bicis salieron hoy
+  const retirosHoy = await storeRepository.count({
+    where: {
+      fechaSalida: Between(startOfDay, endOfDay)
+    }
+  });
+
+  return { ingresosHoy, retirosHoy };
 };
