@@ -15,16 +15,6 @@ import {
   getEstadisticasService
 } from "../service/guard.service.js"; 
 
-import { 
-  handleSuccess, 
-  handleErrorClient, 
-  handleErrorServer 
-} from "../Handlers/responseHandlers.js";
-import { 
-  validateIngresoBody, 
-  validateRetiroBody 
-} from "../validations/store.validations.js";
-
 // ================================
 // --- Lógica de Ingreso/Retiro ---
 // ================================

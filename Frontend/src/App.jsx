@@ -4,9 +4,10 @@ import AppRoutes from "./routes/main.routes.jsx"
 function App() {
   return (
     <>
-    <div>
-      <AppRoutes />
-    </div>
+      <div>
+        <AppRoutes />
+      </div>
+    </>
   );
 }
 
