@@ -110,6 +110,32 @@ export default function SecurityDashboard() {
     }
   };
 
+  const handleDelete = async (rut) => {
+    console.log(rut)
+    const confirmDelete = window.confirm(
+      `¿Seguro que deseas eliminar al guardia con RUT ${rut}?`
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const res = await axios.delete(
+        "http://localhost:3000/api/central/deleteGuard",
+        {
+          data: { rut }, // 👈 IMPORTANTE: el body del DELETE va en "data"
+        }
+      );
+
+      alert(res.data.message);
+
+      // actualizar UI — ejemplo filtrando
+      setGuards(prev => prev.filter(g => g.rut !== rut));
+
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.message || "No se pudo eliminar.");
+    }
+  };
+
 
   // --- Sub-Componentes Visuales ---
 
