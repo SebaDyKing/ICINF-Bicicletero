@@ -64,11 +64,13 @@ export const createGuard = async (req, res) => {
         const resultGuard = await AppDataSource.query(queryGuard, valuesGuards);
 
         console.log(resultGuard[0]); 
-        handleSuccess(res, 200, "Guardia creado exitosamente", {
-              rut,
-              nombre,
-              apellido
-            });
+        handleSuccess(res, 201, "Guardia creado correctamente", {
+            rut,
+            nombre,
+            apellido,
+            email,
+            telefono
+        });
     } catch (error) {
         return handleErrorServer(res, 500, "Error del servidor", error.message);
     }
@@ -136,13 +138,6 @@ export const updateGuard = async (req, res) => {
         WHERE rut = $1
         RETURNING *; -- Para obtener el registro insertado
     `;
-
-    //consulta SQL para ingresar a guardia
-    const queryGuard = `
-        UPDATE users SET email = $2, contrasenia = $3, telefono = $4
-        WHERE rut = $1
-        RETURNING *; -- Para obtener el registro insertado
-    `;
     
     // Crea el array de valores en el mismo orden que los marcadores de posición
     const valuesUsers = [
@@ -152,23 +147,14 @@ export const updateGuard = async (req, res) => {
         telefono
     ];
 
-    const valuesGuards = [
-        rut,
-        email,
-        contrasenia,
-        telefono
-    ];
-
     try {
         // Ejecuta consultas (consulta, valoresConsulta)
         const resultUsers = await AppDataSource.query(queryUsers, valuesUsers);
-        const resultGuard = await AppDataSource.query(queryGuard, valuesGuards);
 
-        console.log(resultGuard[0]); 
+        console.log(resultUsers[0]); 
         handleSuccess(res, 200, "Guardia actualizado exitosamente", {
               rut,
               email,
-              contrasenia,
               telefono
             });
     } catch (error) {

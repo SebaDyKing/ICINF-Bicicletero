@@ -14,7 +14,7 @@ export function routerApi(app) {
   
   //Conecta el router de guardia a /api/guards
   router.use("/guards", guardRouter);
-  router.use('/guardsAdmin', guardsAdmin)
+  router.use('/central', guardsAdmin)
   router.use('/owners', ownerRouter)
   router.use("/bicicleteros", bicicleteroRouter); // Asegúrate de importar el router correcto
 }
