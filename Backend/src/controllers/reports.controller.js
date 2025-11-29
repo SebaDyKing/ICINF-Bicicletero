@@ -4,7 +4,12 @@ import {Reports} from '../models/report.entity.js'
 
 export const createReport = async (req, res) => {
     const {fecha, descripcion, bicicletero} = req.body
-    console.log(fecha, descripcion, bicicletero)
+
+    const files = req.files || {}
+    if (files.foto && files.foto[0]){
+        const foto = files.foto[0]
+        body.foto_url = `${req.protocol}://${req.get('host')}/uploads/${foto.filename}` //con esto crea la ruta
+    }
 
     if (fecha.length === 0) {
         return handleErrorClient(res, 400, "Fecha es requerida")

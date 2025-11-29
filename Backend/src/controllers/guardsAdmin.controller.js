@@ -26,8 +26,8 @@ export const createGuard = async (req, res) => {
 
     // consulta SQL para ingresar a tabla Users
     const queryUsers = `
-        INSERT INTO users (rut, email, contrasenia, telefono, tipo_usuario)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO users (rut, email, contrasenia, telefono, tipo_usuario, verificado)
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *; -- Para obtener el registro insertado
     `;
 
@@ -48,7 +48,8 @@ export const createGuard = async (req, res) => {
         email,
         hashedPassword,
         telefono,
-        tipo_usuario
+        tipo_usuario,
+        true
     ];
 
     const valuesGuards = [

@@ -1,5 +1,12 @@
 "use strict";
 
+import { AppDataSource } from "../config/configDb.js";
+import { Store } from "../models/store.entity.js";
+import { BicycleRack } from "../models/bicycleRack.entity.js";
+import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
+import { IsNull } from "typeorm";
+import { validateIngresoBody, validateRetiroBody } from "../validations/store.validations.js";
+import { actualizarDashboard } from "../service/webSocket.service.js";
 import {
   registrarIngresoService,
   registrarRetiroService,
@@ -43,7 +50,9 @@ export const registrarIngreso = async (req, res) => {
       return handleErrorClient(res, 400, "Esta bicicleta ya se encuentra registrada como 'Ingreso' activo.");
     }
 
-    // Respondemos
+    await storeRepository.save(nuevoIngreso);
+    await actualizarDashboard(); 
+    
     handleSuccess(res, 201, "Ingreso registrado exitosamente.", nuevoIngreso);
 
   } catch (error) {
@@ -70,7 +79,12 @@ export const registrarRetiro = async (req, res) => {
       return handleErrorClient(res, 404, "No se encontró un ingreso activo para esta bicicleta.");
     }
 
-    // Respondemos
+    // 2. Actualizar el registro
+    registro.fechaSalida = new Date();
+    registro.tipoMovimiento = "Salida";
+
+    await storeRepository.save(registro);
+    await actualizarDashboard(); 
     handleSuccess(res, 200, "Retiro registrado exitosamente.", registro);
 
   } catch (error) {
