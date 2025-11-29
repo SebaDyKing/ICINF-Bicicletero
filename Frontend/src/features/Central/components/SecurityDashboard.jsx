@@ -76,9 +76,9 @@ export default function SecurityDashboard() {
   const emailFromRegister = emailFromUrl || location.state?.email;
 
   useEffect(() => {
-    if (!emailFromRegister) {
-      navigate("/login");
-    }
+    // if (!emailFromRegister) {
+    //   navigate("/login");
+    // }
     const fetchGuards = async () => {
       try {
         const res = await axios.get("http://localhost:3000/api/central/getAllGuards");
@@ -99,6 +99,15 @@ export default function SecurityDashboard() {
 
     fetchGuards();
   }, []);
+
+  useEffect(() => {
+    if (selectedGuard) {
+      setEmail(selectedGuard.email || "");
+      setTelefono(selectedGuard.telefono || "");
+      setContrasenia("");
+    }
+  }, [selectedGuard]);
+
 
   const handleCreate = async () => {
     try {
@@ -147,19 +156,17 @@ export default function SecurityDashboard() {
   };
 
   
-  const handleUpdate = async (rut) => {
+  const handleUpdate = async (guard) => {
     const confirmUpdate = window.confirm(
-      `Actualizar información del guardia con RUT: ${rut}?`
+      `Actualizar información del guardia con RUT: ${guard.rut}?`
     );
     if (!confirmUpdate) return;
 
     try {
-      console.log(rut)
-      console.log(email, contrasenia, telefono)
       const res = await axios.put(
         "http://localhost:3000/api/central/updateGuard",
         {
-          rut,
+          rut: guard.rut,
           email,
           contrasenia,
           telefono
@@ -307,7 +314,7 @@ export default function SecurityDashboard() {
                       <td className="p-4 flex justify-end gap-2">
                         <button className="flex items-center gap-1 text-blue-600 border border-blue-200 px-3 py-1.5 rounded-lg text-sm hover:bg-blue-50 font-medium" onClick={() => {
                           setIsModalOpenEdit(true);
-                          setSelectedGuard(guard.rut)}}>
+                          setSelectedGuard(guard)}}>
                           <Edit size={14}/> Editar
                         </button>
 
