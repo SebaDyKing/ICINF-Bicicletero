@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useEffect } from 'react';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { 
   Shield, 
   AlertTriangle, 
@@ -68,7 +68,17 @@ export default function SecurityDashboard() {
   const [telefono, setTelefono] = useState("");
   const [contrasenia, setContrasenia] = useState("");
 
+  //login
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const emailFromUrl = searchParams.get("email");
+  const emailFromRegister = emailFromUrl || location.state?.email;
+
   useEffect(() => {
+    if (!emailFromRegister) {
+      navigate("/login");
+    }
     const fetchGuards = async () => {
       try {
         const res = await axios.get("http://localhost:3000/api/central/getAllGuards");
@@ -135,6 +145,37 @@ export default function SecurityDashboard() {
       alert(error.response?.data?.message || "No se pudo eliminar.");
     }
   };
+
+  
+  const handleUpdate = async (rut) => {
+    const confirmUpdate = window.confirm(
+      `Actualizar información del guardia con RUT: ${rut}?`
+    );
+    if (!confirmUpdate) return;
+
+    try {
+      console.log(rut)
+      console.log(email, contrasenia, telefono)
+      const res = await axios.put(
+        "http://localhost:3000/api/central/updateGuard",
+        {
+          rut,
+          email,
+          contrasenia,
+          telefono
+        }
+      );
+      console.log(res)
+
+      alert("Información del guardia actualizada correctamente");
+      console.log(res.data);
+
+    } catch (error) {
+      console.log(error);
+      alert(error.response?.data?.message || "Error en la solicitud");
+    }
+  };
+
 
 
   // --- Sub-Componentes Visuales ---
