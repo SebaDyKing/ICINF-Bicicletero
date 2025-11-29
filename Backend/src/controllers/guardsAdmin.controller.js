@@ -139,12 +139,14 @@ export const updateGuard = async (req, res) => {
         WHERE rut = $1
         RETURNING *; -- Para obtener el registro insertado
     `;
+
+    const hashedPassword = await bcrypt.hash(contrasenia, parseInt(HASH_VALUE))
     
     // Crea el array de valores en el mismo orden que los marcadores de posición
     const valuesUsers = [
         rut,
         email,
-        contrasenia,
+        hashedPassword,
         telefono
     ];
 
