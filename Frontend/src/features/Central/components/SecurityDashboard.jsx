@@ -90,7 +90,26 @@ export default function SecurityDashboard() {
     fetchGuards();
   }, []);
 
-  
+  const handleCreate = async () => {
+    try {
+      const res = await axios.post("http://localhost:3000/api/central/createGuard", {
+        rut,
+        email,
+        contrasenia,
+        telefono,
+        nombre,
+        apellido
+      });
+
+      alert("Guardia creado");
+      console.log(res.data.resultQuery);
+
+    } catch (error) {
+      console.log(error);
+      alert(error.response?.data?.message || "Error en la solicitud");
+    }
+  };
+
 
   // --- Sub-Componentes Visuales ---
 
