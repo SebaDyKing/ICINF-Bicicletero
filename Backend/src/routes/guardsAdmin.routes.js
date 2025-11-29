@@ -4,7 +4,7 @@ import {getOwner, getAllOwners, deleteOwner} from '../controllers/owner.controll
 
 const router = Router()
 
-// /api/guardsAdmin/
+// /api/central/
 router.post('/createGuard', createGuard)
 router.put('/updateGuard', updateGuard)
 router.delete('/deleteGuard', deleteGuard)
