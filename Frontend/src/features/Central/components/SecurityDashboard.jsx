@@ -68,6 +68,30 @@ export default function SecurityDashboard() {
   const [telefono, setTelefono] = useState("");
   const [contrasenia, setContrasenia] = useState("");
 
+  useEffect(() => {
+    const fetchGuards = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/api/central/getAllGuards");
+
+        const formatted = res.data.data.resultQuery.map(g => ({
+          name: `${g.nombre} ${g.apellido}`,
+          rut: g.rut,
+          email: g.email,
+          phone: g.telefono
+        }));
+
+        setGuards(formatted);
+      } catch (error) {
+        console.error("Error backend:", error);
+        alert("Error al cargar guardias");
+      }
+    };
+
+    fetchGuards();
+  }, []);
+
+  
+
   // --- Sub-Componentes Visuales ---
 
   const StatCard = ({ title, value, subtext, icon: Icon, colorClass, iconColor }) => (
