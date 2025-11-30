@@ -42,7 +42,7 @@ export const createGuard = async (req, res) => {
     const hashedPassword = await bcrypt.hash(contrasenia, parseInt(HASH_VALUE))
     
     // Crea el array de valores en el mismo orden que los marcadores de posición
-    const tipo_usuario = 'guardia'
+    const tipo_usuario = 'Guard'
     const valuesUsers = [
         rut,
         email,

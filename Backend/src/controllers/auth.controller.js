@@ -62,7 +62,7 @@ export const loginUser = async (req, res) => {
 
 export async function verifyAccount(req, res) {
   try {
-    const { email, code } = req.body;
+    const { email, codigo } = req.body;
     const userRepository = AppDataSource.getRepository(Users);
 
     const user = await userRepository.findOneBy({ email });
@@ -73,8 +73,7 @@ export async function verifyAccount(req, res) {
     if (user.verificado) {
        return handleErrorClient(res, 400, "Esta cuenta ya ha sido verificada.");
     }
-
-    if (user.codigo_verificacion !== code) {
+    if (user.codigo_verificacion !== codigo) {
       return handleErrorClient(res, 400, "Código de verificación incorrecto.");
     }
     
