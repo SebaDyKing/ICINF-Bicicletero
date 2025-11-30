@@ -6,7 +6,8 @@ import RegisterPage from '../features/Login/RegisterPage';
 import { HomePage } from '../features/HomePage';
 import VerifyPage from '../features/Login/VerifyPage';
 import IncidentesPage from '../features/Guard/components/Incidentes';
-import {CentralPage} from '../features/Central/CentralPage';
+import SecurityDashboard from '../features/Central/components/SecurityDashboard';
+import { CentralPage } from '../features/Central/CentralPage';
 
 const AppRoutes = () => {
     return (

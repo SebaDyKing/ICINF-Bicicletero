@@ -1,6 +1,10 @@
 import React from 'react';
 import { Header } from './components/Header'; 
 import { DashboardStats } from './components/DashboardStats';
+import { Bar } from 'recharts';
+import { BarchartCentral } from './components/BarchartCentral';
+import SecurityDashboard from './components/SecurityDashboard';
+
 export const CentralPage = () => {
 
   return (
