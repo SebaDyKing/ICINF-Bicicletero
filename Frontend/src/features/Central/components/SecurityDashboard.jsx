@@ -322,7 +322,8 @@ export default function SecurityDashboard() {
                         <th className="p-4 rounded-tl-lg">Nombre</th>
                         <th className="p-4">RUT</th>
                         <th className="p-4">Email</th>
-                        <th className="p-4 rounded-tr-lg">Teléfono</th>
+                        <th className="p-4">Teléfono</th>
+                        <th className='p-4 rounded-tr-lg'>Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -331,6 +332,9 @@ export default function SecurityDashboard() {
                         <td className="p-4">{userSelected.rut}</td>
                         <td className="p-4">{userSelected.correo}</td>
                         <td className="p-4">{userSelected.telefono}</td>
+                        <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium mt-3" onClick={() => handleDelete(userSelected.rut)}>
+                          <Trash2 size={14}/> Eliminar
+                        </button>
                       </tr>
                     </tbody>
                   </table>
