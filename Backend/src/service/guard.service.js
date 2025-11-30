@@ -7,7 +7,6 @@ import { IsNull, Between } from "typeorm";
 
 /**
  * @brief Servicio para registrar un nuevo ingreso.
- * Contiene la lógica de negocio para validar y crear el registro.
  */
 export const registrarIngresoService = async (datosIngreso) => {
   const { rut_owner, id_bicicleta, id_bicicletero, rut_guardia } = datosIngreso;
@@ -21,7 +20,6 @@ export const registrarIngresoService = async (datosIngreso) => {
     }
   });
 
-  // Si encontramos un registro activo, devolvemos 'null' para que el controlador sepa que falló.
   if (registroActivo) {
     return null; 
   }
@@ -31,7 +29,7 @@ export const registrarIngresoService = async (datosIngreso) => {
     owner: { rut: rut_owner },
     bicycle: { id_bicicleta: id_bicicleta },
     bicycleRack: { id_bicicletero: id_bicicletero },
-    guard: { rut: rut_guardia },
+    guard: { rut: rut_guardia }, // Asociamos al guardia logueado
     tipoMovimiento: "Ingreso",
   });
 
@@ -40,12 +38,10 @@ export const registrarIngresoService = async (datosIngreso) => {
 
 /**
  * @brief Servicio para registrar un retiro.
- * Busca el registro activo y le asigna la fecha de salida.
  */
 export const registrarRetiroService = async (id_bicicleta) => {
   const storeRepository = AppDataSource.getRepository(Store);
 
-  // Buscamos el registro activo
   const registro = await storeRepository.findOne({
     where: {
       bicycle: { id_bicicleta: id_bicicleta },
@@ -53,12 +49,10 @@ export const registrarRetiroService = async (id_bicicleta) => {
     }
   });
 
-  // Si no hay registro, devolvemos 'null'
   if (!registro) {
     return null;
   }
 
-  // Actualizamos el registro
   registro.fechaSalida = new Date();
   registro.tipoMovimiento = "Salida";
 
@@ -66,7 +60,7 @@ export const registrarRetiroService = async (id_bicicleta) => {
 };
 
 /**
- * @brief Servicio para obtener todos los registros activos (bicis adentro).
+ * @brief Servicio para obtener todos los registros activos.
  */
 export const getRegistrosActivosService = async () => {
   const storeRepository = AppDataSource.getRepository(Store);
@@ -88,12 +82,11 @@ export const getRegistrosActivosService = async () => {
 };
 
 /**
- * @brief Servicio para calcular las capacidades de todos los bicicleteros.
+ * @brief Servicio para calcular las capacidades.
  */
 export const getCapacidadesBicicleterosService = async () => {
   const rackRepository = AppDataSource.getRepository(BicycleRack);
 
-    // Consulta para obtener capacidades y ocupación actual
   const capacidades = await rackRepository.createQueryBuilder("rack")
     .select("rack.id_bicicletero", "id")
     .addSelect("rack.nombre", "nombre")
@@ -103,7 +96,6 @@ export const getCapacidadesBicicleterosService = async () => {
     .groupBy("rack.id_bicicletero")
     .getRawMany();
 
-  // Mapeamos los resultados para devolver en el formato deseado
   const resultadoFinal = capacidades.map(rack => ({
     id: rack.id,
     nombre: rack.nombre,
@@ -114,22 +106,22 @@ export const getCapacidadesBicicleterosService = async () => {
   return resultadoFinal;
 };
 
+/**
+ * @brief Servicio para obtener estadísticas del día.
+ */
 export const getEstadisticasService = async () => {
   const storeRepository = AppDataSource.getRepository(Store);
   
-  // Calculamos el inicio y fin del día de hoy
   const today = new Date();
   const startOfDay = new Date(today.setHours(0, 0, 0, 0));
   const endOfDay = new Date(today.setHours(23, 59, 59, 999));
 
-  // Contamos cuántas bicis entraron hoy
   const ingresosHoy = await storeRepository.count({
     where: {
       fechaIngreso: Between(startOfDay, endOfDay)
     }
   });
 
-  // Contamos cuántas bicis salieron hoy
   const retirosHoy = await storeRepository.count({
     where: {
       fechaSalida: Between(startOfDay, endOfDay)
