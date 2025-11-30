@@ -1,19 +1,26 @@
+// src/controllers/guard.controller.js
 "use strict";
 
-import { AppDataSource } from "../config/configDb.js";
-import { Store } from "../models/store.entity.js";
-import { BicycleRack } from "../models/bicycleRack.entity.js";
-import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
-import { IsNull } from "typeorm";
-import { validateIngresoBody, validateRetiroBody } from "../validations/store.validations.js";
+import { 
+  handleSuccess, 
+  handleErrorClient, 
+  handleErrorServer 
+} from "../Handlers/responseHandlers.js";
+
+import { 
+  validateIngresoBody, 
+  validateRetiroBody 
+} from "../validations/store.validations.js";
+
 import { actualizarDashboard } from "../service/webSocket.service.js";
+
 import {
   registrarIngresoService,
   registrarRetiroService,
   getRegistrosActivosService,
-  getCapacidadesBicicleterosService
-} from "../service/guard.service.js";
-
+  getCapacidadesBicicleterosService,
+  getEstadisticasService
+} from "../service/guard.service.js"; 
 
 // ================================
 // --- Lógica de Ingreso/Retiro ---
@@ -28,20 +35,23 @@ export const registrarIngreso = async (req, res) => {
   }
 
   try {
-    // Llamamos al servicio para registrar el ingreso
+    // Preparamos los datos
     const datosIngreso = {
       ...req.body,
-      rut_guardia: req.user.rut // Descomenté esto para obtener el rut del guardia desde el token
+      rut_guardia: req.user.rut // Obtenemos el rut del token
     };
+
+    // 1. Llamamos al servicio (Él se encarga de guardar en la BD)
     const nuevoIngreso = await registrarIngresoService(datosIngreso);
 
-    // El servicio devuelve 'null' si la bici ya está adentro
     if (!nuevoIngreso) {
       return handleErrorClient(res, 400, "Esta bicicleta ya se encuentra registrada como 'Ingreso' activo.");
     }
 
-    await storeRepository.save(nuevoIngreso);
-    await actualizarDashboard(); 
+    // 2. Notificamos a los sockets (Frontend) para que se actualice solo
+    if (req.io) {
+      await actualizarDashboard(req.io); 
+    }
     
     handleSuccess(res, 201, "Ingreso registrado exitosamente.", nuevoIngreso);
 
@@ -61,20 +71,18 @@ export const registrarRetiro = async (req, res) => {
   try {
     const { id_bicicleta } = req.body;
     
-    // Llamamos al servicio
+    // 1. Llamamos al servicio (Él busca, actualiza la fecha y guarda)
     const registro = await registrarRetiroService(id_bicicleta);
 
-    // El servicio devuelve 'null' si no encontró la bici
     if (!registro) {
       return handleErrorClient(res, 404, "No se encontró un ingreso activo para esta bicicleta.");
     }
 
-    // 2. Actualizar el registro
-    registro.fechaSalida = new Date();
-    registro.tipoMovimiento = "Salida";
+    // 2. Notificamos a los sockets
+    if (req.io) {
+      await actualizarDashboard(req.io); 
+    }
 
-    await storeRepository.save(registro);
-    await actualizarDashboard(); 
     handleSuccess(res, 200, "Retiro registrado exitosamente.", registro);
 
   } catch (error) {
@@ -84,26 +92,27 @@ export const registrarRetiro = async (req, res) => {
 
 export const getRegistrosActivos = async (req, res) => {
   try {
-    // Llamamos al servicio
     const registrosActivos = await getRegistrosActivosService();
-    
-    // Respondemos
     handleSuccess(res, 200, "Registros activos obtenidos.", registrosActivos);
-
   } catch (error) {
     handleErrorServer(res, 500, "Error al obtener registros activos.", error.message);
-}
+  }
 };
 
 export const getCapacidadesBicicleteros = async (req, res) => {
   try {
-    // Llamamos al servicio
     const resultadoFinal = await getCapacidadesBicicleterosService();
-    
-    // Respondemos
     handleSuccess(res, 200, "Capacidades obtenidas.", resultadoFinal);
-
   } catch (error) {
     handleErrorServer(res, 500, "Error al calcular las capacidades.", error.message);
-}
+  }
+};
+
+export const getEstadisticas = async (req, res) => {
+  try {
+    const stats = await getEstadisticasService();
+    handleSuccess(res, 200, "Estadísticas obtenidas.", stats);
+  } catch (error) {
+    handleErrorServer(res, 500, "Error al obtener estadísticas.", error.message);
+  }
 };

@@ -52,7 +52,7 @@ const LoginPage = () => {
       } else if (rol === "Guard") {
         navigate("/guardia/home"); // Página principal de guardias
       } else if (rol === "Central") {
-        navigate("/admin/dashboard");
+        navigate("/central");
       } else {
         // Si el rol no coincide con nada conocido
         navigate("/home");

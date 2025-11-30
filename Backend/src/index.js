@@ -5,13 +5,13 @@ import morgan from "morgan";
 import { connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
 import { createCentral } from './config/initialSetup.js'
-import path from 'path'; //utilizar path para crear carpeta upload
-import { fileURLToPath } from 'url'; //tampoco se
-import { host,port } from "./config/configEnv.js"
+import path from 'path'; 
+import { fileURLToPath } from 'url'; 
+import { host, port } from "./config/configEnv.js"
 import http from "http";
 import cors from "cors";
-import {Server} from "socket.io";
-import { actualizarDashboard } from "./service/webSocket.service.js";
+import { Server } from "socket.io";
+import { socketController } from "./controllers/socketController.controller.js";
 
 const app = express();
 
@@ -21,40 +21,31 @@ const uploadsPath = path.resolve(__dirname, '../../../uploads');
 
 const server = http.createServer(app);
 
-
 const corsOptions = {
   origin: ['http://localhost:5173','http://146.83.198.35:1354'],
-  methods: ['GET','POST','PATCH','DELETE'],
+  methods: ['GET','POST','PATCH','DELETE', 'PUT'],
   allowedHeaders: ['Content-Type','Authorization','Accept'],
   credentials : true
 };
 
-
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(morgan("dev"));
+
+const io = new Server(server, {
+  cors: corsOptions
+});
+
 app.use((req,res,next)=> {
   req.io = io;
   next();
 })
 app.use('/uploads', express.static(uploadsPath));
 
-const io = new Server(server, {
-  cors: corsOptions
-})
-
-io.on("connection", (socket) => {
-  console.log("Nuevo cliente conectado:", socket.id);
-  actualizarDashboard(io);
-
-  socket.on("disconnect", () => {
-    console.log("Cliente desconectado:", socket.id);
-  });
-})
-
 connectDB()
   .then(async () => {
     await createCentral();
+    socketController(io);
     routerApi(app);
     server.listen(port, () => {
       console.log(`Servidor iniciado en ${host}:${port}`);

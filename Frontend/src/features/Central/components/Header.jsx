@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from "react-router-dom";
 
 export const Header = () => {
 
@@ -16,7 +17,7 @@ export const Header = () => {
 
 
           <div className="flex items-center gap-8">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <span className="bg-white text-slate-900 font-bold px-3 py-1 rounded text-lg">
                 UBB
               </span>
@@ -33,6 +34,10 @@ export const Header = () => {
               <a className={`${linkBaseClasses} ${inactiveClasses}`}>
                 Reportes de Robo
               </a>
+
+              <Link to="/central/seguridad" className={`${linkBaseClasses} ${inactiveClasses}`}>
+                Centro de seguridad
+              </Link>
 
               <a className={`${linkBaseClasses} ${activeClasses}`}>
                 Estadísticas
