@@ -7,6 +7,7 @@ import { HomePage } from '../features/HomePage';
 import VerifyPage from '../features/Login/VerifyPage';
 import IncidentesPage from '../features/Guard/components/Incidentes';
 import SecurityDashboard from '../features/Central/components/SecurityDashboard';
+import { CentralPage } from '../features/Central/CentralPage';
 
 const AppRoutes = () => {
     return (
@@ -21,7 +22,8 @@ const AppRoutes = () => {
             {/* Rutas Informes */} 
             <Route path='/infomain' element={<InfoMain />} /> 
             <Route path='/incidentes' element={<IncidentesPage/>} /> 
-            <Route path='/central' element={<SecurityDashboard/>} />
+            <Route path='/central' element={<CentralPage/>} />
+            <Route path='/central/seguridad' element={<SecurityDashboard/>} />
 
             <Route path="*" element={<h1>404 - Página no encontrada</h1>} />
         </Routes>
