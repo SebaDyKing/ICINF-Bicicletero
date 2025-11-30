@@ -1,11 +1,12 @@
 // Frontend/src/features/Guard/GuardPages.jsx
 import React from 'react';
 import GuardDashboard from './components/GuardDashboard';
+import GuardHeader from './components/GuardHeader';
 
 const GuardPages = () => {
   return (
     <div className="guard-layout">
-      {/* Aquí podría ir una barra lateral de navegación específica del guardia */}
+      <GuardHeader />
       <div className="guard-content">
         <GuardDashboard />
       </div>
