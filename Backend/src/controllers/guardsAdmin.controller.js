@@ -166,7 +166,7 @@ export const updateGuard = async (req, res) => {
 }
 
 export const getGuard = async (req, res) => {
-    const {rut} = req.body
+    const {rut} = req.query
 
     const {error} = guardBodyPartialValidation({rut})
     if (error) {
