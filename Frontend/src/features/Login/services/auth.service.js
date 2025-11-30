@@ -41,13 +41,9 @@ export const registerOwnerService = async (userData) => {
   }
 };
 
-// src/features/Login/services/auth.service.js
-
-// ... (tus otras funciones login y register)
-
-export const verifyAccountService = async (email, code) => {
+export const verifyAccountService = async (email, codigo) => {
   try {
-    const response = await axios.post(`${API_URL}/auth/authenticate`, { email, code });
+    const response = await axios.post(`${API_URL}/auth/authenticate`, { email, codigo });
     return response.data;
   } catch (error) {
     throw error.response?.data || { message: 'Error de conexión' };

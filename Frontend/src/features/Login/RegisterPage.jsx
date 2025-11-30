@@ -1,8 +1,8 @@
-// src/features/Login/RegisterPage.jsx
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { registerOwnerService } from "./services/auth.service";
 import { formatRut } from "./utils/rutUtils.js";
+import { Eye, EyeOff } from "lucide-react";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -16,6 +16,7 @@ const RegisterPage = () => {
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,6 +26,11 @@ const RegisterPage = () => {
         ...formData,
         [name]: formatRut(value),
       });
+    } else if (name == "telefono") {
+      const soloNum = value.replace(/\D/g, "");
+      if (soloNum.length <= 8) {
+        setFormData({ ...formData, [name]: soloNum });
+      }
     } else {
       setFormData({
         ...formData,
@@ -38,8 +44,13 @@ const RegisterPage = () => {
     setError("");
     setIsLoading(true);
 
+    const dataToSend = {
+      ...formData,
+      telefono: "+569" + formData.telefono,
+    };
+
     try {
-      await registerOwnerService(formData);
+      await registerOwnerService(dataToSend);
       // Usar alert no es lo más elegante, pero funcional por ahora
       alert(
         "Cuenta creada con éxito. Por favor revisa tu correo para verificar tu cuenta."
@@ -61,7 +72,7 @@ const RegisterPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-10 px-4">
-      {/* Tarjeta principal con el borde azul superior idéntico al Login */}
+      {/* Tarjeta principal con el borde azul superior */}
       <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg border-t-4 border-blue-800">
         {/* Header con Logo */}
         <div className="text-center mb-6">
@@ -138,29 +149,44 @@ const RegisterPage = () => {
           {/* Teléfono */}
           <div>
             <label className={labelClasses}>Teléfono</label>
-            <input
-              type="tel"
-              name="telefono"
-              onChange={handleChange}
-              value={formData.telefono}
-              className={inputClasses}
-              placeholder="+569..."
-              required
-            />
+            <div className="relative">
+              <span className="absolute left-0 top-0 bottom-0 pl-3 pr-2 flex items-center text-gray-600 bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg pointer-events-none">
+                +56 9
+              </span>
+              <input
+                type="tel"
+                name="telefono"
+                onChange={handleChange}
+                value={formData.telefono}
+                className={`${inputClasses} pl-16`}
+                placeholder="12345678"
+                required
+              />
+            </div>
           </div>
 
           {/* Contraseña */}
           <div>
             <label className={labelClasses}>Contraseña</label>
-            <input
-              type="password"
-              name="contrasenia"
-              onChange={handleChange}
-              value={formData.contrasenia}
-              className={inputClasses}
-              placeholder="••••••••"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="contrasenia"
+                onChange={handleChange}
+                value={formData.contrasenia}
+                className={`${inputClasses} pr-10`}
+                placeholder="••••••••"
+                required
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-blue-800 cursor-pointer focus:outline-none"
+              >
+                {showPassword ? <Eye /> : <EyeOff />}
+              </button>
+            </div>
             <p className="text-xs text-gray-400 mt-1">
               Debe contener mayúscula y números.
             </p>
