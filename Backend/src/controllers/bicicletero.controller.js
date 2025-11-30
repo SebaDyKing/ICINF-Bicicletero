@@ -6,6 +6,7 @@ import {
   createBicicleteroService,
   deleteBicicleteroService
 } from "../service/bicicleRack.service.js";
+import { actualizarDashboard } from "../service/webSocket.service.js";
 
 /**
  * @brief Controlador para obtener la lista completa de bicicleteros.
@@ -89,7 +90,8 @@ export async function createBicicletero(req, res) {
       capacidad_maxima: newBicicletero.capacidad_maxima,
       imagen: newBicicletero.imagen,
     });
-
+    actualizarDashboard(req.io);
+    
   } catch (error) {
     return handleErrorServer(res, 500, "Error del servidor", error.message);
   }

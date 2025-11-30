@@ -17,7 +17,7 @@ const router = express.Router();
 router.get("/", getBicicletero);
 
 // Crear un nuevo bicicletero
-router.post("/", createBicicletero);
+router.post("/create", createBicicletero);
 
 // Actualizar parcialmente un bicicletero por ID
 router.patch("/:id", updateBicicletero);
