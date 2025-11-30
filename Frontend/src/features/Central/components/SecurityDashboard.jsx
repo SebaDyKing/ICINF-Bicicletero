@@ -143,7 +143,7 @@ export default function SecurityDashboard() {
       const res = await axios.delete(
         "http://localhost:3000/api/central/deleteGuard",
         {
-          data: { rut }, // 👈 IMPORTANTE: el body del DELETE va en "data"
+          data: { rut },
         }
       );
 
@@ -258,21 +258,6 @@ export default function SecurityDashboard() {
   
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      {/* --- Navbar Superior --- */}
-      <nav className="bg-[#003366] text-white px-6 py-3 flex justify-between items-center">
-        <div className="flex items-center gap-8">
-          <div className="bg-white text-[#003366] font-bold px-3 py-1 rounded text-lg">UBB</div>
-          <div className="flex gap-6 text-sm font-medium">
-            <a href="#" className="hover:text-gray-300">Bicicleteros</a>
-            <a href="#" className="bg-[#1a4d80] px-3 py-1 rounded">Centro de Seguridad</a>
-            <a href="#" className="hover:text-gray-300">Estadísticas</a>
-          </div>
-        </div>
-        <div className="flex items-center gap-4 text-sm">
-          <button className="flex items-center gap-2 hover:text-gray-300"><User size={16}/> Perfil</button>
-          <button className="flex items-center gap-2 hover:text-gray-300"><LogOut size={16}/> Cerrar Sesión</button>
-        </div>
-      </nav>
 
       {/* --- Contenido Principal --- */}
       <main className="p-8 max-w-7xl mx-auto">
