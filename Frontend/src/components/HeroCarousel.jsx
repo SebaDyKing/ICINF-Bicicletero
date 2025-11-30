@@ -21,7 +21,7 @@ function HeroCarousel() {
         {/* --- SLIDE 1 --- */}
         <div>
           <img 
-            src="https://via.placeholder.com/1400x600/333333/808080?text=Imagen+Carrusel+1" 
+            src="/carrusel/Bicicletero1.png"
             alt="Bicicletas estacionadas" 
             className="w-full h-[500px] object-cover" // h-[500px] le da una altura fija
           />
@@ -30,7 +30,7 @@ function HeroCarousel() {
         {/* --- SLIDE 2 --- */}
         <div>
           <img 
-            src="https://via.placeholder.com/1400x600/444444/808080?text=Imagen+Carrusel+2" 
+            src="/carrusel/Bicicletero2.png" 
             alt="Bicicletero UBB" 
             className="w-full h-[500px] object-cover"
           />
@@ -39,7 +39,7 @@ function HeroCarousel() {
         {/* --- SLIDE 3 --- */}
         <div>
           <img 
-            src="https://via.placeholder.com/1400x600/555555/808080?text=Imagen+Carrusel+3" 
+            src="/carrusel/Bicicletero3.png" 
             alt="Estudiante con bicicleta" 
             className="w-full h-[500px] object-cover"
           />
@@ -49,7 +49,7 @@ function HeroCarousel() {
 
       {/* --- TEXTO Y BOTÓN SUPERPUESTOS --- */}
       {/* Estas clases 'absolute' lo ponen "encima" del carrusel */}
-      <div className="absolute inset-0 flex flex-col justify-center items-center text-white bg-black bg-opacity-40">
+      <div className="absolute inset-0 flex flex-col justify-center items-center text-white">
         
         <h1 className="text-5xl font-bold text-center">
           Espacios seguros para tu bicicleta
