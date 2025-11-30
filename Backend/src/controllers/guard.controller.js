@@ -40,8 +40,7 @@ export const registrarIngreso = async (req, res) => {
       return handleErrorClient(res, 400, "Esta bicicleta ya se encuentra registrada como 'Ingreso' activo.");
     }
 
-    await storeRepository.save(nuevoIngreso);
-    await actualizarDashboard(); 
+    await actualizarDashboard(req.io); 
     
     handleSuccess(res, 201, "Ingreso registrado exitosamente.", nuevoIngreso);
 
