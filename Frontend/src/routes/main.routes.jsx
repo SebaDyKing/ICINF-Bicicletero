@@ -23,7 +23,6 @@ const AppRoutes = () => {
             <Route path='/infomain' element={<InfoMain />} /> 
             <Route path='/incidentes' element={<IncidentesPage/>} /> 
             <Route path='/central' element={<CentralPage/>} />
-            <Route path='/central/seguridad' element={<SecurityDashboard/>} />
 
             <Route path="*" element={<h1>404 - Página no encontrada</h1>} />
         </Routes>

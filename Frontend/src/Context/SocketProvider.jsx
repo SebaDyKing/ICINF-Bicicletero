@@ -1,18 +1,21 @@
-import { createContext, useEffect } from "react";
-import { socket } from "../services/socket";
+import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
+import { SocketContext } from "./SocketContext"; 
 
-const SocketContext = createContext(null);
+const URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
 export const SocketProvider = ({ children }) => {
+    const [socket, setSocket] = useState(null);
 
     useEffect(() => {
-        if (!socket.connected) {
-            socket.connect();
-        }
+        const newSocket = io(URL, {
+            transports: ['websocket'],
+            withCredentials: true,
+        });
 
-        return () => {
-            socket.disconnect();
-        };
+        setSocket(newSocket);
+
+        return () => newSocket.close();
     }, []);
 
     return (
