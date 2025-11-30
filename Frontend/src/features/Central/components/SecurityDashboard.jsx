@@ -56,6 +56,9 @@ export default function SecurityDashboard() {
   const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [selectedGuard, setSelectedGuard] = useState(null)
+  const [userSelected, setUserSelected] = useState(null)
+  const [inputRut, setInputRut] = useState(null)
+  const [rol, setRol] = useState(null)
   
   // Estados de datos
   const [guards, setGuards] = useState([]);
@@ -183,6 +186,42 @@ export default function SecurityDashboard() {
     }
   };
 
+  const searchGuardByRut = async () => {
+    alert('Guardia')
+    try {
+      const res = await axios.get(
+        `http://localhost:3000/api/central/getGuard?rut=${inputRut}`
+      );
+      
+      // Guardas el resultado en un estado separado
+      setUserSelected(res.data.data)
+      console.log(res.data.data)
+      setInputRut('')
+    } catch (error) {
+      console.error(error);
+      setUserSelected(null); // Limpia
+      alert(error.response?.data?.message || "Usuario no encontrado");
+    }
+  };
+
+  const searchUserByRut = async () => {
+    alert('Usuario')
+    try {
+      const res = await axios.get(
+        `http://localhost:3000/api/central/getUser?rut=${inputRut}`
+      );
+      
+      // Guardas el resultado en un estado separado
+      setUserSelected(res.data.data)
+      console.log(res.data.data)
+      setInputRut('')
+    } catch (error) {
+      console.error(error);
+      setUserSelected(null); // Limpia
+      alert(error.response?.data?.message || "Usuario no encontrado");
+    }
+  };
+
 
 
   // --- Sub-Componentes Visuales ---
@@ -262,6 +301,61 @@ export default function SecurityDashboard() {
           <StatCard title="Tasa de Resolución" value="20%" subtext="1 casos resueltos" icon={TrendingUp} colorClass="bg-green-50" iconColor="text-green-500" />
         </div>
 
+        {/*BUSQUEDA DE USUARIO*/}
+        {activeTab === 'guards' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-3">
+            <h2 className="text-xl font-semibold text-gray-800 mb-1">Buscar usuario en el sistema</h2>
+
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <input 
+                type="text" 
+                placeholder="Buscar por RUT..."
+                value={inputRut}
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                onChange={(e) => setInputRut(e.target.value)}
+              />
+            </div>
+
+            <select className="bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-3"
+            value = {rol}
+            onChange={(e) => setRol(e.target.value)}>
+              <option>Guardia</option>
+              <option>Owner</option>
+            </select>
+
+            <div className="relative mb-6">              
+              <button className="mt-5 flex items-center gap-1 text-white bg-blue-800 px-3 py-1.5 rounded-lg text-sm hover:bg-blue-600 font-medium" onClick={(rol === 'Guardia') ? searchGuardByRut : searchUserByRut}>
+                {console.log(rol)}
+                <Search size={14}/> Buscar
+              </button>
+              {userSelected && (
+                <div className="table-user-search">
+                  <table className="w-full text-left border-collapse">
+                    <thead className="bg-gray-50 text-gray-600 text-sm font-semibold">
+                      <tr>
+                        <th className="p-4 rounded-tl-lg">Nombre</th>
+                        <th className="p-4">RUT</th>
+                        <th className="p-4">Email</th>
+                        <th className="p-4 rounded-tr-lg">Teléfono</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="p-4">{userSelected.nombre}</td>
+                        <td className="p-4">{userSelected.rut}</td>
+                        <td className="p-4">{userSelected.correo}</td>
+                        <td className="p-4">{userSelected.telefono}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+
         {/* --- Pestañas de Navegación (Toggle) --- */}
         <div className="flex mb-6 bg-white rounded-full p-1 shadow-sm border border-gray-200 w-full max-w-4xl mx-auto">
           <button 
@@ -277,21 +371,14 @@ export default function SecurityDashboard() {
             <AlertTriangle size={16} /> Reportes ({reports.length})
           </button>
         </div>
+        
 
         {/* --- VISTA: GUARDIAS --- */}
+        
         {activeTab === 'guards' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-1">Personal de Seguridad</h2>
             <p className="text-gray-500 text-sm mb-6">Gestión completa de guardias asignados a bicicleteros</p>
-
-            <div className="relative mb-6">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input 
-                type="text" 
-                placeholder="Buscar por nombre, apellido, email, RUT o teléfono..." 
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-              />
-            </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left">
@@ -329,6 +416,7 @@ export default function SecurityDashboard() {
             </div>
           </div>
         )}
+        
 
         {/* --- VISTA: REPORTES --- */}
         {activeTab === 'reports' && (
