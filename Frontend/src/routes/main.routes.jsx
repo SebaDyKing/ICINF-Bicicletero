@@ -6,6 +6,7 @@ import RegisterPage from '../features/Login/RegisterPage';
 import { HomePage } from '../features/HomePage';
 import VerifyPage from '../features/Login/VerifyPage';
 import IncidentesPage from '../components/Incidentes';
+import OwnerPage from '../features/Owner/OwnerPage'
 
 const AppRoutes = () => {
     return (
@@ -20,7 +21,10 @@ const AppRoutes = () => {
             {/* Rutas Informes */} 
             <Route path='/infomain' element={<InfoMain />} /> 
             <Route path='/incidentes' element={<IncidentesPage/>} /> 
+           
 
+            {/* Rutas Owner */} 
+            <Route path='/owner/home' element={<OwnerPage/>} /> 
             <Route path="*" element={<h1>404 - Página no encontrada</h1>} />
         </Routes>
       );
