@@ -58,6 +58,7 @@ export default function SecurityDashboard() {
   const [selectedGuard, setSelectedGuard] = useState(null)
   const [userSelected, setUserSelected] = useState(null)
   const [inputRut, setInputRut] = useState(null)
+  const [rol, setRol] = useState(null)
   
   // Estados de datos
   const [guards, setGuards] = useState([]);
@@ -185,11 +186,29 @@ export default function SecurityDashboard() {
     }
   };
 
-  const searchUserByRut = async () => {
-
+  const searchGuardByRut = async () => {
+    alert('Guardia')
     try {
       const res = await axios.get(
         `http://localhost:3000/api/central/getGuard?rut=${inputRut}`
+      );
+      
+      // Guardas el resultado en un estado separado
+      setUserSelected(res.data.data)
+      console.log(res.data.data)
+      setInputRut('')
+    } catch (error) {
+      console.error(error);
+      setUserSelected(null); // Limpia
+      alert(error.response?.data?.message || "Usuario no encontrado");
+    }
+  };
+
+  const searchUserByRut = async () => {
+    alert('Usuario')
+    try {
+      const res = await axios.get(
+        `http://localhost:3000/api/central/getUser?rut=${inputRut}`
       );
       
       // Guardas el resultado en un estado separado
@@ -298,8 +317,16 @@ export default function SecurityDashboard() {
               />
             </div>
 
+            <select className="bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-3"
+            value = {rol}
+            onChange={(e) => setRol(e.target.value)}>
+              <option>Guardia</option>
+              <option>Owner</option>
+            </select>
+
             <div className="relative mb-6">              
-              <button className="mt-5 flex items-center gap-1 text-white bg-blue-800 px-3 py-1.5 rounded-lg text-sm hover:bg-blue-600 font-medium" onClick={searchUserByRut}>
+              <button className="mt-5 flex items-center gap-1 text-white bg-blue-800 px-3 py-1.5 rounded-lg text-sm hover:bg-blue-600 font-medium" onClick={(rol === 'Guardia') ? searchGuardByRut : searchUserByRut}>
+                {console.log(rol)}
                 <Search size={14}/> Buscar
               </button>
               {userSelected && (
