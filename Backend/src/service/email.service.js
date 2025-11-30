@@ -37,7 +37,7 @@ export async function sendVerificationEmail(toEmail, code) {
   const link = `${FRONTEND_URL}/verify?email=${toEmail}`
 
   const mailOptions = {
-    from: `"PeppaCode" <${process.env.EMAIL_USER}>`, // Quién envía
+    from: `"Central de Guardias UBB" <${process.env.EMAIL_USER}>`, // Quién envía
     to: toEmail, // Quién recibe
     subject: 'Verifica tu cuenta', // Asunto
     

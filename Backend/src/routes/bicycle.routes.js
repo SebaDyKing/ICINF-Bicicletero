@@ -9,7 +9,7 @@ const router = Router();
 router.post(
   "/create",
   authMiddleware,
-  autorizeEntities("guardia", "Owner", "Central"), 
+  autorizeEntities("Guard", "Owner", "Central"), 
   createBicycle
 );
 
@@ -17,7 +17,7 @@ router.post(
 router.get(
   "/owner/:rut",
   authMiddleware,
-  autorizeEntities("guardia", "Owner", "Central"),
+  autorizeEntities("Guard", "Owner", "Central"),
   getBicyclesByOwner
 );
 

@@ -5,9 +5,11 @@ import LoginPage from '../features/Login/LoginPage';
 import RegisterPage from '../features/Login/RegisterPage';
 import { HomePage } from '../features/HomePage';
 import VerifyPage from '../features/Login/VerifyPage';
-import IncidentesPage from '../features/Guard/components/Incidentes';
+import IncidentesPage from '../components/Incidentes';
+import OwnerPage from '../features/Owner/OwnerPage'
+import IncidentesPage from '../components/Incidentes';
 import SecurityDashboard from '../features/Central/components/SecurityDashboard';
-import { CentralPage } from '../features/Central/CentralPage';
+import GuardPages from '../features/Guard/GuardPages';
 
 const AppRoutes = () => {
     return (
@@ -22,9 +24,15 @@ const AppRoutes = () => {
             {/* Rutas Informes */} 
             <Route path='/infomain' element={<InfoMain />} /> 
             <Route path='/incidentes' element={<IncidentesPage/>} /> 
-            <Route path='/central' element={<CentralPage/>} />
-            <Route path='/central/seguridad' element={<SecurityDashboard/>} />
+           
+            {/* <Route path='/incidentes' element={<IncidentesPage/>} /> */} 
+            <Route path='/central' element={<SecurityDashboard/>} />
 
+            {/* Rutas Guardia */}
+            <Route path='/guardia/home' element={<GuardPages />} />
+
+            {/* Rutas Owner */} 
+            <Route path='/owner/home' element={<OwnerPage/>} /> 
             <Route path="*" element={<h1>404 - Página no encontrada</h1>} />
         </Routes>
       );
