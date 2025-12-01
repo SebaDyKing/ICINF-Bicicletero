@@ -19,36 +19,9 @@ const IncidentesPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
-      {/* Navbar Superior */}
-      <nav className="bg-blue-900 text-white px-6 py-3 flex justify-between items-center shadow-md">
-        <div className="flex items-center gap-4">
-          <div className="bg-gray-200 text-blue-900 font-bold px-2 py-1 rounded">UBB</div>
-          <div>
-            <h1 className="text-lg font-semibold leading-tight">Panel de Guardia</h1>
-            <p className="text-xs text-blue-200">Sistema de Gestión de Bicicletas UBB</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-6 text-sm">
-          <div className="flex items-center gap-2 cursor-pointer hover:text-blue-200">
-            <User size={18} />
-            <span>Juan Pérez</span>
-          </div>
-          <div className="flex items-center gap-2 cursor-pointer hover:text-blue-200">
-            <LogOut size={18} />
-            <span>Cerrar Sesión</span>
-          </div>
-        </div>
-      </nav>
 
       {/* Contenido Principal */}
-      <main className="p-6 max-w-7xl mx-auto space-y-6">
-        
-        {/* Barra de Navegación Secundaria (Tabs simulados) */}
-        <div className="grid grid-cols-3 gap-4 bg-gray-200 p-1 rounded-lg text-center text-sm font-medium text-gray-600">
-          <div className="py-2 hover:bg-white rounded cursor-pointer">Gestión de Bicicletas</div>
-          <div className="py-2 bg-white rounded shadow-sm text-gray-900 cursor-pointer">Informes de Incidentes</div>
-          <div className="py-2 hover:bg-white rounded cursor-pointer">Gestión de Usuarios</div>
-        </div>
+      <main className="p-1 max-w-7xl mx-auto space-y-6">
 
         {/* Tarjetas de Estadísticas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
