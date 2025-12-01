@@ -1,6 +1,6 @@
 import { AppDataSource } from "../config/configDb.js";
 import {handleErrorClient, handleErrorServer, handleSuccess} from '../Handlers/responseHandlers.js'
-import {Reports} from '../models/report.entity.js'
+import { Reports } from "../models/reports.entity.js";
 
 export const createReport = async (req, res) => {
     const {fecha, descripcion, bicicletero} = req.body
@@ -64,7 +64,7 @@ export const deleteReport = async (req, res) => {
     if (!isValid) return handleErrorClient(res, 404, `El ID ${id_informe} no se encuentra asociado a ningún reporte.`);
 
     const queryReport = `
-        DELETE from report WHERE "ID_Informe" = ($1)
+        DELETE from reports WHERE "ID_Informe" = ($1)
         RETURNING *;
     `;
 
@@ -99,7 +99,7 @@ export const updateReport = async (req, res) => {
 
     // consulta SQL para ingresar a tabla Users
     const queryReport = `
-        UPDATE report SET "Descripcion" = $2 WHERE "ID_Informe" = $1
+        UPDATE reports SET "Descripcion" = $2 WHERE "ID_Informe" = $1
         RETURNING *; -- Para obtener el registro insertado
     `;
 
@@ -134,7 +134,7 @@ export const getReport = async (req, res) => {
 
     // consulta SQL para ingresar a tabla Users
     const query = `
-        SELECT * from report WHERE "ID_Informe" = $1;
+        SELECT * from reports WHERE "ID_Informe" = $1;
     `;
     try {
         // Ejecuta consultas (consulta, valoresConsulta)
@@ -160,7 +160,7 @@ export const getAllReports = async (req, res) => {
 
     // consulta SQL para ingresar a tabla Users
     const query = `
-        SELECT * from report;
+        SELECT * from reports;
     `;
     try {
         // Ejecuta consultas (consulta, valoresConsulta)
