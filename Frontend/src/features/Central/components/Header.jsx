@@ -1,5 +1,7 @@
 import React from 'react';
-import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+import { LogOut } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export const Header = () => {
 
@@ -9,6 +11,9 @@ export const Header = () => {
   const inactiveClasses = "text-gray-300 hover:bg-white/10 hover:text-white";
 
   const activeClasses = "bg-blue-600 text-white shadow-sm";
+
+  const navigate = useNavigate()
+
 
   return (
     <header className="bg-slate-900 text-white shadow-md w-full font-sans">
@@ -39,9 +44,9 @@ export const Header = () => {
                 Centro de seguridad
               </Link>
 
-              <a className={`${linkBaseClasses} ${activeClasses}`}>
+              <Link to="/central" className={`${linkBaseClasses} ${activeClasses}`}>
                 Estadísticas
-              </a>
+              </Link>
               
             </nav>
           </div>
@@ -53,11 +58,15 @@ export const Header = () => {
             </div>
             
             <div className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors text-sm cursor-pointer">
-              <span>⏏</span>
-              <span>Cerrar Sesión</span>
+              
+              <button onClick={() => navigate('/login')} // Conectamos la función de salir
+              className="flex items-center gap-2 text-sm bg-red-600 hover:bg-red-700 px-3 py-2 rounded transition"
+              >
+                <LogOut size={16} />
+                <span className="hidden md:inline">Salir</span>
+              </button>
             </div>
           </div>
-
         </div>
       </div>
     </header>
