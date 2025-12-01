@@ -1,15 +1,13 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import InfoMain from '../components/InfoMain';
 import LoginPage from '../features/Login/LoginPage';
 import RegisterPage from '../features/Login/RegisterPage';
 import { HomePage } from '../features/HomePage';
 import VerifyPage from '../features/Login/VerifyPage';
-import IncidentesPage from '../components/Incidentes';
 import OwnerPage from '../features/Owner/OwnerPage'
-import IncidentesPage from '../components/Incidentes';
-import SecurityDashboard from '../features/Central/components/SecurityDashboard';
 import GuardPages from '../features/Guard/GuardPages';
+import {CentralPage} from '../features/Central/CentralPage'
+import SecurityDashboard from '../features/Central/components/SecurityDashboard';
 
 const AppRoutes = () => {
     return (
@@ -20,14 +18,11 @@ const AppRoutes = () => {
             <Route path='/login' element={<LoginPage />} />
             <Route path='/register' element={<RegisterPage />} />
             <Route path='/verify' element={<VerifyPage />} />
-              
-            {/* Rutas Informes */} 
-            <Route path='/infomain' element={<InfoMain />} /> 
-            <Route path='/incidentes' element={<IncidentesPage/>} /> 
            
             {/* <Route path='/incidentes' element={<IncidentesPage/>} /> */} 
-            <Route path='/central' element={<SecurityDashboard/>} />
-
+            <Route path='/central' element={<CentralPage/>} />
+            <Route path='/central/seguridad' element={<SecurityDashboard/>} />
+        
             {/* Rutas Guardia */}
             <Route path='/guardia/home' element={<GuardPages />} />
 
