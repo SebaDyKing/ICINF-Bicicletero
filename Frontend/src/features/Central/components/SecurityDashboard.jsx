@@ -17,6 +17,8 @@ import {
   EyeOff 
 } from 'lucide-react';
 
+import {Header} from './Header';
+
 const initialReports = [
   { 
     id: 1, 
@@ -258,7 +260,7 @@ export default function SecurityDashboard() {
   
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-
+      <Header />
       {/* --- Contenido Principal --- */}
       <main className="p-8 max-w-7xl mx-auto">
         
