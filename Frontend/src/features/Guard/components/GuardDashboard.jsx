@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import BicicletasTab from './BicicletasTab'; // Importamos tu trabajo separado
-import IncidentesTab from './IncidentesTab'; // Importamos lo de tu amigo
+import Incidentes from './Incidentes'
 
 function GuardDashboard() {
   const [activeTab, setActiveTab] = useState('bicicletas'); // 'bicicletas' o 'incidentes'
@@ -41,7 +41,7 @@ function GuardDashboard() {
       <div className="container mx-auto px-6">
         {/* Renderizado Condicional Limpio */}
         {activeTab === 'bicicletas' && <BicicletasTab />}
-        {activeTab === 'incidentes' && <IncidentesTab />}
+        {activeTab === 'incidentes' && <Incidentes />}
       </div>
 
     </div>
