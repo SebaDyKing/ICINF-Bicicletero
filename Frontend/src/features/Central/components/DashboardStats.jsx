@@ -5,7 +5,7 @@ import { WeeklyChart } from "./WeeklyChart.jsx";
 import { RecentActivity } from "./RecentActivity.jsx";
 import { useSocket } from "../../../hooks/useSocket.js";
 import { Bike, Activity, ArrowUp, ArrowDown } from "lucide-react";
-import { BicicletarioCard } from "./BicicletarioCard.jsx";
+import { BicicletarioManagment } from "./BicycleManagement.jsx";
 
 export const DashboardStats = () => {
     const [modoGestion, setModoGestion] = useState(false);
@@ -57,7 +57,7 @@ export const DashboardStats = () => {
     return (
         <div>
             {modoGestion ? (
-                <BicicletarioCard/>
+                <BicicletarioManagment/>
             ) : (
                 <div className="w-full min-h-screen bg-slate-100 p-6">
                     <header className="mb-8">
