@@ -116,10 +116,6 @@ const IncidentesPage = () => {
       <NewIncidentModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
-        onRegister={() => {
-          alert("Incidente registrado (Lógica de backend aquí)");
-          setIsModalOpen(false);
-        }}
       />
     </div>
   );
