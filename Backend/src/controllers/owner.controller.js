@@ -33,7 +33,7 @@ export async function createOwner(req, res) {
 
     const { error } = validateOwnerBody(req.body);
     if (error) {
-      const errorMessages =  error.details.map((detail) => detail.message);
+      const errorMessages = error.details.map((detail) => detail.message);
       return handleErrorClient(res, 400, errorMessages);
     }
 
@@ -127,7 +127,7 @@ export async function createOwner(req, res) {
  */
 export async function getOwner(req, res) {
   try {
-    const { rut } = req.body;
+    const { rut } = req.query;
 
     // Repositorios de Owner y Users
     const ownerRepository = AppDataSource.getRepository(Owner);
@@ -240,19 +240,28 @@ export async function getAllOwners(req, res) {
 export const solicitarGuard = async (req, res) => {
   try {
     const { lat, lon } = req.body;
-    
-    if(lat === undefined || lon === undefined){
+
+    if (lat === undefined || lon === undefined) {
       return handleErrorClient(res, 400, "Latitud y longitud son requeridos");
     }
 
     const resultado = await solicitarGuardService(lat, lon);
 
-    return handleSuccess(res, resultado.status, "Solicitud enviada", resultado.payload);
-
-  }catch(error){
-    return handleErrorServer(res, 500, "Error interno del servidor", error.message);
+    return handleSuccess(
+      res,
+      resultado.status,
+      "Solicitud enviada",
+      resultado.payload
+    );
+  } catch (error) {
+    return handleErrorServer(
+      res,
+      500,
+      "Error interno del servidor",
+      error.message
+    );
   }
-}
+};
 /**
  * @brief Controlador para actualizar parcialmente la información de un dueño (Owner).
  *
