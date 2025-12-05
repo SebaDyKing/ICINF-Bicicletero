@@ -28,6 +28,8 @@ const AppRoutes = () => {
 
             {/* Rutas Owner */} 
             <Route path='/owner/home' element={<OwnerPage/>} /> 
+
+            
             <Route path="*" element={<h1>404 - Página no encontrada</h1>} />
         </Routes>
       );

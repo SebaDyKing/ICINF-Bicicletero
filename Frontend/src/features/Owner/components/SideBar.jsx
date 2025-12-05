@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { Bike, User, QrCode, ChevronLeft, ChevronRight, LogOut, SquareMenu  } from "lucide-react";
+import { Bike, User, QrCode, ChevronLeft, ChevronRight, LogOut, SquareMenu, Zap  } from "lucide-react";
 
 const SideBar = ({activeTab, setActiveTab}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true); 
+  //const [isLoggedIn, setIsLoggedIn] = useState(true); 
   
   const handleLogout = () => {
-    setIsLoggedIn(false);
+    //setIsLoggedIn(false);
     setActiveTab("dashboard");
   };
 
@@ -38,7 +38,7 @@ const SideBar = ({activeTab, setActiveTab}) => {
               isSidebarCollapsed ? "justify-center" : ""
             }`}
           >
-            <img className="h-15 ml-3" src="/LogoUBB2.png" alt="LogoUBB" />
+            <img className="h-15 ml-3 mt-1" src="/LogoUBB2.png" alt="LogoUBB" />
             <span
               className={`text-lg font-bold tracking-tight whitespace-nowrap overflow-hidden transition-all duration-300 ${
                 isSidebarCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
@@ -125,7 +125,8 @@ const SideBar = ({activeTab, setActiveTab}) => {
           `}
             title={isSidebarCollapsed ? "Cerrar Sesión" : ""}
           >
-            <LogOut size={20} className="shrink-0" />
+            <Zap size={20} className="shrink-0" />
+            
             <span
               className={`transition-all duration-300 ${
                 isSidebarCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
@@ -145,7 +146,7 @@ const SideBar = ({activeTab, setActiveTab}) => {
         ></div>
       )}
 
-      {/* Botón para abrir menú en móvil (debes agregarlo) */}
+      {/* Botón para abrir menú en móvil */}
       <button
         onClick={() => setIsMenuOpen(true)}
         className="fixed top-4 left-4 bg-[#1e3a8a] text-white p-2 rounded-md md:hidden z-30"
