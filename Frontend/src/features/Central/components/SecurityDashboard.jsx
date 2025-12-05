@@ -17,6 +17,8 @@ import {
   EyeOff 
 } from 'lucide-react';
 
+import {Header} from './Header';
+
 const initialReports = [
   { 
     id: 1, 
@@ -143,7 +145,7 @@ export default function SecurityDashboard() {
       const res = await axios.delete(
         "http://localhost:3000/api/central/deleteGuard",
         {
-          data: { rut }, // 👈 IMPORTANTE: el body del DELETE va en "data"
+          data: { rut },
         }
       );
 
@@ -258,22 +260,7 @@ export default function SecurityDashboard() {
   
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      {/* --- Navbar Superior --- */}
-      <nav className="bg-[#003366] text-white px-6 py-3 flex justify-between items-center">
-        <div className="flex items-center gap-8">
-          <div className="bg-white text-[#003366] font-bold px-3 py-1 rounded text-lg">UBB</div>
-          <div className="flex gap-6 text-sm font-medium">
-            <a href="#" className="hover:text-gray-300">Bicicleteros</a>
-            <a href="#" className="bg-[#1a4d80] px-3 py-1 rounded">Centro de Seguridad</a>
-            <a href="#" className="hover:text-gray-300">Estadísticas</a>
-          </div>
-        </div>
-        <div className="flex items-center gap-4 text-sm">
-          <button className="flex items-center gap-2 hover:text-gray-300"><User size={16}/> Perfil</button>
-          <button className="flex items-center gap-2 hover:text-gray-300"><LogOut size={16}/> Cerrar Sesión</button>
-        </div>
-      </nav>
-
+      <Header />
       {/* --- Contenido Principal --- */}
       <main className="p-8 max-w-7xl mx-auto">
         
@@ -337,7 +324,8 @@ export default function SecurityDashboard() {
                         <th className="p-4 rounded-tl-lg">Nombre</th>
                         <th className="p-4">RUT</th>
                         <th className="p-4">Email</th>
-                        <th className="p-4 rounded-tr-lg">Teléfono</th>
+                        <th className="p-4">Teléfono</th>
+                        <th className='p-4 rounded-tr-lg'>Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -346,6 +334,9 @@ export default function SecurityDashboard() {
                         <td className="p-4">{userSelected.rut}</td>
                         <td className="p-4">{userSelected.correo}</td>
                         <td className="p-4">{userSelected.telefono}</td>
+                        <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium mt-3" onClick={() => handleDelete(userSelected.rut)}>
+                          <Trash2 size={14}/> Eliminar
+                        </button>
                       </tr>
                     </tbody>
                   </table>
