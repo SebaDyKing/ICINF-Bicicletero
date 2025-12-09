@@ -51,7 +51,29 @@ const IncidentesPage = () => {
     return `${dia}/${mes}/${anio}`;
   };
 
-  
+  const handleDelete = async (ID_Informe) => {
+    const confirmDelete = window.confirm(
+      `¿Seguro que deseas eliminar el reporte con ID ${ID_Informe}?`
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const res = await axios.delete(
+        "http://localhost:3000/api/guards/report/deleteReport",
+        {
+          data: { ID_Informe },
+        }
+      );
+
+      // actualizar UI — ejemplo filtrando
+      setReports(prev => prev.filter(r => r.ID_Informe !== ID_Informe));
+
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.message || "No se pudo eliminar.");
+    }
+  };
+
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
