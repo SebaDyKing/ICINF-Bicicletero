@@ -74,6 +74,25 @@ const IncidentesPage = () => {
     }
   };
 
+  const handleEditReport = async () => {
+    console.log(typeof reportSelected.ID_Informe)
+    const confirmUpdate = window.confirm(
+      `Actualizar información del reporte con ID: ${reportSelected.ID_Informe}?`);
+    if (!confirmUpdate) return;
+
+    try {
+        const res = await axios.put(
+        "http://localhost:3000/api/guards/report/updateReport",
+            {
+            ID_Informe: reportSelected.ID_Informe,
+            descripcion
+            }
+        );
+    } catch (error) {
+        console.log(error);
+        alert(error.response?.data?.message || "Error en la solicitud");
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
