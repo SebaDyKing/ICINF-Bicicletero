@@ -1,46 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { StatCardCentral } from "./StatCardCentral";
 import { BarchartCentral } from "./BarchartCentral.jsx";
 import { WeeklyChart } from "./WeeklyChart.jsx";
 import { RecentActivity } from "./RecentActivity.jsx";
-import { useSocket } from "../../../hooks/useSocket.js";
 import { Bike, Activity, ArrowUp, ArrowDown } from "lucide-react";
 import { BicicletarioManagment } from "./BicycleManagement.jsx";
+import { useDashboardData } from "../hooks/useDashboardData.js";
 
 export const DashboardStats = () => {
     const [modoGestion, setModoGestion] = useState(false);
     
-    const [data, setData] = useState({ 
-        kpi:{
-            totalBicicletas: 0,
-            capacidadTotal: 60,
-            ocupacionGlobal: 0,
-            ingresosHoy: 0,
-            salidasHoy: 0,
-        },
-        racks: [],
-        actividad : [],
-        graficos : {
-            porHora: [],
-            semanal: []
-        }
-    }); 
-
-    const socket = useSocket();
-
-    useEffect(() => {
-        if (!socket) return;
-
-        const handleUpdate = (newData) => {
-            setData(newData);
-        }
-
-        socket.on('dashboard:actualizacion', handleUpdate);
-
-        return () => {
-            socket.off('dashboard:actualizacion', handleUpdate);
-        }
-    }, [socket]);
+   const data = useDashboardData();
 
     const getProgressBarColor = (percent) => {
         if (percent > 90) return "bg-indigo-500"; 
@@ -57,7 +27,7 @@ export const DashboardStats = () => {
     return (
         <div>
             {modoGestion ? (
-                <BicicletarioManagment/>
+                <BicicletarioManagment dataGlobal = {data}/>
             ) : (
                 <div className="w-full min-h-screen bg-slate-100 p-6">
                     <header className="mb-8">
