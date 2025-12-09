@@ -16,6 +16,7 @@ import {
   Eye, 
   EyeOff 
 } from 'lucide-react';
+import { getGuardService, getUserService } from '../services/adminGuard.service';
 
 import {Header} from './Header';
 
@@ -60,7 +61,7 @@ export default function SecurityDashboard() {
   const [selectedGuard, setSelectedGuard] = useState(null)
   const [userSelected, setUserSelected] = useState(null)
   const [inputRut, setInputRut] = useState(null)
-  const [rol, setRol] = useState(null)
+  const [rol, setRol] = useState('')
   
   // Estados de datos
   const [guards, setGuards] = useState([]);
@@ -189,11 +190,8 @@ export default function SecurityDashboard() {
   };
 
   const searchGuardByRut = async () => {
-    alert('Guardia')
     try {
-      const res = await axios.get(
-        `http://localhost:3000/api/central/getGuard?rut=${inputRut}`
-      );
+      const res = await getGuardService(inputRut)
       
       // Guardas el resultado en un estado separado
       setUserSelected(res.data.data)
@@ -202,16 +200,12 @@ export default function SecurityDashboard() {
     } catch (error) {
       console.error(error);
       setUserSelected(null); // Limpia
-      alert(error.response?.data?.message || "Usuario no encontrado");
     }
   };
 
   const searchUserByRut = async () => {
-    alert('Usuario')
     try {
-      const res = await axios.get(
-        `http://localhost:3000/api/central/getUser?rut=${inputRut}`
-      );
+      const res = await getUserService(inputRut)
       
       // Guardas el resultado en un estado separado
       setUserSelected(res.data.data)
@@ -307,13 +301,13 @@ export default function SecurityDashboard() {
             <select className="bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-3"
             value = {rol}
             onChange={(e) => setRol(e.target.value)}>
-              <option>Guardia</option>
-              <option>Owner</option>
+              <option value="">Seleccionar rol</option>
+              <option value='guardia'>Guardia</option>
+              <option value='owner'>Owner</option>
             </select>
 
             <div className="relative mb-6">              
-              <button className="mt-5 flex items-center gap-1 text-white bg-blue-800 px-3 py-1.5 rounded-lg text-sm hover:bg-blue-600 font-medium" onClick={(rol === 'Guardia') ? searchGuardByRut : searchUserByRut}>
-                {console.log(rol)}
+              <button className="mt-5 flex items-center gap-1 text-white bg-blue-800 px-3 py-1.5 rounded-lg text-sm hover:bg-blue-600 font-medium" onClick={() => {rol === '' ? alert('Seleccione el rol del usuario') : rol==='guardia' ? searchGuardByRut() : searchUserByRut()}}>
                 <Search size={14}/> Buscar
               </button>
               {userSelected && (
@@ -334,9 +328,11 @@ export default function SecurityDashboard() {
                         <td className="p-4">{userSelected.rut}</td>
                         <td className="p-4">{userSelected.correo}</td>
                         <td className="p-4">{userSelected.telefono}</td>
-                        <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium mt-3" onClick={() => handleDelete(userSelected.rut)}>
-                          <Trash2 size={14}/> Eliminar
-                        </button>
+                        <td>
+                          <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium mt-3" onClick={() => handleDelete(userSelected.rut)}>
+                            <Trash2 size={14}/> Eliminar
+                          </button>
+                        </td>
                       </tr>
                     </tbody>
                   </table>
@@ -568,6 +564,7 @@ export default function SecurityDashboard() {
                   onChange={(e) => setTelefono(e.target.value)}
                   className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2"
                 />
+                
               </div>
 
               <div className="space-y-1">
