@@ -1,14 +1,14 @@
-import GestionarBicicletarios from "./GestionarBicicletario";
+import {GestionarBicicletarios} from "./GestionarBicicletario";
 import VistaGeneralSistema from "./VistaGeneralSistema";
 import { AccessControl } from "./AccessControl";
 
-export const BicicletarioManagment = ({dataGlobal}) => {
+export const BicicletarioManagment = ({dataGlobal,onBack}) => {
     const data = dataGlobal;
 
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 md:px-8 flex flex-col gap-8">
             <section className="w-full">
-                <GestionarBicicletarios racks={data.racks} />
+                <GestionarBicicletarios racks={data.racks} onBack = {onBack} />
             </section>
 
             <section className="w-full">

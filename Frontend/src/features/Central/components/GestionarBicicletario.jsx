@@ -1,8 +1,8 @@
 import { useState,useEffect} from 'react';
-import { Plus } from 'lucide-react';
+import { Plus,ArrowLeft } from 'lucide-react';
 import BicycleCard from './BicycleCard';
 
-export default function GestionarBicicletarios({racks = []}) {
+export function GestionarBicicletarios({racks = [],onBack}) {
   const [activeId, setActiveId] = useState(1);
 
   const bicicleterosData = racks.map((rack) => ({
@@ -12,7 +12,7 @@ export default function GestionarBicicletarios({racks = []}) {
     total: rack.capacidad || 15,
   }))
 
-useEffect(() => {
+    useEffect(() => {
         if (bicicleterosData.length > 0) {
             const idExiste = bicicleterosData.find(b => b.id === activeId);
             
@@ -28,10 +28,17 @@ useEffect(() => {
   };
 
   return (
- <div className="w-full bg-gray-50 rounded-3xl">
+        <div className="w-full bg-gray-50 rounded-3xl">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Gestionar Bicicletarios</h1>
+                    <button
+                        onClick={onBack}
+                        className="flex items-center gap-2 text-gray-500 hover:text-[#003366] transition-colors mb-2 group"
+                    >
+                        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                        <span className="font-medium">Volver al panel</span>
+                    </button>
+                                <h1 className="text-3xl font-bold text-gray-900">Gestionar Bicicletarios</h1>
                     <p className="text-gray-500 mt-1">Administración de infraestructura y capacidad</p>
                 </div>
                 

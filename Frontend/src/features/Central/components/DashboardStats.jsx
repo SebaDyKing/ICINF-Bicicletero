@@ -27,7 +27,10 @@ export const DashboardStats = () => {
     return (
         <div>
             {modoGestion ? (
-                <BicicletarioManagment dataGlobal = {data}/>
+                <BicicletarioManagment 
+                dataGlobal = {data}
+                onBack = {() => setModoGestion(false)}
+                />
             ) : (
                 <div className="w-full min-h-screen bg-slate-100 p-6">
                     <header className="mb-8">
