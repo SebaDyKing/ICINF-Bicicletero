@@ -39,14 +39,16 @@ const ownerCreationSchema = Joi.object({
   }),
 
   contrasenia: Joi.string()
-    .pattern(/^(?=.*\d.*\d)[A-Z].*$/)
+    .min(8)
+    .max(20)
+    .pattern(/^(?=(?:.*\d){2,})(?=.*[A-Z]).*$/)
     .required()
     .messages({
       "string.min": "La contraseña debe tener al menos 8 caracteres.",
       "string.max": "La contraseña no puede exceder los 20 caracteres.",
-      "any.required": "El campo correo es obligatorio.",
+      "any.required": "El campo contraseña es obligatorio.",
       "string.pattern.base":
-        "La contraseña debe comenzar con mayuscula y tener al menos dos números.",
+        "La contraseña debe contener al menos una mayúscula y dos números.",
     }),
 });
 
@@ -55,5 +57,9 @@ export function validateOwnerBody(input) {
 }
 
 export function ownerBodyPartialValidation(input) {
-  return ownerCreationSchema.fork(Object.keys(ownerCreationSchema.describe().keys), (schema) => schema.optional()).validate(input,{abortEarly:false})
+  return ownerCreationSchema
+    .fork(Object.keys(ownerCreationSchema.describe().keys), (schema) =>
+      schema.optional()
+    )
+    .validate(input, { abortEarly: false });
 }
