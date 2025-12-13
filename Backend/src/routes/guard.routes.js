@@ -18,7 +18,11 @@ import {
 
 import { authMiddleware, autorizeEntities } from "../middlewares/auth.middleware.js";
 
+import Report from './reports.routes.js'
+
 const router = Router();
+
+router.use('/report', Report)
 
 // Rutas para la gestión de ingresos y retiros
 router.post(

@@ -1,9 +1,45 @@
-import React, { useState } from 'react';
+import axios from 'axios';
 import { X, Upload } from 'lucide-react';
+import React, { useRef, useState } from "react";
 
 // Componente Básico de Modal
-const NewIncidentModal  = ({ isOpen, onClose, onRegister }) => {
+const NewIncidentModal  = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
+
+  const [fecha, setFecha] = useState('')
+  const [bicicletero, setBicicletero] = useState('')
+  const [descripcion, setDescripcion] = useState('')
+  const fileInputRef = useRef(null);
+  const [fileName, setFileName] = useState("");
+
+  const handleDivClick = () => {
+    fileInputRef.current.click(); 
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) setFileName(file.name);
+  };
+
+  const handleCreateRegister = async () => {
+    alert(`fecha: ${fecha}
+      descrpcion: ${descripcion}
+      bicilcetero: ${bicicletero}`)
+    try {
+      if (bicicletero === '') throw new Error('Seleccione un bicicletero.')
+      const res = await axios.post('http://localhost:3000/api/guards/report/createReport', {
+        fecha, 
+        bicicletero,
+        descripcion
+      })
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+      alert(error || "Error en la solicitud");
+    }
+    
+  }
+
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -25,7 +61,7 @@ const NewIncidentModal  = ({ isOpen, onClose, onRegister }) => {
           {/* Fecha */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
-            <input 
+            <input value = {fecha} onChange={(e) => setFecha(e.target.value)}
               type="date" 
               className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
@@ -34,17 +70,18 @@ const NewIncidentModal  = ({ isOpen, onClose, onRegister }) => {
           {/* Bicicletero */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Bicicletero</label>
-            <select className="w-full border border-gray-300 rounded-md p-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+            <select value = {bicicletero} onChange={(e) => setBicicletero(e.target.value)}
+            className="w-full border border-gray-300 rounded-md p-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none">
               <option value="">Seleccione un bicicletero</option>
-              <option value="face">Bicicletero FACE</option>
-              <option value="idiomas">Bicicletero Centro de Idiomas</option>
+              <option value="FACE">Bicicletero FACE</option>
+              <option value="Idiomas">Bicicletero Centro de Idiomas</option>
             </select>
           </div>
 
           {/* Descripción */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-            <textarea 
+            <textarea value = {descripcion} onChange={(e) => setDescripcion(e.target.value)}
               rows={3}
               placeholder="Describa el incidente en detalle..."
               className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none resize-none"
@@ -53,13 +90,28 @@ const NewIncidentModal  = ({ isOpen, onClose, onRegister }) => {
 
           {/* Imágenes (Input File simulado) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Imágenes</label>
-            <div className="border border-gray-300 rounded-md p-2 flex justify-between items-center bg-gray-50 cursor-pointer hover:bg-gray-100">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Imágenes
+            </label>
+
+            <div
+              onClick={handleDivClick}
+              className="border border-gray-300 rounded-md p-2 flex justify-between items-center bg-gray-50 cursor-pointer hover:bg-gray-100"
+            >
               <span className="text-gray-500 text-sm">
-                <span className="font-medium text-gray-700">Elegir archivos</span> No se ha seleccionado ningún archivo
+                <span className="font-medium text-gray-700">Elegir archivos</span>{" "}
+                {fileName || "No se ha seleccionado ningún archivo"}
               </span>
               <Upload size={18} className="text-gray-400" />
             </div>
+
+            <input
+              type="file"
+              multiple
+              ref={fileInputRef}
+              className="hidden"
+              onChange={handleFileChange}
+            />
           </div>
 
           {/* Botones de Acción */}
@@ -71,7 +123,7 @@ const NewIncidentModal  = ({ isOpen, onClose, onRegister }) => {
             >
               Cancelar
             </button>
-            <button 
+            <button onClick={handleCreateRegister}
               type="submit" 
               className="px-4 py-2 bg-blue-900 text-white rounded-md hover:bg-blue-800 font-medium"
             >
