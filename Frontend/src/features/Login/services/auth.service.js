@@ -12,7 +12,7 @@ export const loginService = async (rut, password) => {
 
     // backend devuelve: { status: "Success", data: { token, rut, email, tipo_usuario }, ... }
     const { data } = response.data; // Extraemos el objeto 'data' interno
-
+    console.log(data)
     if (data.token) {
       localStorage.setItem("token", data.token);
       // Guardamos el usuario completo para tener el rol a mano
@@ -21,12 +21,17 @@ export const loginService = async (rut, password) => {
 
     return data;
   } catch (error) {
-    // Manejo de errores para leer el mensaje que envía el backend (handleErrorClient)
+    // Manejo de errores para leer el mensaje que envía el backend
     if (error.response && error.response.data) {
       throw new Error(error.response.data.message || "Error desconocido");
     }
     throw new Error("Error de conexión con el servidor");
   }
+};
+
+export const logoutService = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
 };
 
 export const registerOwnerService = async (userData) => {

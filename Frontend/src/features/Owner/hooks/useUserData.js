@@ -5,6 +5,8 @@ export const useUserData = (rut) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    if (!rut) return;
+    
     const fetchData = async () => {
       try {
         const result = await getOwnerService(rut);

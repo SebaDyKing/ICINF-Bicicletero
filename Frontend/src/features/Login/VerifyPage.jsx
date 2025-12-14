@@ -1,4 +1,3 @@
-// src/features/Login/VerifyPage.jsx
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { verifyAccountService } from "./services/auth.service";
@@ -48,10 +47,6 @@ const VerifyPage = () => {
     if (value && index < 5) {
       inputRefs.current[index + 1].focus();
     }
-
-    // Si queremos enviar automáticamente al completar:
-    // const combinedCode = newCode.join("");
-    // if (combinedCode.length === 6) handleSubmit(null, combinedCode);
   };
 
   // Maneja el borrado (Backspace) para retroceder
@@ -90,10 +85,10 @@ const VerifyPage = () => {
       await verifyAccountService(emailFromRegister, finalCode);
       setSuccess("¡Cuenta verificada exitosamente!");
 
-      // Esperar 2 segundos y redirigir al login
+      // Esperar 1 segundos y redirigir al login
       setTimeout(() => {
         navigate("/login");
-      }, 2000);
+      }, 1000);
     } catch (err) {
       setError(err.message || "Código inválido.");
     } finally {

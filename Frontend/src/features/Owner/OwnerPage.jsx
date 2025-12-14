@@ -4,15 +4,36 @@ import Bikes from "./components/Bikes";
 import Profile from "./components/Profile";
 import { useState } from "react";
 import { useUserData } from "./hooks/useUserData.js";
+import { useAuth } from "../../Context/useAuth.js";
 
 const OwnerPage = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const rut = "21.260.782-7";
-  const user = useUserData(rut);
+  const { user, loading } = useAuth();
+  const userData = useUserData(user?.rut);
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Cargando contexto...
+      </div>
+    );
+  }
 
   // Mientras carga, evita acceder a propiedades nulas
   if (!user) {
-    return <div>Cargando...</div>;
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Validando sesión...
+      </div>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Cargando perfil...
+      </div>
+    );
   }
 
   return (
@@ -20,9 +41,9 @@ const OwnerPage = () => {
       <SideBar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="flex-1">
-        {activeTab === "dashboard" && <Dashboard user={user} />}
-        {activeTab === "bikes" && <Bikes user={user} />}
-        {activeTab === "profile" && <Profile user={user} />}
+        {activeTab === "dashboard" && <Dashboard user={userData} />}
+        {activeTab === "bikes" && <Bikes user={userData} />}
+        {activeTab === "profile" && <Profile user={userData} />}
       </main>
     </div>
   );
