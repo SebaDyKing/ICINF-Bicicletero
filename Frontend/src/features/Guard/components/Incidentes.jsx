@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import NewIncidentModal from './NewIncidentModal'; // Componente del modal
 import { User, LogOut, Bell, FileText, Calendar, Plus, Edit, X, Trash2 } from 'lucide-react';
 import axios from 'axios'
+import Swal from 'sweetalert2'
 
 const IncidentesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,7 +35,11 @@ const IncidentesPage = () => {
         setReports(formatted);
       } catch (error) {
         console.error("Error backend:", error);
-        alert("Error al cargar guardias");
+        Swal.fire({
+                icon: 'error',
+                title: 'Error al cargar los guardias.',
+                timer: 2000
+              })
       }
     };
 
@@ -51,34 +56,9 @@ const IncidentesPage = () => {
     return `${dia}/${mes}/${anio}`;
   };
 
-  const handleDelete = async (ID_Informe) => {
-    const confirmDelete = window.confirm(
-      `¿Seguro que deseas eliminar el reporte con ID ${ID_Informe}?`
-    );
-    if (!confirmDelete) return;
-
-    try {
-      const res = await axios.delete(
-        "http://localhost:3000/api/guards/report/deleteReport",
-        {
-          data: { ID_Informe },
-        }
-      );
-
-      // actualizar UI — ejemplo filtrando
-      setReports(prev => prev.filter(r => r.ID_Informe !== ID_Informe));
-
-    } catch (error) {
-      console.error(error);
-      alert(error.response?.data?.message || "No se pudo eliminar.");
-    }
-  };
 
   const handleEditReport = async () => {
     console.log(typeof reportSelected.ID_Informe)
-    const confirmUpdate = window.confirm(
-      `Actualizar información del reporte con ID: ${reportSelected.ID_Informe}?`);
-    if (!confirmUpdate) return;
 
     try {
         const res = await axios.put(
@@ -88,9 +68,19 @@ const IncidentesPage = () => {
             descripcion
             }
         );
+
+        Swal.fire({
+                icon: 'success',
+                title: 'Reporte actualizado correctamente.',
+                timer: 2000
+              })
     } catch (error) {
         console.log(error);
-        alert(error.response?.data?.message || "Error en la solicitud");
+        Swal.fire({
+                icon: 'error',
+                title: error.response?.data?.message || "Error en la solicitud",
+                timer: 2000
+              })
     }
   }
 
@@ -109,20 +99,6 @@ const IncidentesPage = () => {
             </div>
             <div className="text-3xl font-medium text-gray-800">2</div>
           </div>
-          <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex justify-between items-start mb-2">
-              <span className="text-gray-600 text-sm font-medium">Incidentes Pendientes</span>
-              <FileText size={18} className="text-gray-400" />
-            </div>
-            <div className="text-3xl font-medium text-gray-800">1</div>
-          </div>
-          <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex justify-between items-start mb-2">
-              <span className="text-gray-600 text-sm font-medium">Informes Mensuales</span>
-              <Calendar size={18} className="text-gray-400" />
-            </div>
-            <div className="text-3xl font-medium text-gray-800">1</div>
-          </div>
         </div>
 
         {/* Sección Sistema de Informes */}
@@ -131,11 +107,6 @@ const IncidentesPage = () => {
             <h2 className="text-lg font-bold text-gray-800">Sistema de Reportes</h2>
             <p className="text-gray-500 text-sm mt-1">Registre los incidentes ocurridos en su respectivo bicicletero.</p>
             
-            {/* Sub-tabs */}
-            <div className="flex bg-gray-100 rounded-lg p-1 mt-4 max-w-2xl">
-              <button className="flex-1 bg-white py-1.5 text-sm font-medium shadow-sm rounded-md text-gray-900">Incidentes Individuales</button>
-              <button className="flex-1 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-700">Informes Mensuales</button>
-            </div>
 
             {/* Botón Registrar */}
             <div className="flex justify-end mt-4">
@@ -179,11 +150,6 @@ const IncidentesPage = () => {
                           <Edit size={14}/> Editar
                         </button>
                     </td>
-                    <td className='p-4'>
-                        <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium" onClick={() => handleDelete(r.ID_Informe)}>
-                            <Trash2 size={14}/> Eliminar
-                        </button>
-                      </td>
                   </tr>
                 ))}
               </tbody>
