@@ -90,7 +90,7 @@ export const updateReport = async (req, res) => {
         if (!isValid) return handleErrorClient(res, 404, `El ID ${ID_Informe} no se encuentra asociado a ningún reporte.`);
 
         if (descripcion.length === 0) {
-            return handleErrorClient(res, 400, "La descripcion debe tener al menos 50 caracteres")
+            return handleErrorClient(res, 400, "La descripcion no puede estar vacía.")
         }
         
         //verifica que la bdd este iniciada

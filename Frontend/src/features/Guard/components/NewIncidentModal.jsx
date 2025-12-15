@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { X, Upload } from 'lucide-react';
 import React, { useRef, useState } from "react";
+import Swal from 'sweetalert2'
 
 // Componente Básico de Modal
 const NewIncidentModal  = ({ isOpen, onClose }) => {
@@ -22,9 +23,11 @@ const NewIncidentModal  = ({ isOpen, onClose }) => {
   };
 
   const handleCreateRegister = async () => {
-    alert(`fecha: ${fecha}
-      descrpcion: ${descripcion}
-      bicilcetero: ${bicicletero}`)
+    Swal.fire({
+            icon: 'success',
+            title: 'Se ha registrado el incidente exitosamente',
+            timer: 2000
+          })
     try {
       if (bicicletero === '') throw new Error('Seleccione un bicicletero.')
       const res = await axios.post('http://localhost:3000/api/guards/report/createReport', {
@@ -35,7 +38,11 @@ const NewIncidentModal  = ({ isOpen, onClose }) => {
       console.log(res);
     } catch (error) {
       console.log(error);
-      alert(error || "Error en la solicitud");
+      Swal.fire({
+              icon: 'error',
+              title: error || 'Error en a solicitud',
+              timer: 2000
+            })
     }
     
   }

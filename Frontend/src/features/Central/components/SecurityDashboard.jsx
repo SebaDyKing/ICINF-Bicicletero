@@ -17,41 +17,9 @@ import {
   EyeOff 
 } from 'lucide-react';
 import { getGuardService, getUserService } from '../services/adminGuard.service';
+import Swal from 'sweetalert2'
 
 import {Header} from './Header';
-
-const initialReports = [
-  { 
-    id: 1, 
-    date: '2025-11-28 09:15', 
-    student: 'Juan Pérez González', 
-    rut: '12.345.678-9', 
-    place: 'Bicicletero FACE', 
-    desc: 'Bicicleta azul marca Trek, modelo Marlin 5...', 
-    status: 'En investigación', 
-    guardId: 1 
-  },
-  { 
-    id: 2, 
-    date: '2025-11-27 14:30', 
-    student: 'María González Silva', 
-    rut: '23.456.789-0', 
-    place: 'Bicicletero Ingeniería', 
-    desc: 'Cortaron el candado con cizalla, bicicleta...', 
-    status: 'Pendiente', 
-    guardId: null 
-  },
-  { 
-    id: 3, 
-    date: '2025-11-25 11:20', 
-    student: 'Carlos Silva Rojas', 
-    rut: '24.567.890-1', 
-    place: 'Bicicletero Biblioteca', 
-    desc: 'Robo de accesorios: luces LED delanteras...', 
-    status: 'Resuelto', 
-    guardId: 2 
-  },
-];
 
 export default function SecurityDashboard() {
   const [activeTab, setActiveTab] = useState('guards'); // 'guards' | 'reports'
@@ -65,7 +33,7 @@ export default function SecurityDashboard() {
   
   // Estados de datos
   const [guards, setGuards] = useState([]);
-  const [reports, setReports] = useState(initialReports);
+  const [reports, setReports] = useState([]);
 
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
@@ -85,6 +53,38 @@ export default function SecurityDashboard() {
     // if (!emailFromRegister) {
     //   navigate("/login");
     // }
+    const fetchReports = async () => {
+      try {
+        const res = await axios.get(`http://localhost:3000/api/guards/report/getAllReports`);
+        console.log(res)
+        
+        const formatted = res.data.data.resultQuery.map(r => ({
+          ID_Informe: r.ID_Informe,
+          fecha: r.Fecha,
+          descripcion: r.Descripcion,
+          bicicletero: r.Bicicletero,
+          imagenes: r.ImagenesURL
+        }));
+        
+
+        setReports(formatted);
+      } catch (error) {
+        console.error("Error backend:", error);
+        Swal.fire({
+                icon: 'error',
+                title: 'Error al cargar reportes.',
+                timer: 2000
+              })
+      }
+    };
+
+    fetchReports();
+  }, []);
+
+  useEffect(() => {
+    // if (!emailFromRegister) {
+    //   navigate("/login");
+    // }
     const fetchGuards = async () => {
       try {
         const res = await axios.get("http://localhost:3000/api/central/getAllGuards");
@@ -99,7 +99,11 @@ export default function SecurityDashboard() {
         setGuards(formatted);
       } catch (error) {
         console.error("Error backend:", error);
-        alert("Error al cargar guardias");
+        Swal.fire({
+                icon: 'error',
+                title: 'Error al cargar guardias.',
+                timer: 2000
+              })
       }
     };
 
@@ -126,12 +130,20 @@ export default function SecurityDashboard() {
         apellido
       });
 
-      alert("Guardia creado");
+      Swal.fire({
+        icon: 'success',
+        title: 'pico',
+        timer: 2000
+      })
       console.log(res.data.resultQuery);
 
     } catch (error) {
       console.log(error);
-      alert(error.response?.data?.message || "Error en la solicitud");
+      Swal.fire({
+                icon: 'error',
+                title: error.response?.data?.message || "Error en la solicitud",
+                timer: 2000
+              })
     }
   };
 
@@ -150,14 +162,22 @@ export default function SecurityDashboard() {
         }
       );
 
-      alert(res.data.message);
+      Swal.fire({
+                icon: 'success',
+                title: res.data.message,
+                timer: 2000
+              })
 
       // actualizar UI — ejemplo filtrando
       setGuards(prev => prev.filter(g => g.rut !== rut));
 
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.message || "No se pudo eliminar.");
+      Swal.fire({
+                icon: 'error',
+                title: error.response?.data?.message || "No se pudo eliminar.",
+                timer: 2000
+              })
     }
   };
 
@@ -180,12 +200,20 @@ export default function SecurityDashboard() {
       );
       console.log(res)
 
-      alert("Información del guardia actualizada correctamente");
+      Swal.fire({
+                icon: 'success',
+                title: 'Información del guardia actualizada correctamente.',
+                timer: 2000
+              })
       console.log(res.data);
 
     } catch (error) {
       console.log(error);
-      alert(error.response?.data?.message || "Error en la solicitud");
+      Swal.fire({
+        icon: 'error',
+        title: error.response?.data?.message || "Error en la solicitud",
+        timer: 2000
+      })
     }
   };
 
@@ -214,7 +242,11 @@ export default function SecurityDashboard() {
     } catch (error) {
       console.error(error);
       setUserSelected(null); // Limpia
-      alert(error.response?.data?.message || "Usuario no encontrado");
+      Swal.fire({
+                icon: 'error',
+                title: error.response?.data?.message || "Usuario no encontrado",
+                timer: 2000
+              })
     }
   };
 
@@ -250,6 +282,49 @@ export default function SecurityDashboard() {
     );
   };
 
+  const formatDate = (fechaHora) => {
+    const date = new Date(fechaHora);
+
+    const dia = date.getDate().toString().padStart(2, "0");
+    const mes = (date.getMonth() + 1).toString().padStart(2, "0");
+    const anio = date.getFullYear();
+
+    return `${dia}/${mes}/${anio}`;
+  };
+
+    const handleDeleteReport = async (ID_Informe) => {
+      const confirmDelete = window.confirm(
+        `¿Seguro que deseas eliminar el reporte con ID ${ID_Informe}?`
+      );
+      if (!confirmDelete) return;
+
+      try {
+        const res = await axios.delete(
+          "http://localhost:3000/api/guards/report/deleteReport",
+          {
+            data: { ID_Informe },
+          }
+        );
+
+        Swal.fire({
+                icon: 'success',
+                title: 'Reporte eliminado correctamente',
+                timer: 2000
+              })
+
+        // actualizar UI — ejemplo filtrando
+        setReports(prev => prev.filter(r => r.ID_Informe !== ID_Informe));
+
+      } catch (error) {
+        console.error(error);
+        Swal.fire({
+                icon: 'error',
+                title: error.response?.data?.message || "No se pudo eliminar.",
+                timer: 2000
+              })
+      }
+    };
+
   
   
   return (
@@ -272,14 +347,6 @@ export default function SecurityDashboard() {
               <Plus size={18} /> Nuevo Guardia
             </button>
           )}
-        </div>
-
-        {/* Tarjetas de Estadísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <StatCard title="Guardias Activos" value="2" subtext="Personal de seguridad" icon={Shield} colorClass="bg-blue-50" iconColor="text-blue-500" />
-          <StatCard title="Reportes Pendientes" value="2" subtext="Requieren atención urgente" icon={AlertTriangle} colorClass="bg-red-50" iconColor="text-red-500" />
-          <StatCard title="En Investigación" value="2" subtext="Casos activos" icon={Clock} colorClass="bg-yellow-50" iconColor="text-yellow-500" />
-          <StatCard title="Tasa de Resolución" value="20%" subtext="1 casos resueltos" icon={TrendingUp} colorClass="bg-green-50" iconColor="text-green-500" />
         </div>
 
         {/*BUSQUEDA DE USUARIO*/}
@@ -307,7 +374,11 @@ export default function SecurityDashboard() {
             </select>
 
             <div className="relative mb-6">              
-              <button className="mt-5 flex items-center gap-1 text-white bg-blue-800 px-3 py-1.5 rounded-lg text-sm hover:bg-blue-600 font-medium" onClick={() => {rol === '' ? alert('Seleccione el rol del usuario') : rol==='guardia' ? searchGuardByRut() : searchUserByRut()}}>
+              <button className="mt-5 flex items-center gap-1 text-white bg-blue-800 px-3 py-1.5 rounded-lg text-sm hover:bg-blue-600 font-medium" onClick={() => {rol === '' ? Swal.fire({
+                icon: 'warning',
+                title: 'Seleccione el rol.',
+                timer: 2000
+              }) : rol==='guardia' ? searchGuardByRut() : searchUserByRut()}}>
                 <Search size={14}/> Buscar
               </button>
               {userSelected && (
@@ -411,76 +482,32 @@ export default function SecurityDashboard() {
             <h2 className="text-xl font-semibold text-gray-800 mb-1">Reportes de Robo</h2>
             <p className="text-gray-500 text-sm mb-6">Gestión y seguimiento de reportes de los estudiantes</p>
 
-            <div className="flex gap-4 mb-6">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                <input 
-                  type="text" 
-                  placeholder="Buscar por estudiante, RUT, lugar o descripción..." 
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <select className="bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option>Todos los estados</option>
-                <option>Pendiente</option>
-                <option>En investigación</option>
-                <option>Resuelto</option>
-              </select>
-            </div>
-
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="bg-gray-50 text-gray-600 font-semibold">
                   <tr>
-                    <th className="p-4 rounded-tl-lg">Fecha/Hora</th>
-                    <th className="p-4">Estudiante</th>
-                    <th className="p-4">Lugar</th>
+                    <th className="p-4 rounded-tl-lg">ID</th>
+                    <th className="p-4">Fecha</th>
+                    <th className="p-4">Bicicletero</th>
                     <th className="p-4 w-64">Descripción</th>
-                    <th className="p-4">Estado</th>
-                    <th className="p-4">Guardia</th>
-                    <th className="p-4 rounded-tr-lg">Acciones</th>
+                    <th className="p-4">Imagenes</th>
+                    <th className="p-4">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {reports.map((report) => (
-                    <tr key={report.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="p-4 align-top text-gray-800 font-medium whitespace-nowrap">
-                        <div className="flex flex-col">
-                          <span>{report.date.split(' ')[0]}</span>
-                          <span className="text-gray-400 text-xs">{report.date.split(' ')[1]}</span>
-                        </div>
+                  {reports.map((r) => (
+                    <tr key={r.ID_Informe} className="hover:bg-gray-50 transition-colors">
+                      <td className="p-4 font-medium">{r.ID_Informe}</td>
+                      <td className="p-4">{formatDate(r.fecha)}</td>
+                      <td className="p-4">{r.bicicletero}</td>
+                      <td className="p-4 truncate max-w-xs" title={r.descripcion}>{r.descripcion}</td>
+                      <td className="p-4 text-center">
+                        <span className="bg-gray-100 px-3 py-1 rounded-full text-xs border border-gray-200">{r.imagenes} imágenes</span>
                       </td>
-                      <td className="p-4 align-top">
-                        <div className="font-medium text-gray-800">{report.student}</div>
-                        <div className="text-gray-400 text-xs">{report.rut}</div>
-                      </td>
-                      <td className="p-4 align-top text-gray-600">{report.place}</td>
-                      <td className="p-4 align-top text-gray-600 truncate max-w-xs" title={report.desc}>
-                        {report.desc}
-                      </td>
-                      <td className="p-4 align-top">
-                        <StatusBadge status={report.status} />
-                      </td>
-                      <td className="p-4 align-top">
-                        <select 
-                          className="bg-white border border-gray-200 text-gray-700 text-xs rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 w-full"
-                          defaultValue={report.guardId || ""}
-                        >
-                          <option value="" disabled>Asignar...</option>
-                          {guards.map(g => (
-                            <option key={g.id} value={g.id}>{g.name}</option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="p-4 align-top">
-                        <select 
-                           className="bg-gray-100 border border-transparent hover:border-gray-300 text-gray-700 text-xs rounded px-2 py-1 cursor-pointer focus:ring-2 focus:ring-blue-500"
-                           defaultValue={report.status}
-                        >
-                          <option value="Pendiente">Pendiente</option>
-                          <option value="En investigación">En investigación</option>
-                          <option value="Resuelto">Resuelto</option>
-                        </select>
+                      <td className='p-4'>
+                        <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium" onClick={() => handleDeleteReport(r.ID_Informe)}>
+                          <Trash2 size={14}/> Eliminar
+                        </button>
                       </td>
                     </tr>
                   ))}
