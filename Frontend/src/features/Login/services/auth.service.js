@@ -1,21 +1,15 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:3000/api";
+import api from "../../../config/axios.config.js";
 
 export const loginService = async (rut, password) => {
   try {
-    // Enviamos 'rut' y 'contrasenia'
-    const response = await axios.post(`${API_URL}/auth/login`, {
+    const response = await api.post(`/auth/login`, {
       rut: rut,
       contrasenia: password,
     });
 
-    // backend devuelve: { status: "Success", data: { token, rut, email, tipo_usuario }, ... }
-    const { data } = response.data; // Extraemos el objeto 'data' interno
-    console.log(data)
+    const { data } = response.data;
     if (data.token) {
       localStorage.setItem("token", data.token);
-      // Guardamos el usuario completo para tener el rol a mano
       localStorage.setItem("user", JSON.stringify(data));
     }
 
@@ -36,10 +30,7 @@ export const logoutService = () => {
 
 export const registerOwnerService = async (userData) => {
   try {
-    const response = await axios.post(
-      `${API_URL}/owners/createOwner`,
-      userData
-    );
+    const response = await api.post(`/owners/createOwner`, userData);
     return response.data;
   } catch (error) {
     throw error.response?.data || { message: "Error de conexión" };
@@ -48,13 +39,9 @@ export const registerOwnerService = async (userData) => {
 
 export const verifyAccountService = async (email, codigo) => {
   try {
-    const response = await axios.post(`${API_URL}/auth/authenticate`, { email, codigo });
+    const response = await api.post(`/auth/authenticate`, { email, codigo });
     return response.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Error de conexión' };
+    throw error.response?.data || { message: "Error de conexión" };
   }
 };
-
-
-
-
