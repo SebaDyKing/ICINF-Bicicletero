@@ -2,9 +2,11 @@ import SideBar from "./components/SideBar";
 import Dashboard from "./components/Dashboard";
 import Bikes from "./components/Bikes";
 import Profile from "./components/Profile";
+import RequestGuard from './components/RequestGuard.jsx'
 import { useState } from "react";
 import { useUserData } from "./hooks/useUserData.js";
 import { useAuth } from "../../Context/useAuth.js";
+import { Navigate } from "react-router-dom";
 
 const OwnerPage = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -19,13 +21,9 @@ const OwnerPage = () => {
     );
   }
 
-  // Mientras carga, evita acceder a propiedades nulas
+  // Cerrar sesión
   if (!user) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        Validando sesión...
-      </div>
-    );
+    return <Navigate to="/" replace />;
   }
 
   if (!userData) {
@@ -43,6 +41,7 @@ const OwnerPage = () => {
       <main className="flex-1">
         {activeTab === "dashboard" && <Dashboard user={userData} />}
         {activeTab === "bikes" && <Bikes user={userData} />}
+        {activeTab === "request-guard" && <RequestGuard user={userData} />}
         {activeTab === "profile" && <Profile user={userData} />}
       </main>
     </div>
