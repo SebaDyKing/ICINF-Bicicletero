@@ -23,3 +23,28 @@ export async  function createBicicletero (formData) {
   
   return response.data;
 };
+
+
+/**
+ * Elimina un bicicletero por su ID
+ * @param {string|number} id - ID del bicicletero
+ * @returns {Promise}
+ */
+
+export const deleteBicicletero = async (id) => {
+  // 1. Ver qué ID está llegando
+  console.log("Intentando borrar ID:", id); 
+  
+  // 2. Ver qué URL exacta se está construyendo
+  const urlFinal = `${API_BASE_URL}/bicicleteros/${id}`;
+  console.log("URL de eliminación:", urlFinal);
+
+  try {
+      const response = await axios.delete(urlFinal);
+      return response.data;
+  } catch (error) {
+      // 3. Ver el error real si falla
+      console.error("Error en axios:", error);
+      throw error; // Lanzamos el error para que el componente lo capture y muestre el Toast rojo
+  }
+};

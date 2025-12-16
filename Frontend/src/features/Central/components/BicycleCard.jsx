@@ -1,9 +1,71 @@
 import React from 'react';
-import { Edit2, Trash2 } from 'lucide-react';
+import { Edit2, Trash2, AlertTriangle } from 'lucide-react'; 
+import { toast } from 'sonner'; 
+import { deleteBicicletero } from '../services/bicicletero.service';
 
 export default function BicycleCard({ data, isActive, onClick }) {
+
   const porcentaje = Math.round((data.ocupados / data.total) * 100);
   const isFull = data.ocupados >= data.total;
+
+  const handleDeleteClick = (e) => {
+    e.stopPropagation(); 
+
+    toast.custom((t) => (
+      <div className="bg-white p-4 rounded-xl shadow-xl border border-gray-100 flex flex-col gap-3 w-[320px] animate-in fade-in zoom-in duration-200">
+        <div className="flex items-start gap-3">
+          <div className="bg-red-100 p-2 rounded-full shrink-0">
+            <AlertTriangle className="w-5 h-5 text-red-600" />
+          </div>
+          <div>
+            <h3 className="font-bold text-gray-900 text-sm">¿Eliminar "{data.nombre}"?</h3>
+            <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+              Esta acción es irreversible
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2 mt-1 pl-10">
+          <button 
+            onClick={() => toast.dismiss(t)}
+            className="flex-1 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
+          >
+            Cancelar
+          </button>
+          <button 
+            onClick={() => confirmDelete(t)}
+            className="flex-1 px-3 py-1.5 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition shadow-sm shadow-red-200"
+          >
+            Confirmar
+          </button>
+        </div>
+      </div>
+    ), { duration: Infinity });
+  };
+
+  const confirmDelete = async (toastId) => {
+    toast.dismiss(toastId); 
+
+    try {
+      await deleteBicicletero(data.id); 
+
+      toast.success('Bicicletero eliminado', {
+        description: `Se ha enviado la orden de eliminar "${data.nombre}".`,
+        duration: 3000,
+        icon: <Trash2 className="w-5 h-5 text-red-700" />,
+        className: `
+          bg-red-50 text-red-900 border-red-500 
+          !border-l-[4px] !border-l-red-500
+        `,
+        style: { borderLeftColor: 'rgb(239, 68, 68)' }
+      });
+
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al eliminar", {
+        description: "El servidor rechazó la solicitud."
+      });
+    }
+  };
 
   return (
     <div 
@@ -42,7 +104,7 @@ export default function BicycleCard({ data, isActive, onClick }) {
 
       <div className="absolute bottom-4 right-4 flex gap-2">
          <button 
-           onClick={(e) => { e.stopPropagation();}} 
+           onClick={(e) => { e.stopPropagation(); }} 
            className={`p-2 rounded-lg transition-all backdrop-blur-sm ${
            isActive 
              ? 'bg-white/10 text-white hover:bg-white/20 border border-white/10' 
@@ -50,8 +112,9 @@ export default function BicycleCard({ data, isActive, onClick }) {
          }`}>
            <Edit2 size={18} />
          </button>
+         
          <button 
-           onClick={(e) => { e.stopPropagation();}} 
+           onClick={handleDeleteClick} 
            className={`p-2 rounded-lg transition-all backdrop-blur-sm ${
            isActive 
              ? 'bg-white/10 text-white hover:bg-white/20 border border-white/10' 

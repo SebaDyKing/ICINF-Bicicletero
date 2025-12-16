@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X, CheckCircle2 } from "lucide-react"; 
 import { toast } from "sonner"; 
-import { createBicicletero } from "../services/createBicicletero.service";
+import { createBicicletero } from "../services/bicicletero.service";
 
 export function NewBicicleRackButton({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
