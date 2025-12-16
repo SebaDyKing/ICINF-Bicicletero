@@ -6,6 +6,7 @@ import { RecentActivity } from "./RecentActivity.jsx";
 import { Bike, Activity, ArrowUp, ArrowDown } from "lucide-react";
 import { BicicletarioManagment } from "./BicycleManagement.jsx";
 import { useDashboardData } from "../hooks/useDashboardData.js";
+import { Toaster } from "sonner";
 
 export const DashboardStats = () => {
     const [modoGestion, setModoGestion] = useState(false);
@@ -26,6 +27,14 @@ export const DashboardStats = () => {
 
     return (
         <div>
+            <Toaster 
+                position="top-right" 
+                richColors 
+                expand
+                toastOptions={{
+                    style: { zIndex: 99999 } 
+                }}
+            />
             {modoGestion ? (
                 <BicicletarioManagment 
                 dataGlobal = {data}

@@ -1,10 +1,11 @@
 import { useState,useEffect} from 'react';
 import { Plus,ArrowLeft } from 'lucide-react';
 import BicycleCard from './BicycleCard';
+import { NewBicicleRackButton } from './NewBicicleRackButton';
 
 export function GestionarBicicletarios({racks = [],onBack}) {
   const [activeId, setActiveId] = useState(1);
-
+  const [isModalOpen,setIsModalOpen] = useState(false)
   const bicicleterosData = racks.map((rack) => ({
     id: rack.id_bicicletero,
     nombre: rack.nombre,
@@ -48,7 +49,10 @@ export function GestionarBicicletarios({racks = [],onBack}) {
                         En línea
                     </span>
                     
-                    <button className="bg-gradient-to-br from-[#003366] to-[#005599] hover:from-[#002347] hover:to-[#004477] text-white px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/30 flex items-center gap-2 transition hover:scale-105 active:scale-95">
+                    <button 
+                    className="bg-gradient-to-br from-[#003366] to-[#005599] hover:from-[#002347] hover:to-[#004477] text-white px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/30 flex items-center gap-2 transition hover:scale-105 active:scale-95"
+                    onClick={() => setIsModalOpen(true)}
+                    >
                         <Plus size={20} />
                         Nuevo Bicicletario
                     </button>
@@ -71,6 +75,10 @@ export function GestionarBicicletarios({racks = [],onBack}) {
                     </div>
                 )}
             </div>
-        </div>
+            <NewBicicleRackButton
+            isOpen={isModalOpen} 
+            onClose={() => setIsModalOpen(false)} 
+                 />
+    </div>
   );
 }
