@@ -60,7 +60,7 @@ export async function updateBicicletero(req, res) {
       longitud: updatedBicicletero.longitud,
       capacidad_maxima: updatedBicicletero.capacidad_maxima,
     });
-
+    actualizarDashboard(req.io);
   } catch (error) {
     return handleErrorServer(res, 500, "Error del servidor", error.message);
   }
@@ -115,6 +115,7 @@ export async function deleteBicicletero(req, res) {
     handleSuccess(res, 200, "Bicicletero eliminado exitosamente", {
       message: `El bicicletero con ID ${id} ha sido eliminado.`,
     });
+    actualizarDashboard(req.io);
 
   } catch (error) {
     return handleErrorServer(res, 500, "Error del servidor", error.message);
