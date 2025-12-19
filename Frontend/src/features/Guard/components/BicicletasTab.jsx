@@ -5,7 +5,6 @@ import { Search, Bike, Minus, Plus } from 'lucide-react';
 
 function BicicletasTab() {
   const [registros, setRegistros] = useState([]);
-  const [capacidades, setCapacidades] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -20,15 +19,13 @@ function BicicletasTab() {
     try {
       setLoading(true);
       const resActivos = await guardService.getRegistrosActivos();
-      const resCapacidades = await guardService.getCapacidades();
       const resStats = await guardService.getEstadisticas();
 
       setRegistros(resActivos.data || resActivos);
-      setCapacidades(resCapacidades.data || resCapacidades);
       setStats(resStats.data || resStats);
     } catch (err) {
       console.error(err);
-      setError('Error al cargar datos.');
+      setError('Error al cargar datos (401). Por favor reinicia sesión.');
     } finally {
       setLoading(false);
     }
@@ -50,13 +47,29 @@ function BicicletasTab() {
     setShowModal(false);
   };
 
+  const normalizeText = (text) => {
+    if (!text) return "";
+    return text
+      .toString()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  };
+
   const registrosFiltrados = registros.filter((reg) => {
-    const term = busqueda.toLowerCase();
+    const term = normalizeText(busqueda); 
+    const rut = normalizeText(reg.bicycle.owner.rut);
+    const nombre = normalizeText(reg.bicycle.owner.nombre);
+    const apellido = normalizeText(reg.bicycle.owner.apellido);
+    const idBici = normalizeText(reg.bicycle.id_bicicleta);
+    const nombreCompleto = `${nombre} ${apellido}`;
+
     return (
-      reg.bicycle.owner.rut.toLowerCase().includes(term) ||
-      reg.bicycle.owner.nombre.toLowerCase().includes(term) ||
-      reg.bicycle.owner.apellido.toLowerCase().includes(term) ||
-      reg.bicycle.id_bicicleta.toLowerCase().includes(term)
+      rut.includes(term) ||
+      nombre.includes(term) ||
+      apellido.includes(term) ||
+      nombreCompleto.includes(term) || 
+      idBici.includes(term)
     );
   });
 
@@ -68,49 +81,53 @@ function BicicletasTab() {
   }, {});
 
   if (loading) return <div className="p-10 text-center">Cargando bicicletas...</div>;
-  if (error) return <div className="p-10 text-center text-red-600">{error}</div>;
+  if (error) return <div className="p-10 text-center text-red-600 font-bold">{error}</div>;
 
   return (
-    <div className="animate-fade-in">
-      {/* Tarjetas Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex justify-between items-start">
-          <div>
-            <p className="text-gray-500 text-sm font-medium">Total Bicicletas Activas</p>
-            <p className="text-4xl font-normal text-gray-800 mt-2">{registros.length}</p>
+    <div className="animate-fade-in pb-20">
+      
+      {/* --- SECCIÓN DE TARJETAS SUPERIORES (RESPONSIVE) --- */}
+      <div className="grid grid-cols-3 gap-2 md:gap-6 mb-4 md:mb-8">
+        {/* Tarjeta 1 */}
+        <div className="bg-white p-2 md:p-6 rounded-lg shadow-sm border border-gray-200 flex justify-between items-start">
+          <div className="flex flex-col justify-between h-full">
+            <p className="text-gray-500 text-[10px] md:text-sm font-medium leading-tight">Bicis Activas</p>
+            <p className="text-xl md:text-4xl font-normal text-gray-800 mt-1 md:mt-2">{registros.length}</p>
           </div>
-          <Bike className="text-gray-300" size={24} />
+          <Bike className="text-gray-300 w-5 h-5 md:w-6 md:h-6 shrink-0" />
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex justify-between items-start">
-          <div>
-            <p className="text-gray-500 text-sm font-medium">Retiradas Hoy</p>
-            <p className="text-4xl font-normal text-gray-800 mt-2">{stats.retirosHoy}</p>
+        {/* Tarjeta 2 */}
+        <div className="bg-white p-2 md:p-6 rounded-lg shadow-sm border border-gray-200 flex justify-between items-start">
+          <div className="flex flex-col justify-between h-full">
+            <p className="text-gray-500 text-[10px] md:text-sm font-medium leading-tight">Retiradas Hoy</p>
+            <p className="text-xl md:text-4xl font-normal text-gray-800 mt-1 md:mt-2">{stats.retirosHoy}</p>
           </div>
-          <Minus className="text-gray-300" size={24} />
+          <Minus className="text-gray-300 w-5 h-5 md:w-6 md:h-6 shrink-0" />
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex justify-between items-start">
-          <div>
-            <p className="text-gray-500 text-sm font-medium">Ingresos Hoy</p>
-            <p className="text-4xl font-normal text-gray-800 mt-2">{stats.ingresosHoy}</p>
+        {/* Tarjeta 3 */}
+        <div className="bg-white p-2 md:p-6 rounded-lg shadow-sm border border-gray-200 flex justify-between items-start">
+          <div className="flex flex-col justify-between h-full">
+            <p className="text-gray-500 text-[10px] md:text-sm font-medium leading-tight">Ingresos Hoy</p>
+            <p className="text-xl md:text-4xl font-normal text-gray-800 mt-1 md:mt-2">{stats.ingresosHoy}</p>
           </div>
-          <Plus className="text-gray-300" size={24} />
+          <Plus className="text-gray-300 w-5 h-5 md:w-6 md:h-6 shrink-0" />
         </div>
       </div>
 
-      {/* Barra Herramientas */}
+      {/* --- BARRA HERRAMIENTAS --- */}
       <div className="mb-6">
         <div className="mb-2">
           <h2 className="font-bold text-gray-800 text-lg">Bicicletas Registradas</h2>
           <p className="text-xs text-gray-500">Gestione el ingreso y retiro de bicicletas</p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col md:flex-row gap-4 justify-between items-center">
-          <div className="relative w-full md:w-2/3">
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-row gap-4 items-center">
+          <div className="relative flex-1">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="text-gray-400" size={18} />
             </div>
             <input 
               type="text" 
-              placeholder="Buscar por nombre, RUT o ID de bicicleta..." 
+              placeholder="Buscar por nombre, RUT o ID..." 
               className="w-full bg-gray-50 border border-gray-200 pl-10 pr-4 py-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
@@ -125,7 +142,7 @@ function BicicletasTab() {
         </div>
       </div>
 
-      {/* Tablas */}
+      {/* --- ÁREA DE DATOS --- */}
       {Object.keys(registrosAgrupados).length === 0 ? (
         <div className="bg-white p-10 rounded-lg shadow-sm text-center text-gray-500 border border-gray-200">
           {busqueda ? 'No se encontraron resultados.' : 'No hay bicicletas activas.'}
@@ -133,11 +150,14 @@ function BicicletasTab() {
       ) : (
         Object.entries(registrosAgrupados).map(([nombreBicicletero, listaBicis]) => (
           <div key={nombreBicicletero} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-8">
+            {/* Encabezado del Bicicletero */}
             <div className="bg-[#003366] px-6 py-3 flex justify-between items-center">
               <h3 className="text-white font-bold text-sm uppercase tracking-wide">{nombreBicicletero}</h3>
               <span className="bg-white text-[#003366] text-xs font-bold px-2 py-0.5 rounded-full shadow-sm">{listaBicis.length} bicicletas</span>
             </div>
-            <div className="overflow-x-auto">
+
+            {/* ================= VISTA DE ESCRITORIO (TABLA) ================= */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm text-left table-fixed">
                 <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
                   <tr>
@@ -167,6 +187,60 @@ function BicicletasTab() {
                 </tbody>
               </table>
             </div>
+
+            {/* ================= VISTA MÓVIL (DISEÑO FIGMA) ================= */}
+            <div className="md:hidden flex flex-col gap-4 p-4 bg-gray-50">
+              {listaBicis.map((reg) => {
+                const fechaObj = new Date(reg.fechaIngreso);
+                const fechaStr = fechaObj.toLocaleDateString();
+                // Formato HH:mm (ej: 08:30)
+                const horaStr = fechaObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false});
+
+                return (
+                <div key={reg.idRegistro} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 font-sans">
+                  {/* HEADER: ID y Fecha */}
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-[#003366] font-bold text-lg">
+                      {reg.bicycle.id_bicicleta}
+                    </span>
+                    <span className="text-gray-400 text-sm">
+                      {fechaStr}
+                    </span>
+                  </div>
+
+                  {/* BODY: Datos (Etiqueta gris + Valor negrita) */}
+                  <div className="space-y-3 mb-6 text-sm text-gray-800">
+                    <div>
+                      <span className="text-gray-500">Nombre: </span>
+                      <span className="font-bold ml-1">{reg.bicycle.owner.nombre} {reg.bicycle.owner.apellido}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">RUT: </span>
+                      <span className="font-bold ml-1">{reg.bicycle.owner.rut}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Bicicleta: </span>
+                      <span className="font-bold ml-1">{reg.bicycle.modelo} - {reg.bicycle.color}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Hora ingreso: </span>
+                      <span className="font-bold ml-1">{horaStr}</span>
+                    </div>
+                  </div>
+                  
+                  {/* FOOTER: Botón azul completo */}
+                  <button 
+                    onClick={() => handleRetirar(reg.bicycle.id_bicicleta)} 
+                    className="w-full bg-[#003366] hover:bg-blue-900 text-white font-bold py-3 rounded-xl flex items-center justify-center transition shadow-sm"
+                  >
+                    <Minus className="text-white mr-2" size={18} strokeWidth={3} />
+                    Retirar Bicicleta
+                  </button>
+                </div>
+              )})}
+            </div>
+            {/* ================= FIN VISTA MÓVIL ================= */}
+
           </div>
         ))
       )}

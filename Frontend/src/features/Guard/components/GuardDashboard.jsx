@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import BicicletasTab from './BicicletasTab'; // Importamos tu trabajo separado
+import BicicletasTab from './BicicletasTab';
 import Incidentes from './Incidentes'
 
 function GuardDashboard() {
@@ -34,7 +34,6 @@ function GuardDashboard() {
             Informes de Incidentes
           </button>
 
-          {/* PESTAÑA DE USUARIOS ELIMINADA */}
         </div>
       </div>
 

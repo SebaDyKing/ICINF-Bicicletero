@@ -1,13 +1,9 @@
-// Frontend/src/features/Guard/components/IngresoModal.jsx
 import React, { useState, useEffect } from 'react';
 import { guardService } from '../services/guard.service';
-// Importamos iconos para las pestañas (opcional, se ve mejor)
 import { FaKeyboard, FaQrcode } from 'react-icons/fa'; 
 
 const IngresoModal = ({ onClose, onSuccess }) => {
-  // --- ESTADO NUEVO: Controla qué pestaña está activa ('manual' o 'qr') ---
   const [activeTab, setActiveTab] = useState('manual');
-
   const [bicicleteros, setBicicleteros] = useState([]);
   const [rutBusqueda, setRutBusqueda] = useState('');
   const [ownerData, setOwnerData] = useState(null);
@@ -16,7 +12,32 @@ const IngresoModal = ({ onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Cargar bicicleteros (Igual que antes)
+  // --- NUEVA LÓGICA: Formatear RUT ---
+  const formatRut = (value) => {
+    // 1. Limpiamos: Solo números y K
+    const cleaned = value.replace(/[^0-9kK]/g, "");
+    
+    // 2. Si es corto, devolvemos limpio
+    if (cleaned.length < 2) return cleaned;
+
+    // 3. Separamos cuerpo y DV
+    const body = cleaned.slice(0, -1);
+    const dv = cleaned.slice(-1).toUpperCase();
+
+    // 4. Ponemos puntos
+    const bodyFormatted = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+    return `${bodyFormatted}-${dv}`;
+  };
+
+  const handleRutChange = (e) => {
+    const rawValue = e.target.value;
+    const formatted = formatRut(rawValue);
+    setRutBusqueda(formatted);
+  };
+  // -----------------------------------
+
+  // Cargar bicicleteros
   useEffect(() => {
     const loadBicicleteros = async () => {
       try {
@@ -34,13 +55,13 @@ const IngresoModal = ({ onClose, onSuccess }) => {
     loadBicicleteros();
   }, []);
 
-  // Buscar por RUT (Igual que antes)
+  // Buscar por RUT
   const handleBuscarRut = async () => {
     if (!rutBusqueda) return;
     setLoading(true);
     setError('');
     setOwnerData(null);
-    setSelectedBici(''); // Reseteamos selección al buscar de nuevo
+    setSelectedBici(''); 
     try {
       const res = await guardService.getOwnerByRut(rutBusqueda);
       const dataDueño = res.data || res;
@@ -53,7 +74,7 @@ const IngresoModal = ({ onClose, onSuccess }) => {
     }
   };
 
-  // Enviar (Igual que antes)
+  // Enviar
   const handleSubmit = async () => {
     if (!selectedBici || !selectedBicicletero) return;
     try {
@@ -72,18 +93,17 @@ const IngresoModal = ({ onClose, onSuccess }) => {
   };
 
   return (
-    // --- SOLUCIÓN 1: CAMBIO DE CSS AQUÍ (bg-black/50) ---
     <div className="fixed inset-0 bg-black/50 flex justify-center items-start pt-10 z-50 backdrop-blur-sm transition-opacity">
       
       <div className="bg-white rounded-xl w-full max-w-lg shadow-2xl relative overflow-hidden animate-slide-down">
         
-        {/* Header con Título y Cerrar */}
+        {/* Header */}
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-xl font-bold text-gray-800">Ingresar Nueva Bicicleta</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
         </div>
 
-        {/* --- SOLUCIÓN 2: PESTAÑAS DE NAVEGACIÓN --- */}
+        {/* Pestañas */}
         <div className="flex border-b bg-gray-50">
           <button 
             className={`flex-1 py-3 text-sm font-medium flex justify-center items-center gap-2 transition-colors
@@ -101,10 +121,9 @@ const IngresoModal = ({ onClose, onSuccess }) => {
           </button>
         </div>
 
-        {/* Contenido Principal (Depende de la pestaña activa) */}
+        {/* Contenido */}
         <div className="p-6">
           
-          {/* --- CONTENIDO PESTAÑA MANUAL --- */}
           {activeTab === 'manual' && (
             <div className="space-y-5 animate-fade-in">
               <div>
@@ -113,10 +132,11 @@ const IngresoModal = ({ onClose, onSuccess }) => {
                   <input 
                     type="text" 
                     placeholder="Ej: 21.372.842-3"
-                    className="border p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="border p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-500 outline-none uppercase" // Agregué uppercase visualmente
                     value={rutBusqueda}
-                    onChange={(e) => setRutBusqueda(e.target.value)}
+                    onChange={handleRutChange} // <--- CAMBIO AQUÍ: Usamos la función nueva
                     onKeyDown={(e) => e.key === 'Enter' && handleBuscarRut()}
+                    maxLength={12} // <--- CAMBIO AQUÍ: Limitar largo
                   />
                   <button 
                     onClick={handleBuscarRut}
@@ -130,7 +150,7 @@ const IngresoModal = ({ onClose, onSuccess }) => {
 
               {error && <p className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-100">{error}</p>}
 
-              {/* Resultados de la búsqueda */}
+              {/* Resultados */}
               {ownerData && (
                 <div className="bg-blue-50 p-5 rounded-xl border border-blue-100 space-y-4 animate-fade-in-up">
                   <div className="border-b border-blue-200 pb-3">
@@ -174,7 +194,6 @@ const IngresoModal = ({ onClose, onSuccess }) => {
             </div>
           )}
 
-          {/* --- CONTENIDO PESTAÑA QR (Placeholder) --- */}
           {activeTab === 'qr' && (
             <div className="py-10 text-center text-gray-500 animate-fade-in">
               <FaQrcode className="text-6xl mx-auto mb-4 text-gray-300" />
@@ -185,7 +204,7 @@ const IngresoModal = ({ onClose, onSuccess }) => {
 
         </div>
 
-        {/* Footer con Botones de Acción (Solo visibles en modo Manual) */}
+        {/* Footer */}
         {activeTab === 'manual' && (
           <div className="p-4 border-t flex justify-end gap-3 bg-gray-50">
             <button 
