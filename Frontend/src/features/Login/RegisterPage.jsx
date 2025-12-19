@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { registerOwnerService } from "./services/auth.service";
 import { formatRut } from "./utils/rutUtils.js";
 import { Eye, EyeOff } from "lucide-react";
+import Swal from "sweetalert2";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -51,10 +52,16 @@ const RegisterPage = () => {
 
     try {
       await registerOwnerService(dataToSend);
-      // Usar alert no es lo más elegante, pero funcional por ahora
-      alert(
-        "Cuenta creada con éxito. Por favor revisa tu correo para verificar tu cuenta."
-      );
+
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Registro exitoso",
+        text: "Se ha enviado un correo de verificación a su email.",
+        confirmButtonText: "Aceptar",
+        confirmButtonColor: "#2563EB",
+      });
+
       navigate("/verify", {
         state: { email: formData.email },
       });
