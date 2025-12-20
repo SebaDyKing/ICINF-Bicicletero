@@ -30,21 +30,28 @@ export async  function createBicicletero (formData) {
  * @param {string|number} id - ID del bicicletero
  * @returns {Promise}
  */
-
 export const deleteBicicletero = async (id) => {
-  // 1. Ver qué ID está llegando
-  console.log("Intentando borrar ID:", id); 
-  
-  // 2. Ver qué URL exacta se está construyendo
-  const urlFinal = `${API_BASE_URL}/bicicleteros/${id}`;
-  console.log("URL de eliminación:", urlFinal);
+  const response = await axios.delete(`${API_BASE_URL}/bicicleteros/${id}`);
+  return response.data;
+};
 
-  try {
-      const response = await axios.delete(urlFinal);
-      return response.data;
-  } catch (error) {
-      // 3. Ver el error real si falla
-      console.error("Error en axios:", error);
-      throw error; // Lanzamos el error para que el componente lo capture y muestre el Toast rojo
+/**
+ * Actualiza un bicicletero existente usando PATCH (actualización parcial)
+ * @param {number|string} id - ID del bicicletero
+ * @param {Object} formData - Datos del formulario
+ */
+export const updateBicicletero = async (id, formData) => {
+  const payload = {
+    nombre: formData.nombre.trim(),
+    capacidad_maxima: Number(formData.capacidad_maxima),
+    latitud: Number(formData.latitud),
+    longitud: Number(formData.longitud)
+  };
+
+  if (formData.imagen && formData.imagen.trim() !== "") {
+    payload.imagen = formData.imagen.trim();
   }
+
+  const response = await axios.patch(`${API_BASE_URL}/bicicleteros/${id}`, payload);
+  return response.data;
 };

@@ -1,6 +1,6 @@
 import { Trash2, X } from "lucide-react";
 import { toast } from "sonner";
-import { deleteBicicletero } from "../services/bicicletero.service";
+import { deleteBicicletero } from "../services/bicycleRack.service";
 
 export const DeleteBicicleteroButton = ({ id, nombre, onSuccess }) => {
 

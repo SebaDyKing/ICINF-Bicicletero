@@ -1,9 +1,8 @@
-import React from 'react';
 import { Edit2, Trash2, AlertTriangle } from 'lucide-react'; 
 import { toast } from 'sonner'; 
-import { deleteBicicletero } from '../services/bicicletero.service';
+import { deleteBicicletero } from '../services/bicycleRack.service';
 
-export default function BicycleCard({ data, isActive, onClick }) {
+export default function BicycleCard({ data, isActive, onClick,onEdit }) {
 
   const porcentaje = Math.round((data.ocupados / data.total) * 100);
   const isFull = data.ocupados >= data.total;
@@ -45,6 +44,15 @@ export default function BicycleCard({ data, isActive, onClick }) {
   const confirmDelete = async (toastId) => {
     toast.dismiss(toastId); 
 
+    if (data.ocupados > 0) {
+      toast.error("No se puede eliminar", {
+        description: `El bicicletero tiene ${data.ocupados} bicicleta(s) activa(s). Debes retirarlas primero.`,
+        duration: 4000,
+        icon: <AlertTriangle className="w-5 h-5 text-red-600" />, 
+      });
+      return; 
+    }
+
     try {
       await deleteBicicletero(data.id); 
 
@@ -62,7 +70,7 @@ export default function BicycleCard({ data, isActive, onClick }) {
     } catch (error) {
       console.error(error);
       toast.error("Error al eliminar", {
-        description: "El servidor rechazó la solicitud."
+       description: error.response?.data?.message || "Ocurrió un error inesperado."
       });
     }
   };
@@ -104,7 +112,11 @@ export default function BicycleCard({ data, isActive, onClick }) {
 
       <div className="absolute bottom-4 right-4 flex gap-2">
          <button 
-           onClick={(e) => { e.stopPropagation(); }} 
+           onClick={(e) => { 
+            e.stopPropagation();
+            onEdit(data)
+
+            }} 
            className={`p-2 rounded-lg transition-all backdrop-blur-sm ${
            isActive 
              ? 'bg-white/10 text-white hover:bg-white/20 border border-white/10' 

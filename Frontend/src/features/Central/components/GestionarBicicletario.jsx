@@ -6,11 +6,16 @@ import { NewBicicleRackButton } from './NewBicicleRackButton';
 export function GestionarBicicletarios({racks = [],onBack}) {
   const [activeId, setActiveId] = useState(1);
   const [isModalOpen,setIsModalOpen] = useState(false)
+  const [editingData,setEditingData] = useState(null)
+
   const bicicleterosData = racks.map((rack) => ({
     id: rack.id_bicicletero,
     nombre: rack.nombre,
     ocupados: rack.ocupados,
-    total: rack.capacidad || 15,
+    total: rack.capacidad ,
+    latitud: rack.latitud, 
+    longitud: rack.longitud,
+    imagen: rack.imagen
   }))
 
     useEffect(() => {
@@ -28,6 +33,10 @@ export function GestionarBicicletarios({racks = [],onBack}) {
     setActiveId(id);
   };
 
+  const onEdit = (data) => {
+  setEditingData(data)
+  setIsModalOpen(true)
+  }
   return (
         <div className="w-full bg-gray-50 rounded-3xl">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
@@ -51,7 +60,11 @@ export function GestionarBicicletarios({racks = [],onBack}) {
                     
                     <button 
                     className="bg-gradient-to-br from-[#003366] to-[#005599] hover:from-[#002347] hover:to-[#004477] text-white px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/30 flex items-center gap-2 transition hover:scale-105 active:scale-95"
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => {
+                    setEditingData(null)
+                    setIsModalOpen(true)
+               }
+                    }
                     >
                         <Plus size={20} />
                         Nuevo Bicicletario
@@ -67,6 +80,8 @@ export function GestionarBicicletarios({racks = [],onBack}) {
                             data={rack}
                             isActive={activeId === rack.id}
                             onClick={handleCardClick}
+                            onEdit={onEdit}
+                            
                         />
                     ))
                 ) : (
@@ -78,6 +93,7 @@ export function GestionarBicicletarios({racks = [],onBack}) {
             <NewBicicleRackButton
             isOpen={isModalOpen} 
             onClose={() => setIsModalOpen(false)} 
+            initialData = {editingData}
                  />
     </div>
   );
