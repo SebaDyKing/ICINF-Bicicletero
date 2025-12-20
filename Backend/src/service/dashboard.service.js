@@ -1,7 +1,8 @@
 import { AppDataSource } from "../config/configDb.js";
-import { Store } from "../models/store.entity.js";
+import { Store} from "../models/store.entity.js";
 import { BicycleRack } from "../models/bicycleRack.entity.js";
 import { IsNull, Between, MoreThanOrEqual } from "typeorm";
+
 export async function getDashboardData() {
         const storeRepository = AppDataSource.getRepository(Store);
         const rackRepo = AppDataSource.getRepository(BicycleRack);
@@ -16,7 +17,7 @@ export async function getDashboardData() {
                 }
             });
 
-            const capacidadTotal = rack.capacidad || 15;
+            const capacidadTotal = rack.capacidad_maxima
             const porcentaje = Math.round((ocupados / capacidadTotal) * 100);
 
             return {
@@ -25,7 +26,10 @@ export async function getDashboardData() {
                 ocupados: ocupados,
                 capacidad: capacidadTotal,
                 porcentaje_ocupacion: porcentaje,
-                estado: porcentaje > 90 ? "ALTO" : porcentaje > 60 ? "NORMAL" : "Bajo"
+                estado: porcentaje > 90 ? "ALTO" : porcentaje > 60 ? "NORMAL" : "Bajo",
+                latitud: rack.latitud,      
+                longitud: rack.longitud,   
+                imagen: rack.imagen,
             };
         }));
 
@@ -76,14 +80,6 @@ export async function getDashboardData() {
             }
         });
 
-        const actividadFeed = ultimosMovimientos.map(mov => ({
-            id: mov.idRegistro,
-            tipo: mov.tipoMovimiento,
-            bici: `Bici #${mov.bicycle?.id_bicicleta || '?' }`,
-            hora: mov.tipoMovimiento === 'Salida' ? mov.fechaSalida : mov.fechaIngreso,
-            ubicacion: mov.bicycleRack?.nombre || ''
-        }));
-
         const haceSieteDias = new Date();
         haceSieteDias.setDate(haceSieteDias.getDate() - 6);
         haceSieteDias.setHours(0, 0, 0, 0);
@@ -124,6 +120,42 @@ export async function getDashboardData() {
             total: conteoDias[dia]
         }));
 
+        const usuariosActivos = await storeRepository.find({
+            where:{
+                fechaSalida: IsNull()
+            },
+            order:{
+                fechaIngreso:"DESC"
+            },
+            take: 5,
+            relations: {
+                bicycle:{owner:true},
+                bicycleRack:true
+            }
+        })
+
+        const controlAccesoFeed = usuariosActivos.map(registro => {
+            const nombre = registro.bicycle?.owner ? registro.bicycle.owner.nombre : 'Desconocido';
+
+            const fechaObj = new Date(registro.fechaIngreso);
+             const horaFormateada = fechaObj.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            hour12: true 
+        });
+
+        return {
+            id: registro.idRegistro, 
+            nombre: nombre,
+            rut: registro.bicycle?.owner ? registro.bicycle.owner.rut : '---',
+            inicial: nombre.charAt(0).toUpperCase(),
+            tagBici: `#${registro.bicycle?.id_bicicleta || '000'}`,
+            horaEntrada: horaFormateada, 
+            estado: "En recinto", 
+            ubicacion: registro.bicycleRack?.nombre || 'Sin asignar'
+        };
+        })
+
     return {
         kpi:{
             totalBicicletas: TotalBicicletas,
@@ -133,7 +165,7 @@ export async function getDashboardData() {
             salidasHoy
         },
         racks: datosRacks,
-        actividad: actividadFeed,
+        actividad: controlAccesoFeed,
         graficos:{
             porHora: graficoHoras,
             semanal: graficoSemana
