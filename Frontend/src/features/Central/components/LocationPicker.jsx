@@ -9,7 +9,7 @@ import { MapUpdater, MapFix, MapClickEvents } from "../utils/mapHelpers";
 import { useGeolocation } from "../hooks/useGeolocation";
 
 
-const DEFAULT_CENTER = [-36.8211397, -73.0122850];
+const DEFAULT_CENTER = [-33.4489, -70.6693]; 
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({

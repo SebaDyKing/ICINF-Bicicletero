@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { Search, Edit2, Trash2, Bike, Clock, MapPin } from 'lucide-react';
+import { Search, Bike, Clock, ShieldCheck } from 'lucide-react';
 import { getGradientColor } from '../utils/getGradientColor';
 
 export function AccessControl({ actividad = [] }) {
   const [searchTerm, setSearchTerm] = useState("");
-
-
 
   const filteredUsers = actividad.filter(user =>
     user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -13,30 +11,31 @@ export function AccessControl({ actividad = [] }) {
     user.tagBici.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleDelete = (id) => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar este registro?")) {
-      console.log("Eliminar ID:", id);
-    }
-  };
-
   return (
     <div className="w-full bg-gray-50 font-sans p-6 md:p-8">
       <div className="w-full space-y-8">
-        
+
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Control de Acceso</h1>
-            <p className="text-gray-500 text-sm mt-1">Gestión de bicicletas y usuarios en recinto</p>
+          <div className="flex items-center gap-4">
+            <div className="animate-pop-in">
+              <div className="w-14 h-14 bg-gradient-to-br from-[#003366] to-[#0066cc] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/30 animate-pulse-soft">
+                <ShieldCheck size={28} strokeWidth={2.5} />
+              </div>
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Control de Acceso</h1>
+              <p className="text-gray-500 text-sm mt-1">Monitoreo en tiempo real de usuarios en recinto</p>
+            </div>
           </div>
-          
+
           <div className="relative w-full md:w-96 group">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+              <Search className="h-5 w-5 text-gray-400 group-focus-within:text-emerald-600 transition-colors" />
             </div>
             <input
               type="text"
-              className="block w-full pl-10 pr-4 py-3 border-none rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all placeholder-gray-400 text-gray-700"
-              placeholder="Buscar por nombre, RUT o ID de bici..."
+              className="block w-full pl-10 pr-4 py-3 border-none rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all placeholder-gray-400 text-gray-700"
+              placeholder="Buscar por nombre, RUT o ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -49,73 +48,51 @@ export function AccessControl({ actividad = [] }) {
               const colors = getGradientColor(user.inicial);
 
               return (
-                <div 
-                  key={user.id} 
-                  className="group relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 border border-transparent hover:border-blue-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 w-full animate-in fade-in slide-in-from-bottom-2"
+                <div
+                  key={user.id}
+                  className="group relative bg-white rounded-2xl p-6 shadow-sm border border-gray-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col md:flex-row items-center justify-between overflow-hidden cursor-default w-full"
                 >
-                  
-                  <div className="flex items-center gap-5 w-full md:w-auto">
+                  <div className="absolute right-0 top-0 w-32 h-full bg-gradient-to-l from-emerald-50/50 to-transparent pointer-events-none" />
+
+                  <div className="flex items-center gap-5 relative z-10 w-full md:w-auto">
                     <div className={`
-                      h-16 w-16 min-w-[4rem] rounded-2xl flex items-center justify-center 
-                      bg-gradient-to-br ${colors.from} ${colors.to} 
-                      shadow-lg shadow-gray-200 text-white text-2xl font-bold
-                      transform group-hover:scale-105 transition-transform duration-300
+                      h-12 w-12 min-w-[3rem] rounded-xl flex items-center justify-center 
+                      text-white text-lg font-bold shadow-lg 
+                      bg-gradient-to-br ${colors.from} ${colors.to}
+                      group-hover:scale-105 transition-transform
                     `}>
                       {user.inicial}
                     </div>
 
-                    <div className="flex flex-col">
-                      <h3 className="text-lg font-bold text-gray-800 leading-tight group-hover:text-blue-600 transition-colors">
-                        {user.nombre}
-                      </h3>
-                      <span className="text-sm text-gray-500 font-mono mt-1">RUT: {user.rut}</span>
-                      
-              
-                      <div className="flex md:hidden items-center gap-2 mt-2">
-                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-                          {user.estado}
+                    <div>
+                      <h3 className="font-bold text-gray-800 text-lg leading-tight group-hover:translate-x-1 transition-transform duration-300">{user.nombre}</h3>
+                      <div className="flex items-center gap-3 text-xs text-gray-500 mt-1.5 font-medium">
+                        <span>{user.rut}</span>
+                        <span className="text-gray-300">|</span>
+                        <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                          <Bike size={12} />
+                          {user.tagBici}
                         </span>
                       </div>
                     </div>
                   </div>
 
-       
-                  <div className="flex flex-wrap items-center gap-3 md:gap-6 w-full md:w-auto pl-2 md:pl-0 border-l-2 border-gray-100 md:border-none">
-                    
-                    <div className="hidden md:flex items-center px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium border border-blue-100">
-                      <MapPin size={14} className="mr-1.5" />
-                      {user.estado}
+                  <div className="flex items-center gap-3 relative z-10 w-full md:w-auto justify-end mt-4 md:mt-0 pl-0 md:pl-6 border-t md:border-t-0 border-gray-100 pt-4 md:pt-0">
+
+                    <div className="px-4 py-2 rounded-xl bg-white border border-gray-200 shadow-sm flex items-center gap-2 group-hover:border-gray-300 transition-colors w-full md:w-auto justify-center md:justify-start clock-stomp">
+                      <Clock size={16} className="text-gray-400" />
+                      <span className="font-semibold text-gray-600 text-sm">{user.horaEntrada}</span>
                     </div>
 
-                    <div className="flex items-center px-3 py-1.5 rounded-lg bg-purple-50 text-purple-700 text-sm font-medium border border-purple-100">
-                      <Bike size={16} className="mr-2" />
-                    
-                      {user.tagBici}
+                    <div className="px-4 py-2 rounded-xl bg-emerald-100 border border-emerald-200 text-emerald-700 font-medium flex items-center gap-2 shadow-sm text-sm w-full md:w-auto justify-center md:justify-start">
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                      </span>
+                      {user.estado || "En Recinto"}
                     </div>
 
-                    <div className="flex items-center px-3 py-1.5 rounded-lg bg-gray-50 text-gray-600 text-sm font-medium border border-gray-200">
-                      <Clock size={16} className="mr-2" />
-                      {user.horaEntrada}
-                    </div>
                   </div>
-
-           
-                  <div className="flex items-center gap-2 w-full md:w-auto justify-end border-t pt-4 md:pt-0 md:border-t-0 border-gray-100 mt-2 md:mt-0">
-                    <button 
-                      className="p-2.5 rounded-xl text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all active:scale-95"
-                      title="Editar"
-                    >
-                      <Edit2 size={18} />
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(user.id)}
-                      className="p-2.5 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all active:scale-95"
-                      title="Eliminar"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-
                 </div>
               );
             })
@@ -124,12 +101,12 @@ export function AccessControl({ actividad = [] }) {
               <div className="mx-auto h-12 w-12 text-gray-300 mb-4">
                 <Search className="w-full h-full" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900">No hay usuarios en recinto</h3>
-              <p className="mt-1 text-sm text-gray-500">Esperando nuevos ingresos...</p>
+              <h3 className="text-lg font-medium text-gray-900">No hay resultados</h3>
+              <p className="mt-1 text-sm text-gray-500">No se encontraron usuarios con ese criterio.</p>
             </div>
           )}
         </div>
       </div>
     </div>
   );
-};
+}

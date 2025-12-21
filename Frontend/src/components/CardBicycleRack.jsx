@@ -1,8 +1,8 @@
 export const CardBicycleRack = ({ bicicletero }) => {
-    const {nombre, capacidad_maxima, imagen } = bicicletero
+  const { nombre, capacidad_maxima, imagen } = bicicletero
 
-    return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-sm mx-8 my-4">
+  return (
+    <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-sm mx-8 my-4 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
       <div className="relative h-48 w-full bg-gray-200">
         <img src="./public/bicicletero.png" alt="Imagen Bicicletero" className="absolute inset-0 w-full h-full object-cover" />
       </div>

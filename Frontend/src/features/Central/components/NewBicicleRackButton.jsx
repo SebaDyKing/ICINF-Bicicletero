@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { X, Save, AlertTriangle } from "lucide-react"; 
+import { X, Save, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { createBicicletero, updateBicicletero } from "../services/bicycleRack.service";
 import { LocationPicker } from "./LocationPicker";
 
 export function NewBicicleRackButton({ isOpen, onClose, initialData }) {
   const [loading, setLoading] = useState(false);
-  const isEditing = !!initialData; 
+  const isEditing = !!initialData;
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -21,7 +21,7 @@ export function NewBicicleRackButton({ isOpen, onClose, initialData }) {
       if (initialData) {
         setFormData({
           nombre: initialData.nombre || "",
-          capacidad_maxima: initialData.capacidad || initialData.total || 15, 
+          capacidad_maxima: initialData.capacidad || initialData.total || 15,
           latitud: initialData.latitud || "",
           longitud: initialData.longitud || "",
           imagen: initialData.imagen || ""
@@ -30,13 +30,13 @@ export function NewBicicleRackButton({ isOpen, onClose, initialData }) {
         setFormData({
           nombre: "",
           capacidad_maxima: 15,
-          latitud: "",
-          longitud: "",
+          latitud: "-36.82220000",
+          longitud: "-73.01220000",
           imagen: ""
         });
       }
     }
-  }, [isOpen, initialData]); 
+  }, [isOpen, initialData]);
 
   const handleLocationChange = (lat, lng) => {
     setFormData(prev => ({ ...prev, latitud: lat, longitud: lng }));
@@ -60,10 +60,10 @@ export function NewBicicleRackButton({ isOpen, onClose, initialData }) {
         if (nuevaCapacidad < ocupacionActual) {
           toast.error('No se puede reducir la capacidad', {
             description: `Hay ${ocupacionActual} bicicletas estacionadas. Mínimo: ${ocupacionActual}.`,
-            icon: <AlertTriangle className="w-5 h-5 text-amber-600" />, 
+            icon: <AlertTriangle className="w-5 h-5 text-amber-600" />,
           });
           setLoading(false);
-          return; 
+          return;
         }
 
         await updateBicicletero(initialData.id, formData);
@@ -81,21 +81,21 @@ export function NewBicicleRackButton({ isOpen, onClose, initialData }) {
     }
   };
 
-  const overlayClasses = isOpen 
-    ? "opacity-100 visible pointer-events-auto" 
+  const overlayClasses = isOpen
+    ? "opacity-100 visible pointer-events-auto"
     : "opacity-0 invisible pointer-events-none delay-100";
 
-  const modalClasses = isOpen 
-    ? "scale-100 opacity-100 translate-y-0" 
+  const modalClasses = isOpen
+    ? "scale-100 opacity-100 translate-y-0"
     : "scale-95 opacity-0 translate-y-4";
 
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${overlayClasses}`}>
-      <div 
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300" 
-        onClick={onClose} 
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300"
+        onClick={onClose}
       />
-      <div 
+      <div
         className={`
           bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden relative z-10
           transition-all duration-300 ease-out 
@@ -115,36 +115,36 @@ export function NewBicicleRackButton({ isOpen, onClose, initialData }) {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-              <input 
+              <input
                 required
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-[#003366] transition-all"
-                value={formData.nombre} 
-                onChange={(e) => setFormData({...formData, nombre: e.target.value})}
+                value={formData.nombre}
+                onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Capacidad</label>
-              <input 
+              <input
                 type="number" required min="1"
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-[#003366] transition-all"
                 value={formData.capacidad_maxima}
-                onChange={(e) => setFormData({...formData, capacidad_maxima: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, capacidad_maxima: e.target.value })}
               />
             </div>
 
-            <LocationPicker 
-              lat={formData.latitud} 
-              lng={formData.longitud} 
-              onChange={handleLocationChange} 
+            <LocationPicker
+              lat={formData.latitud}
+              lng={formData.longitud}
+              onChange={handleLocationChange}
             />
 
             <div className="flex gap-3 mt-8">
               <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 rounded-xl text-gray-600 bg-gray-50 hover:bg-gray-100 transition-colors">
                 Cancelar
               </button>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={loading}
                 className={`flex-[1.5] text-white px-4 py-2.5 rounded-xl font-medium transition-colors shadow-lg shadow-blue-900/10
                   ${isEditing ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#003366] hover:bg-[#002347]'}

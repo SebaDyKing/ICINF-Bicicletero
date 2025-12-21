@@ -3,19 +3,19 @@ import { StatCardCentral } from "./StatCardCentral";
 import { BarchartCentral } from "./BarchartCentral.jsx";
 import { WeeklyChart } from "./WeeklyChart.jsx";
 import { RecentActivity } from "./RecentActivity.jsx";
-import { Bike, Activity, ArrowUp, ArrowDown } from "lucide-react";
+import { Bike, Activity, ArrowUp, ArrowDown, LayoutDashboard } from "lucide-react";
 import { BicicletarioManagment } from "./BicycleManagement.jsx";
 import { useDashboardData } from "../hooks/useDashboardData.js";
 import { Toaster } from "sonner";
 
 export const DashboardStats = () => {
     const [modoGestion, setModoGestion] = useState(false);
-    
-   const data = useDashboardData();
+
+    const data = useDashboardData();
 
     const getProgressBarColor = (percent) => {
-        if (percent > 90) return "bg-indigo-500"; 
-        if (percent > 60) return "bg-blue-500";   
+        if (percent > 90) return "bg-indigo-500";
+        if (percent > 60) return "bg-blue-500";
         return "bg-emerald-400";
     }
 
@@ -27,32 +27,41 @@ export const DashboardStats = () => {
 
     return (
         <div>
-            <Toaster 
-                position="top-right" 
-                richColors 
+            <Toaster
+                position="top-right"
+                richColors
                 expand
                 toastOptions={{
-                    style: { zIndex: 99999 } 
+                    style: { zIndex: 99999 }
                 }}
             />
             {modoGestion ? (
-                <BicicletarioManagment 
-                dataGlobal = {data}
-                onBack = {() => setModoGestion(false)}
+                <BicicletarioManagment
+                    dataGlobal={data}
+                    onBack={() => setModoGestion(false)}
                 />
             ) : (
                 <div className="w-full min-h-screen bg-slate-100 p-6">
                     <header className="mb-8">
-                        <h2 className="text-2xl font-bold text-slate-900">Dashboard Operativo</h2>
-                        <p className="text-slate-500 text-sm">Monitoreo en tiempo real</p>
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 bg-gradient-to-br from-[#003366] to-[#0066cc] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/30 animate-pulse-soft">
+                                <LayoutDashboard size={28} strokeWidth={2.5} />
+                            </div>
+                            <div>
+                                <h2 className="text-2xl font-bold text-slate-900">Dashboard Operativo</h2>
+                                <p className="text-slate-500 text-sm">Monitoreo en tiempo real</p>
+                            </div>
+                        </div>
                     </header>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        
-                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
                             <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
                                 <h3 className="font-semibold text-slate-700">Disponibilidad Total</h3>
-                                <Bike className="w-5 h-5 text-slate-400" />
+                                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white shadow-md animate-pulse-soft">
+                                    <Bike className="w-5 h-5" />
+                                </div>
                             </div>
                             <div className="p-6 flex items-center justify-between">
                                 <div>
@@ -62,9 +71,9 @@ export const DashboardStats = () => {
                                     </div>
                                     <p className="text-sm text-slate-500 mt-1">Espacios Libres</p>
                                 </div>
-                            
+
                                 <div className="relative w-20 h-20 flex items-center justify-center rounded-full border-4 border-slate-100">
-                                    <div 
+                                    <div
                                         className="absolute inset-0 rounded-full border-4 border-blue-600"
                                         style={{ clipPath: `inset(0 0 ${100 - data.kpi.ocupacionGlobal}% 0)` }}
                                     ></div>
@@ -73,10 +82,12 @@ export const DashboardStats = () => {
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
                             <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
                                 <h3 className="font-semibold text-slate-700">Flujo de Hoy</h3>
-                                <Activity className="w-5 h-5 text-slate-400" />
+                                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-md animate-pulse-soft">
+                                    <Activity className="w-5 h-5" />
+                                </div>
                             </div>
                             <div className="p-6 flex divide-x divide-slate-100">
                                 <div className="flex-1 flex flex-col items-center justify-center">
@@ -98,19 +109,20 @@ export const DashboardStats = () => {
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                        
-                        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+
+                        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-lg transition-all duration-300">
                             <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
                                 <h3 className="font-semibold text-slate-700">Ocupación por Bicicletero</h3>
 
                                 <button
-                                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-sm transition-colors shadow-sm"
+                                    className="bg-gradient-to-br from-[#003366] to-[#005599] hover:from-[#002347] hover:to-[#004477] text-white font-medium py-2.5 px-5 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/30 hover:scale-105 active:scale-95 flex items-center gap-2"
                                     onClick={() => setModoGestion(true)}
                                 >
+                                    <Bike size={18} />
                                     Gestionar Bicicleteros
                                 </button>
                             </div>
-                            
+
                             <div className="p-6 space-y-6">
                                 {data.racks.map((rack) => (
                                     <div key={rack.id_bicicletero}>
@@ -124,7 +136,7 @@ export const DashboardStats = () => {
                                             </div>
                                         </div>
                                         <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-                                            <div 
+                                            <div
                                                 className={`h-3 rounded-full transition-all duration-500 ${getProgressBarColor(rack.porcentaje_ocupacion)}`}
                                                 style={{ width: `${rack.porcentaje_ocupacion}%` }}
                                             ></div>
