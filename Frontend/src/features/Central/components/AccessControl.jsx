@@ -1,21 +1,11 @@
 import { useState } from 'react';
 import { Search, Edit2, Trash2, Bike, Clock, MapPin } from 'lucide-react';
+import { getGradientColor } from '../utils/getGradientColor';
 
 export function AccessControl({ actividad = [] }) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const getGradientColor = (inicial) => {
-    const charCode = inicial ? inicial.charCodeAt(0) : 0;
-    const gradients = [
-      { from: "from-blue-600", to: "to-blue-400" },
-      { from: "from-purple-600", to: "to-purple-400" },
-      { from: "from-fuchsia-600", to: "to-pink-400" },
-      { from: "from-teal-500", to: "to-emerald-400" },
-      { from: "from-indigo-600", to: "to-indigo-400" },
-      { from: "from-orange-500", to: "to-amber-400" },
-    ];
-    return gradients[charCode % gradients.length];
-  };
+
 
   const filteredUsers = actividad.filter(user =>
     user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||

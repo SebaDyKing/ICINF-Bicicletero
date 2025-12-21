@@ -4,7 +4,7 @@ import { Loader2, Navigation, Search, MapPin } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import { toast } from "sonner";
 
-const DEFAULT_CENTER = [-33.4489, -70.6693]; 
+const DEFAULT_CENTER = [-36.8211397, -73.0122850];
 
 /**
  * Componente interno para buscar direcciones usando la API de Nominatim (OSM).
@@ -190,7 +190,6 @@ export function LocationComponent({ lat, lng, onChange }) {
 
   return (
     <div className="space-y-3">
-      {/* 1. Header con Título y Botón GPS */}
       <div className="flex justify-between items-end">
         <label className="block text-sm font-medium text-gray-700">Ubicación</label>
         <button

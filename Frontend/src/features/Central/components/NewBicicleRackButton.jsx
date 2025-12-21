@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { X, Save, AlertTriangle } from "lucide-react"; 
 import { toast } from "sonner";
 import { createBicicletero, updateBicicletero } from "../services/bicycleRack.service";
-
 import { LocationPicker } from "./LocationPicker";
 
 export function NewBicicleRackButton({ isOpen, onClose, initialData }) {
@@ -39,14 +38,8 @@ export function NewBicicleRackButton({ isOpen, onClose, initialData }) {
     }
   }, [isOpen, initialData]); 
 
-  if (!isOpen) return null;
-
   const handleLocationChange = (lat, lng) => {
-    setFormData(prev => ({
-      ...prev,
-      latitud: lat,
-      longitud: lng
-    }));
+    setFormData(prev => ({ ...prev, latitud: lat, longitud: lng }));
   };
 
   const handleSubmit = async (e) => {
@@ -88,21 +81,38 @@ export function NewBicicleRackButton({ isOpen, onClose, initialData }) {
     }
   };
 
+  const overlayClasses = isOpen 
+    ? "opacity-100 visible pointer-events-auto" 
+    : "opacity-0 invisible pointer-events-none delay-100";
+
+  const modalClasses = isOpen 
+    ? "scale-100 opacity-100 translate-y-0" 
+    : "scale-95 opacity-0 translate-y-4";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 my-8">
-        <div className="p-6">
+    <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${overlayClasses}`}>
+      <div 
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300" 
+        onClick={onClose} 
+      />
+      <div 
+        className={`
+          bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden relative z-10
+          transition-all duration-300 ease-out 
+          ${modalClasses}
+        `}
+      >
+        <div className="p-6 max-h-[90vh] overflow-y-auto">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold text-gray-800">
               {isEditing ? 'Editar Bicicletero' : 'Nuevo Bicicletero'}
             </h2>
-            <button onClick={onClose} type="button" className="text-gray-500 hover:text-gray-700">
+            <button onClick={onClose} type="button" className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 p-2 rounded-full transition-colors">
               <X size={24} />
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
               <input 
@@ -112,7 +122,6 @@ export function NewBicicleRackButton({ isOpen, onClose, initialData }) {
                 onChange={(e) => setFormData({...formData, nombre: e.target.value})}
               />
             </div>
-
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Capacidad</label>
@@ -130,10 +139,6 @@ export function NewBicicleRackButton({ isOpen, onClose, initialData }) {
               onChange={handleLocationChange} 
             />
 
-
-
-            <div className="grid grid-cols-2 gap-4">
-            </div>
             <div className="flex gap-3 mt-8">
               <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 rounded-xl text-gray-600 bg-gray-50 hover:bg-gray-100 transition-colors">
                 Cancelar
@@ -141,7 +146,7 @@ export function NewBicicleRackButton({ isOpen, onClose, initialData }) {
               <button 
                 type="submit" 
                 disabled={loading}
-                className={`flex-[1.5] text-white px-4 py-2.5 rounded-xl font-medium transition-colors
+                className={`flex-[1.5] text-white px-4 py-2.5 rounded-xl font-medium transition-colors shadow-lg shadow-blue-900/10
                   ${isEditing ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#003366] hover:bg-[#002347]'}
                   disabled:opacity-70 disabled:cursor-not-allowed
                 `}
