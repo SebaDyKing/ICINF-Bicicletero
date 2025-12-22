@@ -132,7 +132,7 @@ export default function SecurityDashboard() {
 
       Swal.fire({
         icon: 'success',
-        title: 'pico',
+        title: 'Guardia creado exitosamente',
         timer: 2000
       })
       console.log(res.data.resultQuery);
@@ -148,12 +148,6 @@ export default function SecurityDashboard() {
   };
 
   const handleDelete = async (rut) => {
-    console.log(rut)
-    const confirmDelete = window.confirm(
-      `¿Seguro que deseas eliminar al guardia con RUT ${rut}?`
-    );
-    if (!confirmDelete) return;
-
     try {
       const res = await axios.delete(
         "http://localhost:3000/api/central/deleteGuard",
@@ -183,11 +177,6 @@ export default function SecurityDashboard() {
 
   
   const handleUpdate = async (guard) => {
-    const confirmUpdate = window.confirm(
-      `Actualizar información del guardia con RUT: ${guard.rut}?`
-    );
-    if (!confirmUpdate) return;
-
     try {
       const res = await axios.put(
         "http://localhost:3000/api/central/updateGuard",
@@ -226,7 +215,12 @@ export default function SecurityDashboard() {
       console.log(res.data.data)
       setInputRut('')
     } catch (error) {
-      console.error(error);
+      console.log(error)
+      Swal.fire({
+                icon: 'error',
+                title: error.response?.data?.message,
+                timer: 2000
+              })
       setUserSelected(null); // Limpia
     }
   };
@@ -293,11 +287,6 @@ export default function SecurityDashboard() {
   };
 
     const handleDeleteReport = async (ID_Informe) => {
-      const confirmDelete = window.confirm(
-        `¿Seguro que deseas eliminar el reporte con ID ${ID_Informe}?`
-      );
-      if (!confirmDelete) return;
-
       try {
         const res = await axios.delete(
           "http://localhost:3000/api/guards/report/deleteReport",
@@ -395,9 +384,9 @@ export default function SecurityDashboard() {
                     </thead>
                     <tbody>
                       <tr>
-                        <td className="p-4">{userSelected.nombre}</td>
+                        <td className="p-4">{`${userSelected.nombre} ${userSelected.apellido}`}</td>
                         <td className="p-4">{userSelected.rut}</td>
-                        <td className="p-4">{userSelected.correo}</td>
+                        <td className="p-4">{userSelected.correo || userSelected.email}</td>
                         <td className="p-4">{userSelected.telefono}</td>
                         <td>
                           <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium mt-3" onClick={() => handleDelete(userSelected.rut)}>
