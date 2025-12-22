@@ -57,9 +57,32 @@ export function validateOwnerBody(input) {
 }
 
 export function ownerBodyPartialValidation(input) {
-  return ownerCreationSchema
-    .fork(Object.keys(ownerCreationSchema.describe().keys), (schema) =>
-      schema.optional()
-    )
-    .validate(input, { abortEarly: false });
+  // Convertimos todos los campos originales a opcionales
+  const baseSchema = ownerCreationSchema.fork(
+    Object.keys(ownerCreationSchema.describe().keys),
+    (schema) => schema.optional()
+  );
+
+  // Usamos .append() para AGREGAR las nuevas reglas solo para la actualización
+  const updateSchema = baseSchema.append({
+    
+    // Permitimos recibir la contraseña actual (sin validación estricta de regex, solo string)
+    actualContrasenia: Joi.string().optional().messages({
+        "string.empty": "La contraseña actual no puede estar vacía"
+    }),
+
+    // nueva contraseña, aplicando las mismas reglas de seguridad que la original
+    nuevaContrasenia: Joi.string()
+      .min(8)
+      .max(20)
+      .pattern(/^(?=(?:.*\d){2,})(?=.*[A-Z]).*$/)
+      .optional()
+      .messages({
+        "string.min": "La contraseña debe tener al menos 8 caracteres",
+        "string.max": "La contraseña no puede exceder los 20 caracteres",
+        "string.pattern.base": "La contraseña debe contener al menos una mayúscula y dos números",
+      }),
+  });
+
+  return updateSchema.validate(input, { abortEarly: false });
 }
