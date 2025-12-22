@@ -1,19 +1,20 @@
 import { useState } from "react";
-import { Bike, User, QrCode, ChevronLeft, ChevronRight, LogOut, SquareMenu, Zap  } from "lucide-react";
+import { Bike, User, QrCode, ChevronLeft, ChevronRight, SquareMenu, Zap, Shield } from "lucide-react";
+import { useAuth } from "../../../Context/useAuth";
 
 const SideBar = ({activeTab, setActiveTab}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  //const [isLoggedIn, setIsLoggedIn] = useState(true); 
+  const { logout } = useAuth();
   
   const handleLogout = () => {
-    //setIsLoggedIn(false);
+    logout();
     setActiveTab("dashboard");
   };
 
   return (
     <div>
-      {/* SIDEBAR (Navegación Lateral) */}
+      {/* SIDEBAR */}
       <aside
         className={`fixed md:sticky top-0 h-screen bg-[#1e3a8a] text-white p-2 flex flex-col justify-between transition-all duration-250 ease-in-out z-50 
         ${isMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"} 
@@ -50,6 +51,8 @@ const SideBar = ({activeTab, setActiveTab}) => {
 
           {/* Navegación */}
           <nav className="flex flex-col gap-2 flex-1">
+
+            {/* Panel Principal */}
             <button
               onClick={() => {
                 setActiveTab("dashboard");
@@ -71,7 +74,8 @@ const SideBar = ({activeTab, setActiveTab}) => {
                 Panel Principal
               </span>
             </button>
-            
+
+            {/* Mis Bicicletas */}
             <button
               onClick={() => {
                 setActiveTab("bikes");
@@ -93,7 +97,32 @@ const SideBar = ({activeTab, setActiveTab}) => {
                 Mis Bicicletas
               </span>
             </button>
+
+            {/* Solicitar Guardia */}
+
+            <button
+              onClick={() => {
+                setActiveTab("request-guard");
+                setIsMenuOpen(false);
+              }}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                activeTab === "request-guard"
+                  ? "bg-blue-700 text-white"
+                  : "text-blue-200 hover:bg-blue-800"
+              } ${isSidebarCollapsed ? "justify-center" : ""}`}
+              title={isSidebarCollapsed ? "Mi Perfil" : ""}
+            >
+              <Shield  size={20} />
+              <span
+                className={`transition-all duration-300 ${
+                  isSidebarCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+                }`}
+              >
+                Solicitar Guardia
+              </span>
+            </button>
             
+            {/* Mi Perfil */}
             <button
               onClick={() => {
                 setActiveTab("profile");
@@ -117,7 +146,7 @@ const SideBar = ({activeTab, setActiveTab}) => {
             </button>
           </nav>
 
-          {/* Botón de Cerrar Sesión */}
+          {/* Cerrar Sesión */}
           <button
             onClick={handleLogout}
             className={`flex items-center gap-3 py-3 rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white transition-colors overflow-hidden whitespace-nowrap mt-4

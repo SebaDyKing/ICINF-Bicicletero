@@ -2,17 +2,36 @@ import SideBar from "./components/SideBar";
 import Dashboard from "./components/Dashboard";
 import Bikes from "./components/Bikes";
 import Profile from "./components/Profile";
+import RequestGuard from './components/RequestGuard.jsx'
 import { useState } from "react";
 import { useUserData } from "./hooks/useUserData.js";
+import { useAuth } from "../../Context/useAuth.js";
+import { Navigate } from "react-router-dom";
 
 const OwnerPage = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const rut = "21.260.782-7";
-  const user = useUserData(rut);
+  const { user, loading } = useAuth();
+  const userData = useUserData(user?.rut);
 
-  // Mientras carga, evita acceder a propiedades nulas
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Cargando contexto...
+      </div>
+    );
+  }
+
+  // Cerrar sesión
   if (!user) {
-    return <div>Cargando...</div>;
+    return <Navigate to="/" replace />;
+  }
+
+  if (!userData) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Cargando perfil...
+      </div>
+    );
   }
 
   return (
@@ -20,9 +39,10 @@ const OwnerPage = () => {
       <SideBar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="flex-1">
-        {activeTab === "dashboard" && <Dashboard user={user} />}
-        {activeTab === "bikes" && <Bikes user={user} />}
-        {activeTab === "profile" && <Profile user={user} />}
+        {activeTab === "dashboard" && <Dashboard user={userData} />}
+        {activeTab === "bikes" && <Bikes user={userData} />}
+        {activeTab === "request-guard" && <RequestGuard user={userData} />}
+        {activeTab === "profile" && <Profile user={userData} />}
       </main>
     </div>
   );
