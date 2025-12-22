@@ -40,23 +40,21 @@ export async function createCentral() {
       return;
     }
 
-    console.log("No se encontró la entidad central. Creando Central...");
-
     const tipo_usuario = "Central";
 
     // Creación del usuario Central
     const newUser = userRepository.create({
-      rut: "12.345.678-9",
+      rut: process.env.RUT_CENTRAL,
       email: process.env.EMAIL_USER,
       contrasenia: await encryptPassword(process.env.PASS),
-      telefono: "987654321",
+      telefono: process.env.TELEFONO_CENTRAL,
       tipo_usuario: tipo_usuario,
       verificado: true,
     });
 
     // Creación de la entidad Central
     const newCentral = centralRepository.create({
-      rut: "12.345.678-9",
+      rut: process.env.RUT_CENTRAL,
     });
 
     // Guardar en la base de datos
