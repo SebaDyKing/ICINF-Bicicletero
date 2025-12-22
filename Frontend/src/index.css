@@ -223,3 +223,68 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: #cbd5e1;
 }
+
+/* Additional animations for RecentActivity and other components */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes bounce-slow {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes float-anim {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@layer utilities {
+  .shimmer {
+    animation: shimmer 3s infinite;
+  }
+
+  .bounce-slow {
+    animation: bounce-slow 2s ease-in-out infinite;
+  }
+
+  .float-anim {
+    animation: float-anim 3s ease-in-out infinite;
+  }
+
+  .slide-in {
+    animation: slide-in 0.4s ease-out forwards;
+  }
+}

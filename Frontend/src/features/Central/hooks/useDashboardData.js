@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useSocket } from '../../../hooks/useSocket.js'; 
+import { useSocket } from '../../../hooks/useSocket.js';
 
 export const useDashboardData = () => {
-    const [data, setData] = useState({ 
+    const [data, setData] = useState({
         kpi: {
             totalBicicletas: 0,
-            capacidadTotal: 185, 
+            capacidadTotal: 185,
             ocupacionGlobal: 0,
             ingresosHoy: 0,
             salidasHoy: 0,
@@ -24,10 +24,10 @@ export const useDashboardData = () => {
         if (!socket) return;
 
         const handleUpdate = (newData) => {
-            setData((prevData)=> ({
+            setData((prevData) => ({
                 ...prevData,
                 ...newData
-            }) );
+            }));
         };
 
         socket.on('dashboard:actualizacion', handleUpdate);
