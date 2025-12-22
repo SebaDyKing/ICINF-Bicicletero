@@ -1,42 +1,42 @@
 import { AppDataSource } from "../config/configDb.js";
 import {handleErrorClient, handleErrorServer, handleSuccess} from '../Handlers/responseHandlers.js'
 import { Reports } from "../models/reports.entity.js";
+import sendAlertEmail from "../service/alert.service.js";
 
 export const createReport = async (req, res) => {
-    const {fecha, descripcion, bicicletero} = req.body
-
-    const files = req.files || {}
-    if (files.foto && files.foto[0]){
-        const foto = files.foto[0]
-        body.foto_url = `${req.protocol}://${req.get('host')}/uploads/${foto.filename}` //con esto crea la ruta
-    }
-
-    if (fecha.length === 0) {
-        return handleErrorClient(res, 400, "Fecha es requerida")
-    }
-
-    if (descripcion.length === 0) {
-        return handleErrorClient(res, 400, "La descripcion debe tener al menos 50 caracteres")
-    }
-
-    // if (bicicletero) {
-    //     return handleErrorClient(res, 400, "Fecha es requerida")
-    // }
-    
-    //verifica que la bdd este iniciada
-    if (!AppDataSource.isInitialized) {
-        await AppDataSource.initialize();
-    }
-
-    const reportRepository = AppDataSource.getRepository(Reports);
-
-    const newReport = reportRepository.create({
-      fecha,
-      descripcion,
-      bicicletero
-    });
-
     try {
+        const {emails, fecha, descripcion, bicicletero} = req.body
+        console.log(emails)
+        const files = req.files || {}
+        if (files.foto && files.foto[0]){
+            const foto = files.foto[0]
+            body.foto_url = `${req.protocol}://${req.get('host')}/uploads/${foto.filename}` //con esto crea la ruta
+        }
+
+        if (fecha.length === 0) {
+            return handleErrorClient(res, 400, "Fecha es requerida")
+        }
+
+        if (descripcion.length === 0) {
+            return handleErrorClient(res, 400, "La descripcion debe tener al menos 50 caracteres")
+        }
+
+        // if (bicicletero) {
+        //     return handleErrorClient(res, 400, "Fecha es requerida")
+        // }
+        
+        //verifica que la bdd este iniciada
+        if (!AppDataSource.isInitialized) {
+            await AppDataSource.initialize();
+        }
+
+        const reportRepository = AppDataSource.getRepository(Reports);
+
+        const newReport = reportRepository.create({
+        fecha,
+        descripcion,
+        bicicletero
+        });
         // Ejecuta consultas (consulta, valoresConsulta)
         // Guarda el Owner y el User en la base de datos
         await reportRepository.save(newReport);
@@ -46,6 +46,10 @@ export const createReport = async (req, res) => {
               descripcion, 
               bicicletero
             });
+        
+        for (const email of emails){
+            await sendAlertEmail(email, fecha, bicicletero, descripcion)
+        }
     } catch (error) {
         return handleErrorServer(res, 500, "Error del servidor", error.message);
     }
@@ -163,12 +167,17 @@ export const getAllReports = async (req, res) => {
     const query = `
         SELECT * from reports ORDER BY "ID_Informe" ASC;
     `;
+
+    const cant = `SELECT COUNT(*) FROM REPORTS`
     try {
         // Ejecuta consultas (consulta, valoresConsulta)
         const resultQuery = await AppDataSource.query(query);
+        const resultCant = await AppDataSource.query(cant);
         console.log(resultQuery)
+        console.log(resultCant)
         handleSuccess(res, 200, "Reportes obtenidos correctamente", {
-            resultQuery
+            resultQuery,
+            resultCant
         });
     } catch (error) {
         return handleErrorServer(res, 500, "Error del servidor", error.message);
