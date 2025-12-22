@@ -23,12 +23,6 @@ export const Owner = new EntitySchema({
       length: 50,
       nullable: false,
     },
-    qrData: {
-      name: "qr_data",
-      type: "varchar",
-      length: 255,
-      nullable: true,
-    },
   },
 
   relations: {
