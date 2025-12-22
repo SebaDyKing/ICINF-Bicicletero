@@ -1,6 +1,5 @@
 "use strict";
 import { EntitySchema } from "typeorm";
-
 export const Bicycle = new EntitySchema({
   name: "Bicycle",
   tableName: "bicycle",
