@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../Context/useAuth.js";
-import { formatRut } from "./utils/rutUtils.js";
+import { formatRut } from "../utils/rutUtils.js";
 import { Eye, EyeOff } from "lucide-react";
 
 const LoginPage = () => {

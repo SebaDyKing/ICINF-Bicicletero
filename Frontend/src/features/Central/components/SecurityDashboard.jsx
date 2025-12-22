@@ -43,7 +43,7 @@ export default function SecurityDashboard() {
   const [contrasenia, setContrasenia] = useState("");
 
   //login
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const emailFromUrl = searchParams.get("email");
