@@ -76,10 +76,10 @@ export const DashboardStats = () => {
                                         </span>
                                         <span className="text-2xl font-bold text-slate-400">/{data.kpi.capacidadTotal}</span>
                                     </div>
-                                    <p className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+                                    <div className="text-sm font-semibold text-slate-600 flex items-center gap-2">
                                         <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-lg shadow-emerald-500/50" />
                                         Espacios Libres
-                                    </p>
+                                    </div>
                                 </div>
 
                                 <div className="relative">
