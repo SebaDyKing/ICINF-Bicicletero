@@ -23,30 +23,38 @@ const NewIncidentModal  = ({ isOpen, onClose }) => {
   };
 
   const handleCreateRegister = async () => {
-    Swal.fire({
-            icon: 'success',
-            title: 'Se ha registrado el incidente exitosamente',
-            timer: 2000
-          })
     try {
       if (bicicletero === '') throw new Error('Seleccione un bicicletero.')
+        
+      const users = await axios.get('http://localhost:3000/api/owners/getAllOwners')
+      console.log(users)
+
+      const emails = users.data.data.map(owner => owner.email)
+      console.log(emails)
+
       const res = await axios.post('http://localhost:3000/api/guards/report/createReport', {
+        emails,
         fecha, 
         bicicletero,
         descripcion
       })
+
       console.log(res);
+
+      Swal.fire({
+            icon: 'success',
+            title: 'Se ha registrado el incidente exitosamente',
+            timer: 2000
+          })
     } catch (error) {
       console.log(error);
       Swal.fire({
               icon: 'error',
-              title: error || 'Error en a solicitud',
+              title: error || 'Error en la solicitud',
               timer: 2000
             })
     }
-    
   }
-
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
