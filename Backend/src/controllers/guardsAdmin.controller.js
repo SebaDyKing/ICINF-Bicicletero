@@ -171,7 +171,7 @@ export const getGuard = async (req, res) => {
     const {error} = guardBodyPartialValidation({rut})
     if (error) {
         const errorMessages = error.details.map((detail) => detail.message)
-        return handleErrorClient(res, 400, "Error de validación", errorMessages)
+        return handleErrorClient(res, 400, errorMessages)
     }
     
     //verifica que la bdd este iniciada
