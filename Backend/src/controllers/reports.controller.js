@@ -14,11 +14,11 @@ export const createReport = async (req, res) => {
         }
 
         if (fecha.length === 0) {
-            return handleErrorClient(res, 400, "Fecha es requerida")
+            return handleErrorClient(res, 400, "Fecha es requerida.")
         }
 
         if (descripcion.length === 0) {
-            return handleErrorClient(res, 400, "La descripcion debe tener al menos 50 caracteres")
+            return handleErrorClient(res, 400, "El incidente debe tener una descripción breve.")
         }
 
         // if (bicicletero) {

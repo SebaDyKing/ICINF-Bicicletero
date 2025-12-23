@@ -208,6 +208,7 @@ export const getGuard = async (req, res) => {
             tipo_usuario: resultQuery[0].tipo_usuario
         });
     } catch (error) {
+        console.log(error)
         return handleErrorServer(res, 500, "Error del servidor", error.message);
     }
 }
