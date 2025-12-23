@@ -3,6 +3,7 @@ import NewIncidentModal from './NewIncidentModal'; // Componente del modal
 import { User, LogOut, Bell, FileText, Calendar, Plus, Edit, X, Trash2 } from 'lucide-react';
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import { useNavigate } from 'react-router-dom';
 
 const IncidentesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,6 +14,7 @@ const IncidentesPage = () => {
   const [fecha, setFecha] = useState('')
   const [bicicletero, setBicicletero] = useState('')
   const [descripcion, setDescripcion] = useState('')
+  const navigate = useNavigate()
 
 
   useEffect(() => {
@@ -40,7 +42,7 @@ const IncidentesPage = () => {
         console.error("Error backend:", error);
         Swal.fire({
                 icon: 'error',
-                title: 'Error al cargar los guardias.',
+                title: 'Error al cargar los reportes.',
                 timer: 2000
               })
       }
@@ -72,11 +74,12 @@ const IncidentesPage = () => {
             }
         );
 
-        Swal.fire({
+        await Swal.fire({
                 icon: 'success',
                 title: 'Reporte actualizado correctamente.',
                 timer: 2000
               })
+        navigate(0)
     } catch (error) {
         console.log(error);
         Swal.fire({
