@@ -34,15 +34,18 @@ const OwnerPage = () => {
     );
   }
 
+  // Mezclar datos de AuthContext con datos adicionales obtenidos
+  const currentUser = { ...userData, ...user };
+
   return (
     <div className="flex">
       <SideBar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="flex-1">
-        {activeTab === "dashboard" && <Dashboard user={userData} />}
-        {activeTab === "bikes" && <Bikes user={userData} />}
-        {activeTab === "request-guard" && <RequestGuard user={userData} />}
-        {activeTab === "profile" && <Profile user={userData} />}
+        {activeTab === "dashboard" && <Dashboard user={currentUser} />}
+        {activeTab === "bikes" && <Bikes user={currentUser} />}
+        {activeTab === "request-guard" && <RequestGuard user={currentUser} />}
+        {activeTab === "profile" && <Profile user={currentUser} />}
       </main>
     </div>
   );

@@ -1,4 +1,4 @@
-import HeaderOwner from "../components/HeaderOwner";
+import HeaderOwner from "./HeaderOwner";
 
 const Dashboard = ({ user }) => {
   return (

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { registerOwnerService } from "./services/auth.service";
-import { formatRut } from "./utils/rutUtils.js";
+import { formatRut } from "../utils/rutUtils.js";
 import { Eye, EyeOff } from "lucide-react";
 import Swal from "sweetalert2";
 
@@ -141,7 +141,7 @@ const RegisterPage = () => {
 
           {/* Email */}
           <div>
-            <label className={labelClasses}>Correo Institucional</label>
+            <label className={labelClasses}>Correo</label>
             <input
               type="email"
               name="email"
