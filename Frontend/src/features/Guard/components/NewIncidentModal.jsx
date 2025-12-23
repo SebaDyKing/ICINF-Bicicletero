@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { X, Upload } from 'lucide-react';
 import React, { useRef, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2'
 
 // Componente Básico de Modal
@@ -12,6 +13,7 @@ const NewIncidentModal  = ({ isOpen, onClose }) => {
   const [descripcion, setDescripcion] = useState('')
   const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState("");
+  const navigate = useNavigate()
 
   const handleDivClick = () => {
     fileInputRef.current.click(); 
@@ -41,13 +43,19 @@ const NewIncidentModal  = ({ isOpen, onClose }) => {
 
       console.log(res);
 
-      Swal.fire({
+      await Swal.fire({
             icon: 'success',
             title: 'Se ha registrado el incidente exitosamente',
             timer: 2000
           })
+      navigate(0)
     } catch (error) {
       console.log(error);
+      error.status === 400 ? Swal.fire({
+              icon: 'error',
+              title: error.response.data.message || 'Error en la solicitud',
+              timer: 2000
+            }) : 
       Swal.fire({
               icon: 'error',
               title: error || 'Error en la solicitud',
