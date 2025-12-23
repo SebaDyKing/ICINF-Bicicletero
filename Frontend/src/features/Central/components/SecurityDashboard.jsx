@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { getGuardService, getUserService } from '../services/adminGuard.service';
 import Swal from 'sweetalert2'
+import {formatRut} from '../../utils/rutUtils'
 
 import {Header} from './Header';
 
@@ -39,11 +40,13 @@ export default function SecurityDashboard() {
   const [apellido, setApellido] = useState("");
   const [rut, setRut] = useState("");
   const [email, setEmail] = useState("");
-  const [telefono, setTelefono] = useState("");
+  const PREFIX = '+56 9 '
+  const ONLY_LETTERS = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/;
+  const [telefono, setTelefono] = useState(PREFIX);
   const [contrasenia, setContrasenia] = useState("");
 
   //login
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const emailFromUrl = searchParams.get("email");
@@ -121,6 +124,8 @@ export default function SecurityDashboard() {
 
   const handleCreate = async () => {
     try {
+      console.log(rut, email, contrasenia, telefono, nombre, apellido)
+
       const res = await axios.post("http://localhost:3000/api/central/createGuard", {
         rut,
         email,
@@ -130,20 +135,29 @@ export default function SecurityDashboard() {
         apellido
       });
 
-      Swal.fire({
+      await Swal.fire({
         icon: 'success',
         title: 'Guardia creado exitosamente',
-        timer: 2000
+        timer: 1000
       })
-      console.log(res.data.resultQuery);
-
+      console.log(res);
+      setNombre('')
+      setApellido('')
+      setContrasenia('')
+      setEmail('')
+      setTelefono('')
+      setRut('')
+      navigate(0)
     } catch (error) {
       console.log(error);
-      Swal.fire({
-                icon: 'error',
-                title: error.response?.data?.message || "Error en la solicitud",
-                timer: 2000
-              })
+      const details = error.response?.data?.errorDetails;
+      error.status === 409 ? Swal.fire({
+        icon: 'error',
+        title: error.response.data.message || "Error de validación"
+      }) : Swal.fire({
+        icon: 'error',
+        title: details?.[0] || "Error de validación"
+      });
     }
   };
 
@@ -189,12 +203,13 @@ export default function SecurityDashboard() {
       );
       console.log(res)
 
-      Swal.fire({
+      await Swal.fire({
                 icon: 'success',
                 title: 'Información del guardia actualizada correctamente.',
-                timer: 2000
+                timer: 5000
               })
       console.log(res.data);
+      navigate(0)
 
     } catch (error) {
       console.log(error);
@@ -213,12 +228,13 @@ export default function SecurityDashboard() {
       // Guardas el resultado en un estado separado
       setUserSelected(res.data.data)
       console.log(res.data.data)
+      console.log(res)
       setInputRut('')
     } catch (error) {
       console.log(error)
       Swal.fire({
                 icon: 'error',
-                title: error.response?.data?.message,
+                title: error || "Guardia no encontrado.",
                 timer: 2000
               })
       setUserSelected(null); // Limpia
@@ -227,8 +243,9 @@ export default function SecurityDashboard() {
 
   const searchUserByRut = async () => {
     try {
+      if (inputRut.length === 0) throw new Error ("El campo rut no puede estar vacio.")
+      if (inputRut.length < 12) throw new Error ("El campo rut debe tener al menos 12 caracteres.")
       const res = await getUserService(inputRut)
-      
       // Guardas el resultado en un estado separado
       setUserSelected(res.data.data)
       console.log(res.data.data)
@@ -238,42 +255,10 @@ export default function SecurityDashboard() {
       setUserSelected(null); // Limpia
       Swal.fire({
                 icon: 'error',
-                title: error.response?.data?.message || "Usuario no encontrado",
+                title: error || "Usuario no encontrado.",
                 timer: 2000
               })
     }
-  };
-
-
-
-  // --- Sub-Componentes Visuales ---
-
-  const StatCard = ({ title, value, subtext, icon: Icon, colorClass, iconColor }) => (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between h-40">
-      <div className="flex justify-between items-start">
-        <span className="text-gray-500 font-medium text-sm">{title}</span>
-        <div className={`p-2 rounded-full ${colorClass}`}>
-          <Icon size={20} className={iconColor} />
-        </div>
-      </div>
-      <div>
-        <div className="text-3xl font-bold text-gray-800">{value}</div>
-        <div className="text-gray-400 text-xs mt-1">{subtext}</div>
-      </div>
-    </div>
-  );
-
-  const StatusBadge = ({ status }) => {
-    const styles = {
-      'En investigación': 'bg-yellow-100 text-yellow-700 border-yellow-200',
-      'Pendiente': 'bg-red-100 text-red-700 border-red-200',
-      'Resuelto': 'bg-green-100 text-green-700 border-green-200',
-    };
-    return (
-      <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${styles[status] || 'bg-gray-100'}`}>
-        {status}
-      </span>
-    );
   };
 
   const formatDate = (fechaHora) => {
@@ -314,6 +299,22 @@ export default function SecurityDashboard() {
       }
     };
 
+    const formatPhone = (value) => {
+      // Quitar el prefijo si viene duplicado
+      let clean = value.replace(PREFIX, '');
+
+      // Solo números
+      clean = clean.replace(/\D/g, '');
+
+      // Máximo 8 dígitos
+      clean = clean.slice(0, 8);
+
+      // Agrupar de 4 en 4
+      const grouped = clean.match(/.{1,4}/g)?.join(' ') || '';
+
+      return PREFIX + grouped;
+    };
+
   
   
   return (
@@ -350,7 +351,11 @@ export default function SecurityDashboard() {
                 placeholder="Buscar por RUT..."
                 value={inputRut}
                 className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                onChange={(e) => setInputRut(e.target.value)}
+                onChange={(e) => {
+                  const formattedRut = formatRut(e.target.value);
+                  setInputRut(formattedRut);
+                }}
+                maxLength={12}
               />
             </div>
 
@@ -365,14 +370,14 @@ export default function SecurityDashboard() {
             <div className="relative mb-6">              
               <button className="mt-5 flex items-center gap-1 text-white bg-blue-800 px-3 py-1.5 rounded-lg text-sm hover:bg-blue-600 font-medium" onClick={() => {rol === '' ? Swal.fire({
                 icon: 'warning',
-                title: 'Seleccione el rol.',
+                title: 'Seleccione rol de usuario.',
                 timer: 2000
               }) : rol==='guardia' ? searchGuardByRut() : searchUserByRut()}}>
                 <Search size={14}/> Buscar
               </button>
               {userSelected && (
-                <div className="table-user-search">
-                  <table className="w-full text-left border-collapse">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
                     <thead className="bg-gray-50 text-gray-600 text-sm font-semibold">
                       <tr>
                         <th className="p-4 rounded-tl-lg">Nombre</th>
@@ -389,7 +394,7 @@ export default function SecurityDashboard() {
                         <td className="p-4">{userSelected.correo || userSelected.email}</td>
                         <td className="p-4">{userSelected.telefono}</td>
                         <td>
-                          <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium mt-3" onClick={() => handleDelete(userSelected.rut)}>
+                          <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium mt-3" onClick={async () => {await handleDelete(userSelected.rut); setTimeout(() => {navigate(0)}, 1300)}}>
                             <Trash2 size={14}/> Eliminar
                           </button>
                         </td>
@@ -517,7 +522,7 @@ export default function SecurityDashboard() {
                 <h3 className="text-xl font-bold text-gray-800">Agregar Nuevo Guardia</h3>
                 <p className="text-sm text-gray-500">Ingresa los datos del nuevo guardia de seguridad</p>
               </div>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+              <button onClick={() => {setIsModalOpen(false); setEmail(''); setTelefono(PREFIX); setRut('')}} className="text-gray-400 hover:text-gray-600">
                 <X size={24} />
               </button>
             </div>
@@ -532,7 +537,13 @@ export default function SecurityDashboard() {
                     type="text"
                     placeholder="Ej: Juan"
                     value={nombre}
-                    onChange={(e) => setNombre(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      if (ONLY_LETTERS.test(value)) {
+                        setNombre(value);
+                      }
+                    }}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   />
                 </div>
@@ -543,7 +554,13 @@ export default function SecurityDashboard() {
                     type="text"
                     placeholder="Ej: Pérez"
                     value={apellido}
-                    onChange={(e) => setApellido(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      if (ONLY_LETTERS.test(value)) {
+                        setApellido(value);
+                      }
+                    }}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   />
                 </div>
@@ -555,10 +572,14 @@ export default function SecurityDashboard() {
                   type="text"
                   placeholder="12.345.678-9"
                   value={rut}
-                  onChange={(e) => setRut(e.target.value)}
+                  onChange={(e) => {
+                    const formattedRut = formatRut(e.target.value);
+                    setRut(formattedRut);
+                  }}
+                  maxLength={12}  
                   className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2"
                 />
-              </div>
+              </div>              
 
               <div className="space-y-1">
                 <label className="text-sm font-semibold text-gray-700">Email</label>
@@ -577,10 +598,18 @@ export default function SecurityDashboard() {
                   type="tel"
                   placeholder="+56 9 1234 5678"
                   value={telefono}
-                  onChange={(e) => setTelefono(e.target.value)}
+                  onChange={(e) => setTelefono(formatPhone(e.target.value))}
+                  onKeyDown={(e) => {
+                    // Bloquea borrar el prefijo
+                    if (
+                      e.key === 'Backspace' &&
+                      phone.length <= PREFIX.length
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
                   className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2"
                 />
-                
               </div>
 
               <div className="space-y-1">
@@ -629,7 +658,7 @@ export default function SecurityDashboard() {
                 <h3 className="text-xl font-bold text-gray-800">Editar Guardia</h3>
                 <p className="text-sm text-gray-500">Actualice la informacion del guardia de seguridad</p>
               </div>
-              <button onClick={() => setIsModalOpenEdit(false)} className="text-gray-400 hover:text-gray-600">
+              <button onClick={() => {setIsModalOpenEdit(false); setEmail('')}} className="text-gray-400 hover:text-gray-600">
                 <X size={24} />
               </button>
             </div>
@@ -654,7 +683,16 @@ export default function SecurityDashboard() {
                   type="tel"
                   placeholder="+56 9 1234 5678"
                   value={telefono}
-                  onChange={(e) => setTelefono(e.target.value)}
+                  onChange={(e) => setTelefono(formatPhone(e.target.value))}
+                  onKeyDown={(e) => {
+                    // Bloquea borrar el prefijo
+                    if (
+                      e.key === 'Backspace' &&
+                      phone.length <= PREFIX.length
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
                   className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2"
                 />
               </div>
