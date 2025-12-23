@@ -141,7 +141,7 @@ const RegisterPage = () => {
 
           {/* Email */}
           <div>
-            <label className={labelClasses}>Correo Institucional</label>
+            <label className={labelClasses}>Correo</label>
             <input
               type="email"
               name="email"
