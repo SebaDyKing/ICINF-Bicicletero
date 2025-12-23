@@ -4,7 +4,6 @@ import { loginService } from "../features/Login/services/auth.service";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Al cargar la App, leer LocalStorage
@@ -14,7 +13,6 @@ export const AuthProvider = ({ children }) => {
 
     if (storedToken && storedUser) {
       setUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
     }
 
     setLoading(false);
@@ -26,11 +24,9 @@ export const AuthProvider = ({ children }) => {
       const userData = await loginService(rut, password);
 
       setUser(userData);
-      setIsAuthenticated(true);
       return userData;
     } catch (error) {
       setUser(null);
-      setIsAuthenticated(false);
       throw error;
     }
   };
@@ -40,7 +36,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
-    setIsAuthenticated(false);
   };
 
   // Función para actualizar datos del usuario
@@ -60,7 +55,6 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated,
         loading,
         login,
         logout,
