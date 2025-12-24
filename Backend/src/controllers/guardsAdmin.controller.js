@@ -1,6 +1,7 @@
 import { AppDataSource } from "../config/configDb.js";
 import {handleErrorClient, handleErrorServer, handleSuccess} from '../Handlers/responseHandlers.js'
 import {Users} from '../models/user.entity.js'
+import {Guard} from '../models/guard.entity.js'
 import {guardBodyPartialValidation, validateGuardBody } from '../validations/guardia.validations.js'
 import bcrypt from 'bcrypt'
 import { HASH_VALUE } from "../config/configEnv.js";
@@ -168,6 +169,8 @@ export const updateGuard = async (req, res) => {
 export const getGuard = async (req, res) => {
     const {rut} = req.query
 
+    if (rut === 'null') return handleErrorClient(res, 400, 'El campo rut es obligatorio.')
+
     const {error} = guardBodyPartialValidation({rut})
     if (error) {
         const errorMessages = error.details.map((detail) => detail.message)
@@ -182,6 +185,10 @@ export const getGuard = async (req, res) => {
     const user = AppDataSource.getRepository(Users);
     const isValid = await user.findOneBy({rut});
     if (!isValid) return handleErrorClient(res, 404, `El RUT ${rut} no se encuentra registrado.`);
+
+    const guard = AppDataSource.getRepository(Guard);
+    const isValidGuard = await guard.findOneBy({rut});
+    if (!isValidGuard) return handleErrorClient(res, 404, `El RUT ${rut} no se encuentra registrado como guardia.`);
 
     // consulta SQL para ingresar a tabla Users
     const query = `
