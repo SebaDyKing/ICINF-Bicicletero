@@ -161,18 +161,38 @@ export default function SecurityDashboard() {
         "http://localhost:3000/api/central/deleteGuard",
         {
           data: { rut },
-        }
-      );
-
+        });
       Swal.fire({
-                icon: 'success',
-                title: res.data.message,
-                timer: 2000
-              })
-
+            icon: 'success',
+            title: res.data.message,
+            timer: 2000
+      })
       // actualizar UI — ejemplo filtrando
       setGuards(prev => prev.filter(g => g.rut !== rut));
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+                icon: 'error',
+                title: error.response?.data?.message || "No se pudo eliminar.",
+                timer: 2000
+              })
+    }
+  };
 
+  const handleDeleteOwner = async (rut) => {
+    try {
+      const res = await axios.delete(
+        "http://localhost:3000/api/central/deleteOwner",
+        {
+          data: { rut },
+        });
+      Swal.fire({
+            icon: 'success',
+            title: res.data.message,
+            timer: 2000
+      })
+      // actualizar UI — ejemplo filtrando
+      setGuards(prev => prev.filter(g => g.rut !== rut));
     } catch (error) {
       console.error(error);
       Swal.fire({
@@ -237,8 +257,6 @@ export default function SecurityDashboard() {
 
   const searchUserByRut = async () => {
     try {
-      if (inputRut.length === 0) throw new Error ("El campo rut no puede estar vacio.")
-      if (inputRut.length < 12) throw new Error ("El campo rut debe tener al menos 12 caracteres.")
       const res = await getUserService(inputRut)
       // Guardas el resultado en un estado separado
       setUserSelected(res.data.data)
@@ -374,7 +392,7 @@ export default function SecurityDashboard() {
                 icon: 'warning',
                 title: 'Seleccione rol de usuario.',
                 timer: 2000
-              }) : rol==='guardia' ? searchGuardByRut() : searchUserByRut()}}>
+              }) : rol==='guardia' ? searchGuardByRut() : searchUserByRut(); console.log(userSelected)}}>
                 <Search size={14}/> Buscar
               </button>
               {userSelected && (
@@ -396,7 +414,7 @@ export default function SecurityDashboard() {
                         <td className="p-4">{userSelected.correo || userSelected.email}</td>
                         <td className="p-4">{userSelected.telefono}</td>
                         <td>
-                          <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium mt-3" onClick={async () => {await handleDelete(userSelected.rut); setTimeout(() => {navigate(0)}, 1300)}}>
+                          <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium mt-3" onClick={async () => { userSelected.tipo_usuario === 'Guard' ? handleDelete(userSelected.rut) : handleDeleteOwner(userSelected.rut); setTimeout(() => {navigate(0)}, 1300)}}>
                             <Trash2 size={14}/> Eliminar
                           </button>
                         </td>
