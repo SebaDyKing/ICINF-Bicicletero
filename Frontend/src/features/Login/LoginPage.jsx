@@ -1,23 +1,27 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { loginService } from "./services/auth.service";
-import { formatRut } from "./utils/rutUtils.js";
+import { useAuth } from "../../Context/useAuth.js";
+import { formatRut } from "../utils/rutUtils.js";
+import { Eye, EyeOff } from "lucide-react";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   // Estado para los datos del formulario
   const [credentials, setCredentials] = useState({
     rut: "",
-    password: "",
+    contrasenia: "",
   });
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name == "rut") {
+    if (name === "rut") {
       setCredentials({
         ...credentials,
         [name]: formatRut(value),
@@ -37,10 +41,13 @@ const LoginPage = () => {
 
     try {
       // 1. Llamamos al servicio
-      const userData = await loginService(
-        credentials.rut,
-        credentials.password
-      );
+      const userData = await login(credentials.rut, credentials.contrasenia);
+
+      if (!userData) {
+        setError("RUT o contraseña incorrectos");
+        setIsLoading(false);
+        return;
+      }
 
       // 2. Verificamos el rol que viene en userData.tipo_usuario
       // Tu backend devuelve "Owner" (con mayúscula inicial según tu JSON)
@@ -55,7 +62,7 @@ const LoginPage = () => {
         navigate("/central");
       } else {
         // Si el rol no coincide con nada conocido
-        navigate("/home");
+        navigate("/");
       }
     } catch (err) {
       setError(err.message);
@@ -64,8 +71,12 @@ const LoginPage = () => {
     }
   };
 
+  const inputClasses =
+    "w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition";
+  const labelClasses = "block text-gray-700 font-medium mb-1 text-sm";
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-10 px-4">
       <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md border-t-4 border-blue-800">
         {/* Header del Login */}
         <div className="text-center mb-8">
@@ -93,32 +104,40 @@ const LoginPage = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Input RUT */}
           <div>
-            <label className="block text-gray-700 font-medium mb-2">RUT</label>
+            <label className={labelClasses}>RUT</label>
             <input
               type="text"
               name="rut"
               placeholder="12.345.678-9"
               value={credentials.rut}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className={inputClasses}
               required
             />
           </div>
 
           {/* Input Contraseña */}
           <div>
-            <label className="block text-gray-700 font-medium mb-2">
-              Contraseña
-            </label>
-            <input
-              type="password"
-              name="password"
-              placeholder="••••••••"
-              value={credentials.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-              required
-            />
+            <label className={labelClasses}>Contraseña</label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="contrasenia"
+                placeholder="••••••••"
+                value={credentials.contrasenia}
+                onChange={handleChange}
+                className={inputClasses}
+                required
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-blue-800 cursor-pointer focus:outline-none"
+              >
+                {showPassword ? <Eye /> : <EyeOff />}
+              </button>
+            </div>
           </div>
 
           {/* Botón Submit */}

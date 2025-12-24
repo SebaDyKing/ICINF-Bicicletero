@@ -42,7 +42,7 @@ export const createGuard = async (req, res) => {
     const hashedPassword = await bcrypt.hash(contrasenia, parseInt(HASH_VALUE))
     
     // Crea el array de valores en el mismo orden que los marcadores de posición
-    const tipo_usuario = 'guardia'
+    const tipo_usuario = 'Guard'
     const valuesUsers = [
         rut,
         email,
@@ -171,7 +171,7 @@ export const getGuard = async (req, res) => {
     const {error} = guardBodyPartialValidation({rut})
     if (error) {
         const errorMessages = error.details.map((detail) => detail.message)
-        return handleErrorClient(res, 400, "Error de validación", errorMessages)
+        return handleErrorClient(res, 400, errorMessages)
     }
     
     //verifica que la bdd este iniciada
@@ -208,6 +208,7 @@ export const getGuard = async (req, res) => {
             tipo_usuario: resultQuery[0].tipo_usuario
         });
     } catch (error) {
+        console.log(error)
         return handleErrorServer(res, 500, "Error del servidor", error.message);
     }
 }
