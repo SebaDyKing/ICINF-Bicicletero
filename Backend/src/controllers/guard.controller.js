@@ -1,4 +1,3 @@
-// src/controllers/guard.controller.js
 "use strict";
 
 import { 
@@ -22,12 +21,14 @@ import {
   getEstadisticasService
 } from "../service/guard.service.js"; 
 
-// ================================
-// --- Lógica de Ingreso/Retiro ---
-// ================================
-
+/**
+ * @brief Controlador para registrar el ingreso de una bicicleta al recinto.
+ * @details Valida los datos de entrada, asocia el ingreso al RUT del guardia autenticado 
+ * y emite una actualización en tiempo real al dashboard vía WebSocket.
+ * @param {import("express").Request} req Objeto de solicitud HTTP (contiene id_bicicleta, id_bicicletero, etc.).
+ * @param {import("express").Response} res Objeto de respuesta HTTP.
+ */
 export const registrarIngreso = async (req, res) => {
-  // Validación
   const { error } = validateIngresoBody(req.body);
   if (error) {
     const validationErrors = error.details.map(detail => detail.message);
@@ -35,33 +36,35 @@ export const registrarIngreso = async (req, res) => {
   }
 
   try {
-    // Preparamos los datos
     const datosIngreso = {
       ...req.body,
-      rut_guardia: req.user.rut // Obtenemos el rut del token
+      rut_guardia: req.user.rut // Se obtiene del token del guardia logueado
     };
-
-    // 1. Llamamos al servicio (Él se encarga de guardar en la BD)
     const nuevoIngreso = await registrarIngresoService(datosIngreso);
-
+    
     if (!nuevoIngreso) {
       return handleErrorClient(res, 400, "Esta bicicleta ya se encuentra registrada como 'Ingreso' activo.");
     }
 
-    // 2. Notificamos a los sockets (Frontend) para que se actualice solo
+    // Notificar cambio al dashboard en tiempo real
     if (req.io) {
       await actualizarDashboard(req.io); 
     }
-    
-    handleSuccess(res, 201, "Ingreso registrado exitosamente.", nuevoIngreso);
 
+    handleSuccess(res, 201, "Ingreso registrado exitosamente.", nuevoIngreso);
   } catch (error) {
     handleErrorServer(res, 500, "Error al registrar el ingreso.", error.message);
   }
 };
 
+/**
+ * @brief Controlador para registrar el retiro (salida) de una bicicleta.
+ * @details Finaliza un registro activo actualizando la fecha de salida. 
+ * También actualiza el dashboard en tiempo real.
+ * @param {import("express").Request} req Objeto de solicitud HTTP (debe contener id_bicicleta).
+ * @param {import("express").Response} res Objeto de respuesta HTTP.
+ */
 export const registrarRetiro = async (req, res) => {
-  // Validación
   const { error } = validateRetiroBody(req.body);
   if (error) {
     const validationErrors = error.details.map(detail => detail.message);
@@ -70,26 +73,29 @@ export const registrarRetiro = async (req, res) => {
 
   try {
     const { id_bicicleta } = req.body;
-    
-    // 1. Llamamos al servicio (Él busca, actualiza la fecha y guarda)
     const registro = await registrarRetiroService(id_bicicleta);
-
+    
     if (!registro) {
       return handleErrorClient(res, 404, "No se encontró un ingreso activo para esta bicicleta.");
     }
 
-    // 2. Notificamos a los sockets
+    // Notificar cambio al dashboard en tiempo real
     if (req.io) {
       await actualizarDashboard(req.io); 
     }
 
     handleSuccess(res, 200, "Retiro registrado exitosamente.", registro);
-
   } catch (error) {
     handleErrorServer(res, 500, "Error al registrar el retiro.", error.message);
   }
 };
 
+/**
+ * @brief Obtiene el listado de bicicletas que se encuentran actualmente dentro del recinto.
+ * @details Retorna todos los registros donde la fecha de salida es NULL.
+ * @param {import("express").Request} req Objeto de solicitud HTTP.
+ * @param {import("express").Response} res Objeto de respuesta HTTP.
+ */
 export const getRegistrosActivos = async (req, res) => {
   try {
     const registrosActivos = await getRegistrosActivosService();
@@ -99,6 +105,12 @@ export const getRegistrosActivos = async (req, res) => {
   }
 };
 
+/**
+ * @brief Obtiene la información de capacidad y ocupación de los bicicleteros.
+ * @details Utilizado para mostrar cuántos espacios disponibles quedan en cada bicicletero en el panel del guardia.
+ * @param {import("express").Request} req Objeto de solicitud HTTP.
+ * @param {import("express").Response} res Objeto de respuesta HTTP.
+ */
 export const getCapacidadesBicicleteros = async (req, res) => {
   try {
     const resultadoFinal = await getCapacidadesBicicleterosService();
@@ -108,6 +120,12 @@ export const getCapacidadesBicicleteros = async (req, res) => {
   }
 };
 
+/**
+ * @brief Obtiene estadísticas generales del día para el dashboard del guardia.
+ * @details Incluye datos como: bicicletas activas actuales, total de ingresos hoy y total de retiros hoy.
+ * @param {import("express").Request} req Objeto de solicitud HTTP.
+ * @param {import("express").Response} res Objeto de respuesta HTTP.
+ */
 export const getEstadisticas = async (req, res) => {
   try {
     const stats = await getEstadisticasService();
