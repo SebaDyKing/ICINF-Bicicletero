@@ -1,3 +1,4 @@
+import { AppDataSource } from "../config/configDb.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
 import { bicicleteroBodyPartialValidation } from "../validations/bicicletero.validations.js";
 import { 
@@ -118,5 +119,43 @@ export async function deleteBicicletero(req, res) {
 
   } catch (error) {
     return handleErrorServer(res, 500, "Error del servidor", error.message);
+  }
+}
+
+/**
+ * @brief Obtiene el estado de ocupación actual de los bicicleteros para el Dashboard público.
+ * Realiza un conteo de las bicicletas estacionadas (sin fecha de salida) y compara con la 
+ * capacidad máxima para determinar si el estado es 'Lleno' o 'Disponible'.
+ * @param {import("express").Request} req Objeto de solicitud HTTP.
+ * @param {import("express").Response} res Objeto de respuesta HTTP.
+ */
+export async function getBicicleterosStatus(req, res) {
+  try {
+    const query = `
+      SELECT 
+        br.id_bicicletero, 
+        br.nombre, 
+        br.capacidad_maxima as total,
+        (
+          SELECT COUNT(*) 
+          FROM store s 
+          WHERE s.id_bicicletero = br.id_bicicletero 
+          AND s.fecha_salida IS NULL
+        )::int as occupied
+      FROM "bicycleRack" br
+    `;
+    
+    const bicicleteros = await AppDataSource.query(query);
+
+    const dataProcesada = bicicleteros.map(b => ({
+        ...b,
+        status: b.occupied >= b.total ? 'Lleno' : 'Disponible'
+    }));
+
+    handleSuccess(res, 200, "Estado obtenido", dataProcesada);
+
+  } catch (error) {
+    console.error("Error status bicicleteros:", error);
+    handleErrorServer(res, 500, "Error del servidor", error.message);
   }
 }
