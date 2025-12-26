@@ -34,11 +34,6 @@ export const BicycleRack = new EntitySchema({
       scale: 8,
       nullable: false,
     },
-    imagen:{
-      type: "varchar",
-      length:200,
-      nullable: true
-    }
   },
 
   relations: {

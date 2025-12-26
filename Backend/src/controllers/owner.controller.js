@@ -13,8 +13,10 @@ import { AppDataSource } from "../config/configDb.js";
 import { Owner } from "../models/owner.entity.js";
 import { Users } from "../models/user.entity.js";
 import { solicitarGuardService } from "../service/owner.service.js";
-
-import { sendVerificationEmail } from "../service/email.service.js";
+import {
+  sendVerificationEmail,
+  sendPasswordChangeNotification,
+} from "../service/email.service.js";
 
 /**
  * @brief Controlador para crear un nuevo dueño (Owner).
@@ -129,6 +131,14 @@ export async function getOwner(req, res) {
   try {
     const { rut } = req.query;
 
+    if (!rut) {
+      return handleErrorClient(res, 400, "El campo rut es obligatorio.");
+    }
+    const {error } = ownerBodyPartialValidation({rut})
+    if (error) {
+      return handleErrorClient(res, 400, error.message);
+    }
+
     // Repositorios de Owner y Users
     const ownerRepository = AppDataSource.getRepository(Owner);
     const userRepository = AppDataSource.getRepository(Users);
@@ -153,7 +163,6 @@ export async function getOwner(req, res) {
       telefono: user.telefono,
       nombre: owner.nombre,
       apellido: owner.apellido,
-      qrData: owner.qrData,
       tipo_usuario: user.tipo_usuario,
     };
 
@@ -209,7 +218,6 @@ export async function getAllOwners(req, res) {
           telefono: user.telefono,
           nombre: owner.nombre,
           apellido: owner.apellido,
-          qrData: owner.qrData,
           tipo_usuario: user.tipo_usuario,
         };
       })
@@ -277,10 +285,17 @@ export async function updateOwner(req, res) {
     // Validación del cuerpo parcial para actualizar datos
     const { error } = ownerBodyPartialValidation(req.body);
     if (error) {
-      return handleErrorClient(res, 400, "Datos no validos", error.message);
+      return handleErrorClient(res, 400, error.message);
     }
 
-    const { rut, contrasenia, telefono, nombre, apellido } = req.body;
+    const {
+      rut,
+      nuevaContrasenia,
+      actualContrasenia,
+      telefono,
+      nombre,
+      apellido,
+    } = req.body;
 
     // Repositorios de Owner y Users
     const ownerRepository = AppDataSource.getRepository(Owner);
@@ -299,22 +314,46 @@ export async function updateOwner(req, res) {
       );
     }
 
-    // Actualizamos datos en Owner si fueron enviados
+    //Variable de control para saber si se cambio la contraseña
+    let passwordChanged = false;
+
+    // Actualizamos datos básicos
     if (nombre) owner.nombre = nombre;
     if (apellido) owner.apellido = apellido;
-
-    // Actualizamos datos en User si fueron enviados
     if (telefono) user.telefono = telefono;
 
     // Si se envía una nueva contraseña, se encripta
-    if (contrasenia) {
+    if (nuevaContrasenia) {
+      if (!actualContrasenia) {
+        return handleErrorClient(
+          res,
+          400,
+          "La contraseña actual es requerida para cambiar la contraseña."
+        );
+      }
+      const isMatch = await bcrypt.compare(actualContrasenia, user.contrasenia);
+
+      if (!isMatch) {
+        return handleErrorClient(
+          res,
+          401,
+          "La contraseña actual ingresada es incorrecta."
+        );
+      }
       const salt = await bcrypt.genSalt(10);
-      user.contrasenia = await bcrypt.hash(contrasenia, salt);
+      user.contrasenia = await bcrypt.hash(nuevaContrasenia, salt);
+
+      // Marcamos que la contraseña fue cambiada
+      passwordChanged = true;
     }
 
     // Guardamos los cambios en la base de datos
     await ownerRepository.save(owner);
     await userRepository.save(user);
+
+    if (passwordChanged) {
+      sendPasswordChangeNotification(user.email, owner.nombre);
+    }
 
     // Construcción de la data actualizada a retornar
     const updatedData = {
@@ -323,7 +362,6 @@ export async function updateOwner(req, res) {
       telefono: user.telefono,
       nombre: owner.nombre,
       apellido: owner.apellido,
-      contrasenia: user.contrasenia,
     };
 
     // Respuesta exitosa

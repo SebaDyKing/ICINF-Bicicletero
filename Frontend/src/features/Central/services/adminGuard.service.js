@@ -9,7 +9,7 @@ export const getGuardService = async (rut) => {
       return res
     } catch (error) {
       console.log(error);
-      alert(error.response?.data?.message || "Error en la solicitud");
+      throw error.response?.data?.message || "Error en la solicitud";
     }
 }
 
@@ -21,6 +21,6 @@ export const getUserService = async (rut) => {
       return res
     } catch (error) {
       console.log(error);
-      alert(error.response?.data?.message || "Error en la solicitud");
+      throw error.response?.data?.message || "Error en la solicitud";
     }
 }

@@ -23,7 +23,6 @@ export const getBicyclesByRut = async (rut) => {
 
 /**
  * Nueva función para obtener el historial real desde el Backend.
- * Llama a la ruta: GET /owners/history/:rut
  */
 export const getOwnerHistory = async (rut) => {
   try {
@@ -44,6 +43,15 @@ export const getBicicleterosStatus = async () => {
     return response.data.data || [];
   } catch (error) {
     console.error("Error cargando status bicicleteros:", error);
-    return []; // Retorna vacío si falla para no romper el dashboard
+    return []; 
+  }
+};
+
+export const updateOwnerService = async (ownerData) => {
+  try {
+    const response = await api.put(`/owners/updateOwner`, ownerData);
+    return response.data.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Error de conexión" };
   }
 };

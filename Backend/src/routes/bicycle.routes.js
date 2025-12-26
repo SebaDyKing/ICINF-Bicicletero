@@ -1,6 +1,6 @@
 "use strict";
 import { Router } from "express";
-import { createBicycle, getBicyclesByOwner } from "../controllers/bicycle.controller.js";
+import { createBicycle, deleteBicycleByOwner, getBicyclesByOwner } from "../controllers/bicycle.controller.js";
 import { authMiddleware, autorizeEntities } from "../middlewares/auth.middleware.js";
 
 const router = Router();
@@ -15,10 +15,17 @@ router.post(
 
 // Ver bicicletas de un rut específico
 router.get(
-  "/owner/:rut",
+  "/owner",
   authMiddleware,
   autorizeEntities("Guard", "Owner", "Central"),
   getBicyclesByOwner
 );
+
+router.delete(
+  "/delete/:id_bicicleta",
+  authMiddleware,
+  autorizeEntities("Guard", "Owner", "Central"),
+  deleteBicycleByOwner
+)
 
 export default router;

@@ -3,15 +3,18 @@ import NewIncidentModal from './NewIncidentModal'; // Componente del modal
 import { User, LogOut, Bell, FileText, Calendar, Plus, Edit, X, Trash2 } from 'lucide-react';
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import { useNavigate } from 'react-router-dom';
 
 const IncidentesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
   const [reports, setReports] = useState([]);
   const [reportSelected, setReportSelected] = useState(null)
+  const [cantReportes, setCantReportes] = useState(null)
   const [fecha, setFecha] = useState('')
   const [bicicletero, setBicicletero] = useState('')
   const [descripcion, setDescripcion] = useState('')
+  const navigate = useNavigate()
 
 
   useEffect(() => {
@@ -22,6 +25,7 @@ const IncidentesPage = () => {
       try {
         const res = await axios.get(`http://localhost:3000/api/guards/report/getAllReports`);
         console.log(res)
+        console.log(res.data.data.resultCant[0].count)
         
         const formatted = res.data.data.resultQuery.map(r => ({
           ID_Informe: r.ID_Informe,
@@ -33,11 +37,12 @@ const IncidentesPage = () => {
         
 
         setReports(formatted);
+        setCantReportes(res.data.data.resultCant[0].count)
       } catch (error) {
         console.error("Error backend:", error);
         Swal.fire({
                 icon: 'error',
-                title: 'Error al cargar los guardias.',
+                title: 'Error al cargar los reportes.',
                 timer: 2000
               })
       }
@@ -69,11 +74,12 @@ const IncidentesPage = () => {
             }
         );
 
-        Swal.fire({
+        await Swal.fire({
                 icon: 'success',
                 title: 'Reporte actualizado correctamente.',
                 timer: 2000
               })
+        navigate(0)
     } catch (error) {
         console.log(error);
         Swal.fire({
@@ -97,7 +103,7 @@ const IncidentesPage = () => {
               <span className="text-gray-600 text-sm font-medium">Incidentes Totales</span>
               <Bell size={18} className="text-gray-400" />
             </div>
-            <div className="text-3xl font-medium text-gray-800">2</div>
+            <div className="text-3xl font-medium text-gray-800">{cantReportes}</div>
           </div>
         </div>
 
