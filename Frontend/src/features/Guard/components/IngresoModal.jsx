@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { guardService } from '../services/guard.service';
-import { FaKeyboard, FaQrcode, FaCamera } from 'react-icons/fa'; 
+import { FaKeyboard, FaQrcode } from 'react-icons/fa'; 
 import { Html5QrcodeScanner, Html5QrcodeScannerState } from 'html5-qrcode'; 
 
+/**
+ * @component IngresoModal
+ * @description Modal que permite registrar el ingreso de una bicicleta mediante
+ * búsqueda manual (RUT) o escaneo de código QR.
+ */
 const IngresoModal = ({ onClose, onSuccess }) => {
   const [activeTab, setActiveTab] = useState('manual');
   const [bicicleteros, setBicicleteros] = useState([]);
@@ -23,7 +28,10 @@ const IngresoModal = ({ onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // --- LÓGICA: Formatear RUT ---
+  /**
+   * @function formatRut
+   * @description Formatea el RUT visualmente (XX.XXX.XXX-X).
+   */
   const formatRut = (value) => {
     const cleaned = value.replace(/[^0-9kK]/g, "");
     if (cleaned.length < 2) return cleaned;
@@ -41,24 +49,22 @@ const IngresoModal = ({ onClose, onSuccess }) => {
     const loadBicicleteros = async () => {
       try {
         const res = await guardService.getBicicleteros();
-        let lista = [];
-        if (Array.isArray(res)) lista = res;
-        else if (res.data && Array.isArray(res.data)) lista = res.data;
-        else if (res.data?.bicicleteros && Array.isArray(res.data.bicicleteros)) lista = res.data.bicicleteros;
-        else if (res.bicicleteros && Array.isArray(res.bicicleteros)) lista = res.bicicleteros;
         
-        setBicicleteros(lista);
-        if (lista.length > 0) {
-            setSelectedBicicleteroQR(lista[0].id_bicicletero);
+        // Optimización: Buscamos el array en las ubicaciones probables
+        const lista = res?.data?.bicicleteros || res?.data || res || [];
+        
+        if (Array.isArray(lista)) {
+            setBicicleteros(lista);
+            if (lista.length > 0) setSelectedBicicleteroQR(lista[0].id_bicicletero);
         }
       } catch (err) {
-        console.error("Error cargando bicicleteros", err);
+        console.error("Error cargando bicicleteros", err); // Mantenemos logs de error
       }
     };
     loadBicicleteros();
   }, []);
 
-  // ================= LÓGICA DEL ESCÁNER MEJORADA =================
+  // ================= LÓGICA DEL ESCÁNER (QR) =================
   useEffect(() => {
     let scanner = null;
 
@@ -68,65 +74,40 @@ const IngresoModal = ({ onClose, onSuccess }) => {
                 if (scannerRef.current.getState() === Html5QrcodeScannerState.SCANNING || 
                     scannerRef.current.getState() === Html5QrcodeScannerState.PAUSED) {
                     await scannerRef.current.clear();
-                } else {
-                    scannerRef.current.clear().catch(() => {});
                 }
-            } catch (err) {
-                console.warn("Limpieza de scanner:", err);
-            }
+            } catch (err) { console.warn("Limpieza de scanner:", err); }
             scannerRef.current = null;
         }
     };
 
     if (activeTab === 'qr' && !scanResult && cameraActive) {
-      
       const timer = setTimeout(async () => {
         await cleanupScanner();
         try {
             scanner = new Html5QrcodeScanner(
                 "qr-reader",
-                { 
-                    fps: 10, 
-                    qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1.0,
-                    rememberLastUsedCamera: true 
-                },
+                { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0, rememberLastUsedCamera: true },
                 false
             );
-            
             scannerRef.current = scanner;
-
             scanner.render(
                 (decodedText) => {
                     try {
                         const data = JSON.parse(decodedText);
+                        // Validamos que el QR sea de nuestro sistema
                         if (data.rut && (data.idBicicleta || data.id_bicicleta)) {
                             setScanResult(data);
                             cleanupScanner(); 
                             setError('');
-                        } else {
-                            alert("QR inválido: No corresponde al sistema.");
-                        }
-                    } catch (err) {
-                        console.error(err);
-                    }
+                        } else { alert("QR inválido: No pertenece al sistema de bicicletas."); }
+                    } catch (err) { console.error("Error parseando QR", err); }
                 },
-                (errorMessage) => { }
+                (errorMessage) => { /* Ignoramos errores de lectura cuadro a cuadro */ }
             );
-
-        } catch (err) {
-            console.error("Error al iniciar cámara", err);
-            setError("No se pudo iniciar la cámara.");
-        }
+        } catch (err) { setError("No se pudo iniciar la cámara."); }
       }, 500);
-
-      return () => {
-          clearTimeout(timer);
-          cleanupScanner(); 
-      };
-    } else {
-        cleanupScanner();
-    }
+      return () => { clearTimeout(timer); cleanupScanner(); };
+    } else { cleanupScanner(); }
   }, [activeTab, scanResult, cameraActive]);
 
   const handleReiniciarScanner = () => {
@@ -135,18 +116,31 @@ const IngresoModal = ({ onClose, onSuccess }) => {
     setError('');
   };
 
+  // --- BÚSQUEDA DE RUT ---
   const handleBuscarRut = async () => {
     if (!rutBusqueda) return;
     setLoading(true);
     setError('');
     setOwnerData(null);
     setSelectedBici(''); 
+    
     try {
       const res = await guardService.getOwnerByRut(rutBusqueda);
-      const dataDueño = res.data || res;
-      if (!dataDueño) setError('Usuario no encontrado.');
-      else setOwnerData(dataDueño);
+
+      // Optimización: Unificamos la lógica de desempaquetado de respuesta
+      const dataDueño = res?.data?.data || res?.data || res;
+
+      if (!dataDueño || !dataDueño.rut) {
+          setError('Usuario no encontrado o respuesta inválida.');
+      } else {
+          setOwnerData(dataDueño);
+          // Auto-seleccionar la primera bici
+          const bicis = dataDueño.bicycles || dataDueño.bicicletas || [];
+          if (bicis.length > 0) setSelectedBici(bicis[0].id_bicicleta);
+      }
+
     } catch (err) {
+      console.error(err);
       setError('Usuario no encontrado o error de conexión.');
     } finally {
       setLoading(false);
@@ -176,13 +170,11 @@ const IngresoModal = ({ onClose, onSuccess }) => {
     setLoading(true);
     try {
         const idBici = scanResult.idBicicleta || scanResult.id_bicicleta;
-        
         await guardService.registrarIngreso({
             rut_owner: scanResult.rut,
             id_bicicleta: idBici,
             id_bicicletero: parseInt(selectedBicicleteroQR)
         });
-        
         alert("Ingreso por QR registrado con éxito");
         onSuccess();
         onClose();
@@ -190,14 +182,13 @@ const IngresoModal = ({ onClose, onSuccess }) => {
         const resData = err.response?.data;
         const mensajeError = resData?.errorDetails || resData?.message || "Error al registrar ingreso QR";
         setError(mensajeError);
-    } finally {
-        setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
+
+  if (!activeTab) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-start pt-10 z-50 backdrop-blur-sm transition-opacity">
-      
       <div className="bg-white rounded-xl w-full max-w-lg shadow-2xl relative overflow-hidden animate-slide-down">
         
         {/* Header */}
@@ -206,7 +197,7 @@ const IngresoModal = ({ onClose, onSuccess }) => {
           <button onClick={onClose} className="text-white hover:text-gray-300 text-2xl leading-none">&times;</button>
         </div>
 
-        {/* Pestañas */}
+        {/* Pestañas de Navegación */}
         <div className="flex border-b bg-gray-50">
           <button 
             className={`flex-1 py-3 text-sm font-medium flex justify-center items-center gap-2 transition-colors
@@ -224,7 +215,7 @@ const IngresoModal = ({ onClose, onSuccess }) => {
           </button>
         </div>
 
-        {/* Contenido */}
+        {/* Contenido Principal */}
         <div className="p-6">
           
           {/* --- TAB MANUAL --- */}
@@ -268,7 +259,7 @@ const IngresoModal = ({ onClose, onSuccess }) => {
                       onChange={(e) => setSelectedBici(e.target.value)}
                     >
                       <option value="">-- Seleccione --</option>
-                      {ownerData.bicycles?.map(bici => (
+                      {(ownerData.bicycles || ownerData.bicicletas || []).map(bici => (
                         <option key={bici.id_bicicleta} value={bici.id_bicicleta}>
                           {bici.modelo} ({bici.color})
                         </option>
@@ -299,117 +290,55 @@ const IngresoModal = ({ onClose, onSuccess }) => {
           {/* --- TAB QR --- */}
           {activeTab === 'qr' && (
             <div className="flex flex-col items-center animate-fade-in">
-                
                 {!scanResult ? (
-                    /* CASO 1: MODO ESCANEO */
                     <div className="w-full">
-                        
                         {cameraActive ? (
-                            /* SUB-CASO A: CÁMARA PRENDIDA */
                             <>
                                 <div className="bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-gray-300 relative min-h-[250px] flex items-center justify-center mb-2">
                                     <div id="qr-reader" className="w-full h-full"></div>
-                                    <style jsx>{`
-                                        #qr-reader img[alt="Info icon"] { display: none !important; }
-                                        #qr-reader a { display: none !important; }
-                                        #qr-reader button { display: none !important; } 
-                                        #qr-reader select { display: none !important; } 
-                                    `}</style>
                                 </div>
-
-                                <button
-                                    onClick={() => setCameraActive(false)} 
-                                    className="w-full py-3 bg-blue-900 text-white rounded-lg font-bold hover:bg-blue-800 transition shadow-sm mb-3"
-                                >
-                                    Detener Escáner
-                                </button>
-                                <p className="text-center text-xs text-gray-500">
-                                    Enfoque el código QR del usuario para escanear.
-                                </p>
+                                <button onClick={() => setCameraActive(false)} className="w-full py-3 bg-blue-900 text-white rounded-lg font-bold hover:bg-blue-800 transition shadow-sm mb-3">Detener Escáner</button>
                             </>
                         ) : (
-                            /* SUB-CASO B: CÁMARA APAGADA  */
                             <div className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 w-full min-h-[250px] gap-6">
-                                
                                 <h3 className="text-gray-600 font-medium text-xl">El escáner está detenido</h3>
-                                
-                                <button
-                                    onClick={() => setCameraActive(true)}
-                                    className="px-8 py-3 bg-blue-900 text-white rounded-lg font-bold hover:bg-blue-800 transition shadow-lg flex items-center gap-2"
-                                >
-                                    <FaQrcode /> Iniciar Escáner
-                                </button>
+                                <button onClick={() => setCameraActive(true)} className="px-8 py-3 bg-blue-900 text-white rounded-lg font-bold hover:bg-blue-800 transition shadow-lg flex items-center gap-2"><FaQrcode /> Iniciar Escáner</button>
                             </div>
                         )}
                     </div>
                 ) : (
-                    /* CASO 2: RESULTADO EXITOSO */
                     <div className="w-full space-y-4 animate-fade-in-up">
                         <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-                            <div className="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2 text-green-600 text-xl">
-                                <FaQrcode />
-                            </div>
                             <h3 className="font-bold text-green-800 text-lg">¡Lectura Exitosa!</h3>
-                            <p className="text-green-700 font-medium mt-1">
-                                {scanResult.nombre || 'Usuario detectado'}
-                            </p>
+                            <p className="text-green-700 font-medium mt-1">{scanResult.nombre || 'Usuario detectado'}</p>
                             <p className="font-mono text-sm text-gray-600">{scanResult.rut}</p>
-                            
-                            {scanResult.modelo && (
-                                <div className="mt-3 inline-block bg-white px-3 py-1 rounded border border-green-200 text-xs text-gray-500 font-bold">
-                                    🚲 {scanResult.modelo}
-                                </div>
-                            )}
+                            {scanResult.modelo && (<div className="mt-3 inline-block bg-white px-3 py-1 rounded border border-green-200 text-xs text-gray-500 font-bold">🚲 {scanResult.modelo}</div>)}
                         </div>
-
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Guardar en:</label>
-                            <select 
-                                className="w-full border p-2.5 rounded-lg bg-white focus:ring-2 focus:ring-blue-500"
-                                value={selectedBicicleteroQR}
-                                onChange={(e) => setSelectedBicicleteroQR(e.target.value)}
-                            >
-                                {bicicleteros.map(rack => (
-                                <option key={rack.id_bicicletero} value={rack.id_bicicletero}>{rack.nombre}</option>
-                                ))}
+                            <select className="w-full border p-2.5 rounded-lg bg-white focus:ring-2 focus:ring-blue-500" value={selectedBicicleteroQR} onChange={(e) => setSelectedBicicleteroQR(e.target.value)}>
+                                {bicicleteros.map(rack => (<option key={rack.id_bicicletero} value={rack.id_bicicletero}>{rack.nombre}</option>))}
                             </select>
                         </div>
-                        
                         <div className="flex gap-2 pt-2">
-                            <button 
-                                onClick={handleReiniciarScanner}
-                                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-50 transition"
-                            >
-                                Cancelar
-                            </button>
-                            <button 
-                                onClick={handleSubmitQR}
-                                disabled={loading}
-                                className="flex-1 py-3 bg-blue-900 text-white rounded-lg font-bold hover:bg-blue-800 transition shadow-sm"
-                            >
-                                {loading ? 'Guardando...' : 'Confirmar Ingreso'}
-                            </button>
+                            <button onClick={handleReiniciarScanner} className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-50 transition">Cancelar</button>
+                            <button onClick={handleSubmitQR} disabled={loading} className="flex-1 py-3 bg-blue-900 text-white rounded-lg font-bold hover:bg-blue-800 transition shadow-sm">{loading ? 'Guardando...' : 'Confirmar Ingreso'}</button>
                         </div>
                     </div>
                 )}
-                
                 {error && <p className="text-red-500 text-sm mt-4 text-center bg-red-50 p-2 rounded w-full">{error}</p>}
             </div>
           )}
-
         </div>
 
         {/* Footer Manual */}
         {activeTab === 'manual' && (
           <div className="p-4 border-t flex justify-end gap-3 bg-gray-50">
-            <button onClick={onClose} className="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-white transition">
-              Cancelar
-            </button>
+            <button onClick={onClose} className="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-white transition">Cancelar</button>
             <button 
               onClick={handleSubmitManual}
               disabled={!ownerData || !selectedBici || !selectedBicicletero}
-              className={`px-5 py-2.5 rounded-lg text-white font-bold transition shadow-sm
-                ${(!ownerData || !selectedBici || !selectedBicicletero) ? 'bg-gray-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
+              className={`px-5 py-2.5 rounded-lg text-white font-bold transition shadow-sm ${(!ownerData || !selectedBici || !selectedBicicletero) ? 'bg-gray-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
             >
               Registrar Ingreso
             </button>

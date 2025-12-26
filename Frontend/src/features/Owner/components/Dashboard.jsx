@@ -19,6 +19,11 @@ import {
     getBicicleterosStatus 
 } from '../services/owner.service';
 
+/**
+ * @component Dashboard
+ * @description Panel principal del Dueño. Muestra sus bicicletas, genera el código QR
+ * para el acceso, visualiza la disponibilidad de bicicleteros y el historial reciente.
+ */
 const Dashboard = ({ user }) => {
   // --- ESTADOS ---
   const [misBicicletas, setMisBicicletas] = useState([]);
@@ -34,7 +39,7 @@ const Dashboard = ({ user }) => {
   // Estado para la fecha y hora en vivo
   const [fechaActual, setFechaActual] = useState(new Date());
 
-  // RELOJ EN VIVO (Para mostrar fecha/hora dinámica)
+  // RELOJ EN VIVO
   useEffect(() => {
     const timer = setInterval(() => {
       setFechaActual(new Date());
@@ -50,35 +55,46 @@ const Dashboard = ({ user }) => {
       try {
         setLoadingGlobal(true);
 
-        // CARGAR BICICLETAS
+        // 1. CARGAR BICICLETAS
         try {
-            const data = await getBicyclesByRut(user.rut);
-            let listaBicis = [];
-            if (Array.isArray(data)) listaBicis = data;
-            else if (data?.data && Array.isArray(data.data)) listaBicis = data.data;
-            else if (data?.bicycles) listaBicis = data.bicycles;
-            else if (data?.bicicletas) listaBicis = data.bicicletas;
+            const response = await getBicyclesByRut(user.rut);
+            
+            // Lógica unificada para encontrar el array de datos
+            const rawBicis = response?.data?.data || response?.data || response?.bicycles || response?.bicicletas || response || [];
+            const listaBicis = Array.isArray(rawBicis) ? rawBicis : [];
 
             setMisBicicletas(listaBicis);
+            
+            // Seleccionar la primera bici por defecto
             if (listaBicis.length > 0) setSelectedBike(listaBicis[0]);
-        } catch (err) { console.error("Error bicis:", err); }
+        } catch (err) { 
+            console.error("Error cargando bicicletas:", err); 
+            setMisBicicletas([]); 
+        }
 
-        // ARGAR HISTORIAL Y DETECTAR BICIS ACTIVAS
+        // 2. CARGAR HISTORIAL Y DETECTAR BICIS ACTIVAS
         try {
-            const historyData = await getOwnerHistory(user.rut);
-            const listaHistorial = Array.isArray(historyData) ? historyData : [];
+            const historyResponse = await getOwnerHistory(user.rut);
+            
+            const rawHistory = historyResponse?.data?.data || historyResponse?.data || historyResponse || [];
+            const listaHistorial = Array.isArray(rawHistory) ? rawHistory : [];
+            
             setHistorial(listaHistorial);
 
-            // Se filtran las que siguen adentro (Ingreso sin Salida)
+            // Filtramos las que siguen adentro (Tipo 'Ingreso' sin salida cerrada)
             const activas = listaHistorial.filter(h => h.tipo === 'Ingreso');
             setBicisAdentro(activas);
 
         } catch (err) { console.error("Error historial:", err); }
 
-        // DISPONIBILIDAD
+        // 3. DISPONIBILIDAD DE BICICLETEROS
         try {
-            const statusData = await getBicicleterosStatus();
-            setBicicleteros(Array.isArray(statusData) ? statusData : []);
+            const statusResponse = await getBicicleterosStatus();
+            
+            const rawStatus = statusResponse?.data || statusResponse || [];
+            const listaStatus = Array.isArray(rawStatus) ? rawStatus : [];
+            
+            setBicicleteros(listaStatus);
         } catch (err) { console.error("Error disponibilidad:", err); }
 
       } finally {
@@ -89,12 +105,16 @@ const Dashboard = ({ user }) => {
     fetchAllData();
   }, [user]);
 
-  // GENERAR QR
+  // GENERAR QR AL CAMBIAR DE BICICLETA
   useEffect(() => {
     if (selectedBike) handleGenerarQR(selectedBike);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedBike]);
 
+  /**
+   * @function handleGenerarQR
+   * @description Genera un código QR en base64 con los datos del usuario y la bicicleta seleccionada.
+   */
   const handleGenerarQR = async (bike) => {
     setLoadingQr(true);
     try {
@@ -103,13 +123,18 @@ const Dashboard = ({ user }) => {
         nombre: `${user.nombre} ${user.apellido}`,
         idBicicleta: bike.id_bicicleta, 
         modelo: bike.modelo,
-        generado_a: new Date().getTime() 
+        generado_a: new Date().getTime() // Timestamp para unicidad (opcional)
       };
+      
       const url = await QRCode.toDataURL(JSON.stringify(dataParaQR), {
         width: 400, margin: 1, color: { dark: '#003366', light: '#ffffff' }
       });
       setQrImage(url);
-    } catch (err) { console.error("Error QR:", err); } finally { setLoadingQr(false); }
+    } catch (err) { 
+        console.error("Error generando QR:", err); 
+    } finally { 
+        setLoadingQr(false); 
+    }
   };
 
   const handleDescargarQR = () => {
@@ -117,7 +142,9 @@ const Dashboard = ({ user }) => {
     const link = document.createElement('a');
     link.href = qrImage;
     link.download = `Pase-${selectedBike.modelo}.png`;
-    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    document.body.appendChild(link); 
+    link.click(); 
+    document.body.removeChild(link);
   };
 
   const getBarColor = (ocupados, total) => {
@@ -127,16 +154,13 @@ const Dashboard = ({ user }) => {
       return 'bg-green-400';
   };
 
-  // --- Formato corto para celular (DD/MM HH:mm) ---
   const formatDateShort = (dateString) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
-    // Formato manual para asegurar DD/MM HH:mm
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
-    
     return `${day}/${month} ${hours}:${minutes}`;
   };
 
@@ -147,7 +171,7 @@ const Dashboard = ({ user }) => {
       <div className="px-4 md:px-10 py-6 animate-fade-in max-w-7xl mx-auto">
         <div className="mb-6 flex justify-between items-center">
            <h2 className="text-xl font-bold text-slate-800">Panel Principal</h2>
-           <button onClick={() => window.location.reload()} className="text-slate-400 hover:text-blue-600 transition">
+           <button onClick={() => window.location.reload()} className="text-slate-400 hover:text-blue-600 transition" title="Actualizar datos">
              <RefreshCw size={20} />
            </button>
         </div>
@@ -171,15 +195,15 @@ const Dashboard = ({ user }) => {
             {/* GRID SUPERIOR */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                {/* 1. TARJETA QR */}
+                {/* 1. TARJETA QR (PASE DIGITAL) */}
                 <div className="lg:col-span-2 w-full bg-[#1e3a8a] rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row gap-8 items-center md:items-start transition-all hover:shadow-2xl">
                     <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-blue-500 rounded-full opacity-10 blur-3xl pointer-events-none"></div>
 
                     <div className="flex flex-col gap-4 items-center relative z-10 shrink-0">
                         <div className="bg-white p-3 rounded-2xl shadow-lg w-64 h-64 flex items-center justify-center relative">
                             {loadingQr ? <RefreshCw className="animate-spin text-gray-400" /> : 
-                             qrImage ? <img src={qrImage} alt="QR" className="w-full h-full object-contain rounded-lg" /> : 
-                             <span className="text-xs text-red-400">Error</span>}
+                             qrImage ? <img src={qrImage} alt="QR Acceso" className="w-full h-full object-contain rounded-lg" /> : 
+                             <span className="text-xs text-red-400">Error al generar QR</span>}
                         </div>
                         <button onClick={handleDescargarQR} className="flex items-center gap-2 text-sm font-medium text-blue-200 hover:text-white transition py-2 px-4 hover:bg-blue-800/50 rounded-lg">
                             <Download size={16} /> Guardar Imagen
@@ -198,8 +222,7 @@ const Dashboard = ({ user }) => {
                           {fechaActual.toLocaleDateString()} <span className="mx-1">|</span> {fechaActual.toLocaleTimeString()}
                         </div>
 
-                        {/* TEXTO MODIFICADO */}
-                        <p className="text-blue-100 text-sm mb-6 opacity-90">Escanea este código con un guardia.</p>
+                        <p className="text-blue-100 text-sm mb-6 opacity-90">Escanea este código con un guardia al ingresar o salir.</p>
                         
                         <div className="bg-blue-900/50 p-1.5 rounded-xl border border-blue-500/30 backdrop-blur-sm w-full max-w-md relative">
                                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
@@ -346,7 +369,6 @@ const Dashboard = ({ user }) => {
                                     <td className="px-4 py-3 text-slate-600">{log.nombre_bicicletero || '-'}</td>
                                     <td className="px-4 py-3 text-slate-600 font-medium">{log.modelo_bicicleta || '-'}</td>
                                     
-                                    {/* CAMBIO AQUÍ: Usamos la función de formato corto */}
                                     <td className="px-4 py-3 text-slate-400 font-mono whitespace-nowrap">
                                         {formatDateShort(log.fecha)}
                                     </td>
