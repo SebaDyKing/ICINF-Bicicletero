@@ -405,3 +405,51 @@ export async function deleteOwner(req, res) {
     handleErrorServer(res, 500, "Error interno del servidor", error.message);
   }
 }
+
+
+/**
+ * @brief Controlador para obtener el historial de movimientos de un dueño.
+ *
+ * Recupera los últimos registros de la tabla 'store' (ingresos y salidas)
+ * asociados a las bicicletas que pertenecen al RUT proporcionado.
+ * Utiliza una consulta SQL cruda para unir las tablas store, bicycleRack y bicycle.
+ *
+ * @param {import("express").Request} req  Objeto de solicitud HTTP.
+ * @param {import("express").Response} res Objeto de respuesta HTTP.
+ */
+export async function getOwnerHistory(req, res) {
+  try {
+    const { rut } = req.params;
+
+    if (!rut) {
+      return handleErrorClient(res, 400, "El RUT es obligatorio.");
+    }
+
+    const query = `
+      SELECT 
+        s.id_registro,
+        CASE 
+          WHEN s.fecha_salida IS NULL THEN 'Ingreso' 
+          ELSE 'Salida' 
+        END AS tipo,
+        br.nombre AS nombre_bicicletero,
+        b.modelo AS modelo_bicicleta,
+        s.fecha_ingreso AS fecha
+      FROM store s
+      LEFT JOIN "bicycleRack" br ON s.id_bicicletero = br.id_bicicletero
+      LEFT JOIN bicycle b ON s.id_bicicleta = b.id_bicicleta
+      WHERE b.rut_duenio = $1
+      ORDER BY s.fecha_ingreso DESC
+      LIMIT 10
+    `;
+
+    const historial = await AppDataSource.query(query, [rut]);
+
+    handleSuccess(res, 200, "Historial obtenido", historial);
+
+  } catch (error) {
+    // IMPORTANTE: Imprimimos el error en la consola del backend para verlo
+    console.error("ERROR SQL HISTORIAL:", error); 
+    handleErrorServer(res, 500, "Error al obtener historial", error.message);
+  }
+}
