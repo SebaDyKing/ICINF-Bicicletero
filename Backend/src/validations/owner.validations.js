@@ -9,6 +9,7 @@ const ownerCreationSchema = Joi.object({
     .required()
     .messages({
       "string.pattern.base": "El formato del rut no es válido.",
+      "string.empty": "El campo rut no puede estar vacío.",
       "any.required": "El campo rut es obligatorio.",
       "string.min": "El rut debe tener al menos 8 caracteres.",
       "string.max": "El rut no debe exceder los 12 caracteres.",
@@ -71,20 +72,16 @@ export function validateOwnerBody(input) {
 }
 
 export function ownerBodyPartialValidation(input) {
-  // Convertimos todos los campos originales a opcionales
   const baseSchema = ownerCreationSchema.fork(
     Object.keys(ownerCreationSchema.describe().keys),
     (schema) => schema.optional()
   );
 
-  // Usamos .append() para AGREGAR las nuevas reglas solo para la actualización
   const updateSchema = baseSchema.append({
-    // Permitimos recibir la contraseña actual (sin validación estricta de regex, solo string)
     actualContrasenia: Joi.string().optional().messages({
       "string.empty": "La contraseña actual no puede estar vacía",
     }),
 
-    // nueva contraseña, aplicando las mismas reglas de seguridad que la original
     nuevaContrasenia: Joi.string()
       .min(8)
       .max(20)
