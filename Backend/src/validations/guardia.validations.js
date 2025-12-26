@@ -14,7 +14,7 @@ export const guardBodyValition = Joi.object({
     'string.max': `El campo rut no debe exceder los 12 caracteres.`,
     'any.required': `El campo rut es obligatorio.`,
     'string.empty': `El campo rut no puede estar vacío.`,
-    'string.pattern.base': `El formato del rut no es válido.`,
+    'string.pattern.base': `El formato del rut no es válido`,
   }),
   nombre: Joi.string().min(3).required().messages({
     'string.base': `El campo nombre debe ser un texto.`,

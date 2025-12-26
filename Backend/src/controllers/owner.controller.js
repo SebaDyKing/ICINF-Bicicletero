@@ -131,6 +131,14 @@ export async function getOwner(req, res) {
   try {
     const { rut } = req.query;
 
+    if (!rut) {
+      return handleErrorClient(res, 400, "El campo rut es obligatorio.");
+    }
+    const {error } = ownerBodyPartialValidation({rut})
+    if (error) {
+      return handleErrorClient(res, 400, error.message);
+    }
+
     // Repositorios de Owner y Users
     const ownerRepository = AppDataSource.getRepository(Owner);
     const userRepository = AppDataSource.getRepository(Users);
