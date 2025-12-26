@@ -4,6 +4,7 @@ import {
   createBicicletero,
   updateBicicletero,
   deleteBicicletero,
+  getBicicleterosStatus
 } from "../controllers/bicicletero.controller.js";
 
 const router = express.Router();
@@ -24,5 +25,8 @@ router.patch("/:id", updateBicicletero);
 
 // Eliminar un bicicletero por ID
 router.delete("/:id", deleteBicicletero);
+
+// Obtener el estado de todos los bicicleteros
+router.get("/status", getBicicleterosStatus);
 
 export default router;

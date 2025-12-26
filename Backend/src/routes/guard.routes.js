@@ -5,7 +5,7 @@ import {
   registrarRetiro,
   getRegistrosActivos,
   getCapacidadesBicicleteros,
-  getEstadisticas
+  getEstadisticas,
 } from "../controllers/guard.controller.js";
 
 import {
