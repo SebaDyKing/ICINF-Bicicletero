@@ -18,7 +18,7 @@ const GuardFooter = () => {
           />
 
           {/* Divisor vertical (solo visible en escritorio) */}
-          <div className="hidden md:block h-8 w-[1px] bg-blue-700/50"></div>
+          <div className="hidden md:block h-8 w-[px] bg-blue-700/50"></div>
 
           {/* Textos */}
           <div>
