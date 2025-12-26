@@ -301,7 +301,7 @@ const IngresoModal = ({ onClose, onSuccess }) => {
             <div className="flex flex-col items-center animate-fade-in">
                 
                 {!scanResult ? (
-                    /* CASO 1: MODO ESCANEO (Sin resultado aún) */
+                    /* CASO 1: MODO ESCANEO */
                     <div className="w-full">
                         
                         {cameraActive ? (
@@ -317,7 +317,6 @@ const IngresoModal = ({ onClose, onSuccess }) => {
                                     `}</style>
                                 </div>
 
-                                {/* CAMBIO 1: Botón Detener AZUL */}
                                 <button
                                     onClick={() => setCameraActive(false)} 
                                     className="w-full py-3 bg-blue-900 text-white rounded-lg font-bold hover:bg-blue-800 transition shadow-sm mb-3"
@@ -329,8 +328,7 @@ const IngresoModal = ({ onClose, onSuccess }) => {
                                 </p>
                             </>
                         ) : (
-                            /* SUB-CASO B: CÁMARA APAGADA (Placeholder Limpio) */
-                            /* CAMBIO 2: Eliminado el ícono FaCamera para que quede limpio como pediste */
+                            /* SUB-CASO B: CÁMARA APAGADA  */
                             <div className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 w-full min-h-[250px] gap-6">
                                 
                                 <h3 className="text-gray-600 font-medium text-xl">El escáner está detenido</h3>
