@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { guardService } from '../services/guard.service';
 import IngresoModal from './IngresoModal';
 import { Search, Bike, Minus, Plus } from 'lucide-react';
+import Swal from 'sweetalert2'; // <--- IMPORTANTE
 
 function BicicletasTab() {
   const [registros, setRegistros] = useState([]);
@@ -21,24 +22,57 @@ function BicicletasTab() {
       const resActivos = await guardService.getRegistrosActivos();
       const resStats = await guardService.getEstadisticas();
 
-      setRegistros(resActivos.data || resActivos);
-      setStats(resStats.data || resStats);
+      // Normalización de respuesta para evitar errores si cambia el backend
+      const dataActivos = resActivos?.data || resActivos || [];
+      const dataStats = resStats?.data || resStats || { ingresosHoy: 0, retirosHoy: 0 };
+
+      setRegistros(dataActivos);
+      setStats(dataStats);
     } catch (err) {
       console.error(err);
-      setError('Error al cargar datos (401). Por favor reinicia sesión.');
+      setError('Error al cargar datos. Verifica tu conexión.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleRetirar = async (idBicicleta) => {
-    if (!window.confirm('¿Confirmar retiro de esta bicicleta?')) return;
+    // 1. CONFIRMACIÓN BONITA CON SWEETALERT
+    const result = await Swal.fire({
+      title: '¿Confirmar retiro?',
+      text: "La bicicleta quedará registrada como 'Salida'.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33', // Rojo para acción destructiva/salida
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, retirar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (!result.isConfirmed) return;
+
+    // 2. PROCESO DE RETIRO
     try {
       await guardService.registrarRetiro(idBicicleta);
-      alert('Bicicleta retirada exitosamente');
+      
+      // 3. ÉXITO BONITO
+      await Swal.fire({
+        title: '¡Retirada!',
+        text: 'La bicicleta ha sido retirada exitosamente.',
+        icon: 'success',
+        confirmButtonColor: '#16a34a' // Verde
+      });
+
       cargarDatos(); 
     } catch (err) {
-      alert('Error al retirar bicicleta');
+      // 4. ERROR BONITO
+      const msg = err.response?.data?.message || 'No se pudo registrar el retiro.';
+      Swal.fire({
+        title: 'Error',
+        text: msg,
+        icon: 'error',
+        confirmButtonColor: '#d33'
+      });
     }
   };
 
@@ -57,6 +91,9 @@ function BicicletasTab() {
   };
 
   const registrosFiltrados = registros.filter((reg) => {
+    // Protección contra datos null/undefined
+    if (!reg?.bicycle?.owner) return false;
+
     const term = normalizeText(busqueda); 
     const rut = normalizeText(reg.bicycle.owner.rut);
     const nombre = normalizeText(reg.bicycle.owner.nombre);
@@ -74,21 +111,20 @@ function BicicletasTab() {
   });
 
   const registrosAgrupados = registrosFiltrados.reduce((acc, curr) => {
-    const nombreRack = curr.bicycleRack.nombre;
+    const nombreRack = curr.bicycleRack?.nombre || 'Sin Ubicación';
     if (!acc[nombreRack]) acc[nombreRack] = [];
     acc[nombreRack].push(curr);
     return acc;
   }, {});
 
-  if (loading) return <div className="p-10 text-center">Cargando bicicletas...</div>;
-  if (error) return <div className="p-10 text-center text-red-600 font-bold">{error}</div>;
+  if (loading) return <div className="p-10 text-center text-gray-500">Cargando información...</div>;
+  if (error) return <div className="p-10 text-center text-red-600 font-bold bg-red-50 rounded-lg mx-4 mt-4">{error}</div>;
 
   return (
     <div className="animate-fade-in pb-20">
       
-      {/* --- SECCIÓN DE TARJETAS SUPERIORES (RESPONSIVE) --- */}
+      {/* --- SECCIÓN DE TARJETAS SUPERIORES --- */}
       <div className="grid grid-cols-3 gap-2 md:gap-6 mb-4 md:mb-8">
-        {/* Tarjeta 1 */}
         <div className="bg-white p-2 md:p-6 rounded-lg shadow-sm border border-gray-200 flex justify-between items-start">
           <div className="flex flex-col justify-between h-full">
             <p className="text-gray-500 text-[10px] md:text-sm font-medium leading-tight">Bicis Activas</p>
@@ -96,7 +132,6 @@ function BicicletasTab() {
           </div>
           <Bike className="text-gray-300 w-5 h-5 md:w-6 md:h-6 shrink-0" />
         </div>
-        {/* Tarjeta 2 */}
         <div className="bg-white p-2 md:p-6 rounded-lg shadow-sm border border-gray-200 flex justify-between items-start">
           <div className="flex flex-col justify-between h-full">
             <p className="text-gray-500 text-[10px] md:text-sm font-medium leading-tight">Retiradas Hoy</p>
@@ -104,7 +139,6 @@ function BicicletasTab() {
           </div>
           <Minus className="text-gray-300 w-5 h-5 md:w-6 md:h-6 shrink-0" />
         </div>
-        {/* Tarjeta 3 */}
         <div className="bg-white p-2 md:p-6 rounded-lg shadow-sm border border-gray-200 flex justify-between items-start">
           <div className="flex flex-col justify-between h-full">
             <p className="text-gray-500 text-[10px] md:text-sm font-medium leading-tight">Ingresos Hoy</p>
@@ -135,7 +169,7 @@ function BicicletasTab() {
           </div>
           <button 
             onClick={() => setShowModal(true)}
-            className="bg-[#003366] text-white px-6 py-2 rounded text-sm font-bold hover:bg-blue-900 transition flex items-center gap-2 whitespace-nowrap shadow-sm"
+            className="bg-[#003366] text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-blue-900 transition flex items-center gap-2 whitespace-nowrap shadow-sm"
           >
             + Ingresar Bicicleta
           </button>
@@ -171,7 +205,7 @@ function BicicletasTab() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {listaBicis.map((reg) => (
-                    <tr key={reg.idRegistro} className="hover:bg-blue-50 transition-colors">
+                    <tr key={reg.id_registro || reg.idRegistro || Math.random()} className="hover:bg-blue-50 transition-colors">
                       <td className="px-6 py-4 font-medium text-gray-900 truncate">{reg.bicycle.id_bicicleta}</td>
                       <td className="px-6 py-4 text-gray-600 truncate">{reg.bicycle.owner.rut}</td>
                       <td className="px-6 py-4 text-gray-600 truncate">{reg.bicycle.owner.nombre} {reg.bicycle.owner.apellido}</td>
@@ -180,7 +214,12 @@ function BicicletasTab() {
                         {new Date(reg.fechaIngreso).toLocaleDateString()} <span className="text-gray-300 mx-1">|</span> {new Date(reg.fechaIngreso).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <button onClick={() => handleRetirar(reg.bicycle.id_bicicleta)} className="text-gray-600 border border-gray-300 px-3 py-1 rounded text-xs font-medium hover:bg-white hover:text-red-600 hover:border-red-500 hover:shadow-sm transition">— Retirar</button>
+                        <button 
+                            onClick={() => handleRetirar(reg.bicycle.id_bicicleta)} 
+                            className="text-gray-600 border border-gray-300 px-3 py-1 rounded text-xs font-medium hover:bg-white hover:text-red-600 hover:border-red-500 hover:shadow-sm transition"
+                        >
+                            — Retirar
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -188,17 +227,15 @@ function BicicletasTab() {
               </table>
             </div>
 
-            {/* ================= VISTA MÓVIL (DISEÑO FIGMA) ================= */}
+            {/* ================= VISTA MÓVIL ================= */}
             <div className="md:hidden flex flex-col gap-4 p-4 bg-gray-50">
               {listaBicis.map((reg) => {
                 const fechaObj = new Date(reg.fechaIngreso);
                 const fechaStr = fechaObj.toLocaleDateString();
-                // Formato HH:mm (ej: 08:30)
                 const horaStr = fechaObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false});
 
                 return (
-                <div key={reg.idRegistro} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 font-sans">
-                  {/* HEADER: ID y Fecha */}
+                <div key={reg.id_registro || reg.idRegistro || Math.random()} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 font-sans">
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-[#003366] font-bold text-lg">
                       {reg.bicycle.id_bicicleta}
@@ -208,7 +245,6 @@ function BicicletasTab() {
                     </span>
                   </div>
 
-                  {/* BODY: Datos (Etiqueta gris + Valor negrita) */}
                   <div className="space-y-3 mb-6 text-sm text-gray-800">
                     <div>
                       <span className="text-gray-500">Nombre: </span>
@@ -228,7 +264,6 @@ function BicicletasTab() {
                     </div>
                   </div>
                   
-                  {/* FOOTER: Botón azul completo */}
                   <button 
                     onClick={() => handleRetirar(reg.bicycle.id_bicicleta)} 
                     className="w-full bg-[#003366] hover:bg-blue-900 text-white font-bold py-3 rounded-xl flex items-center justify-center transition shadow-sm"
@@ -239,7 +274,6 @@ function BicicletasTab() {
                 </div>
               )})}
             </div>
-            {/* ================= FIN VISTA MÓVIL ================= */}
 
           </div>
         ))
