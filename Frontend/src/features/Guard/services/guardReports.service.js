@@ -56,7 +56,18 @@ export const getAllOwnersService = async () => {
 
 export const getOwnersByBicicleteroService = async (id_bicicletero) => {
     try {
+      console.log(id_bicicletero)
         const res = await axios.get(`${API_URL}/guards/getOwnersByBicicletero?id_bicicletero=${id_bicicletero}`)
+      return res
+    } catch (error) {
+      console.log(error);
+      throw error.response?.data?.message || "Error en la solicitud";
+    }
+}
+
+export const getBicicleterosService = async () => {
+    try {
+        const res = await axios.get(`${API_URL}/guards/getBicicleteros`)
       return res
     } catch (error) {
       console.log(error);
