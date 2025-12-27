@@ -12,9 +12,7 @@ import api from "../../../config/axios.config.js";
  */
 export const getBicyclesByOwnerService = async (rut) => {
   try {
-    const response = await api.get(`/bicycles/owner/`, {
-      params: { rut },
-    });
+    const response = await api.get(`/bicycles/owner/${rut}`);
     return response.data.data;
   } catch (error) {
     throw error.response?.data || { message: "Error de conexión" };
