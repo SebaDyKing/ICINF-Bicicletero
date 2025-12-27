@@ -50,13 +50,13 @@ export const deleteGuardService = async (rut) => {
     }
 }
 
-export const getAllGuardService = async (rut) => {
+export const getAllGuardService = async () => {
     try {
         const res = await axios.get(`${API_URL}/central/getAllGuards`);
       return res
     } catch (error) {
       console.log(error);
-      throw error.response?.data?.message || "Error en la solicitud";
+      throw error || "Error en la solicitud";
     }
 }
 
