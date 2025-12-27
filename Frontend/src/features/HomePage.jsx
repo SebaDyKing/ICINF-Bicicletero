@@ -1,44 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Clock, Smartphone, MapPin, ChevronRight, Menu, X, Info } from 'lucide-react';
+import { Shield, Clock, Smartphone, ChevronRight, ChevronLeft, Menu, X } from 'lucide-react';
 
 /**
  * Componente HomePage (Landing Page)
  * ----------------------------------
- * Página principal pública del sistema. Muestra información institucional,
- * beneficios del sistema y ubicaciones de los bicicleteros.
- * * Características:
- * - Navbar transparente que se vuelve sólido al hacer scroll.
- * - Diseño totalmente responsivo (Mobile-first con Tailwind CSS).
- * - Manejo de imágenes con fallback (si falla la carga, muestra una por defecto).
+ * Versión actualizada: Opción C (Carrusel / Slider Automático).
+ * Muestra las imágenes en un slider interactivo que avanza solo.
  */
 export const HomePage = () => {
   // --- ESTADOS DEL COMPONENTE ---
-  
-  // Estado para detectar si el usuario ha hecho scroll hacia abajo
-  // Se usa para cambiar el fondo del Navbar de transparente a azul sólido.
   const [isScrolled, setIsScrolled] = useState(false);
-
-  // Estado para controlar la apertura/cierre del menú hamburguesa en móviles.
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // --- EFECTOS (Side Effects) ---
+  // --- ESTADOS DEL CARRUSEL ---
+  const [currentSlide, setCurrentSlide] = useState(0);
 
-  /**
-   * useEffect para manejar el evento de scroll.
-   * Se ejecuta una sola vez al montar el componente ([]).
-   */
+  // --- DATOS DE LA GALERÍA ---
+  const galleryImages = [
+    { src: "/landing/bici-face-1.jpg", alt: "Vista interior Bicicletero FACE", location: "Sector FACE" },
+    { src: "/landing/bici-idiomas-1.jpg", alt: "Acceso controlado Idiomas", location: "Sector Idiomas" },
+    { src: "/landing/bici-face-2.jpg", alt: "Interior techado y seguro", location: "Sector FACE" },
+    { src: "/landing/bici-idiomas-2.jpg", alt: "Bicicletero de alta densidad", location: "Sector Idiomas" },
+    { src: "/landing/bici-face-3.jpg", alt: "Con sistema de vigilancia", location: "Sector FACE" },
+    { src: "/landing/bici-idiomas-3.jpg", alt: "Entorno Bicicletero Idiomas", location: "Sector Idiomas" },
+  ];
+
+  // --- LÓGICA DEL CARRUSEL ---
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev === galleryImages.length - 1 ? 0 : prev + 1));
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev === 0 ? galleryImages.length - 1 : prev - 1));
+  };
+
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
+
+  // Efecto para Auto-Play (Cambia cada 5 segundos)
+  useEffect(() => {
+    const slideInterval = setInterval(nextSlide, 5000);
+    return () => clearInterval(slideInterval); // Limpieza al desmontar o cambiar slide
+  }, [currentSlide]); // Dependencia para reiniciar el timer si el usuario cambia manualmente
+
+  // --- EFECTO DE SCROLL NAVBAR ---
   useEffect(() => {
     const handleScroll = () => {
-      // Si el scroll vertical es mayor a 50px, cambiamos el estado a true
       setIsScrolled(window.scrollY > 50);
     };
-
-    // Agregamos el "escuchador" del evento scroll
     window.addEventListener('scroll', handleScroll);
-
-    // IMPORTANTE: Función de limpieza (cleanup) para remover el evento
-    // cuando el componente se desmonta, evitando fugas de memoria.
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -48,20 +60,12 @@ export const HomePage = () => {
       
       {/* ================================================================
         1. NAVBAR (BARRA DE NAVEGACIÓN)
-        ================================================================
-        Utiliza clases dinámicas: si 'isScrolled' es true, aplica fondo azul y sombra.
-        Si es false, es transparente para fusionarse con el Hero.
-      */}
+        ================================================================ */}
       <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-[#003366] shadow-lg py-3' : 'bg-transparent py-5'}`}>
         <div className="container mx-auto px-6 flex justify-between items-center">
           
           {/* --- LOGOTIPO --- */}
           <div className="flex items-center gap-3">
-            {/* Lógica visual del Logo:
-              - Tiene un fondo semitransparente (bg-white/10) cuando está arriba.
-              - El fondo desaparece al hacer scroll para integrarse con el navbar azul.
-              - 'px-2' se mantiene fijo para evitar saltos de tamaño.
-            */}
             <img 
               src="/LogoUBB2.png" 
               alt="Logo UBB" 
@@ -73,15 +77,13 @@ export const HomePage = () => {
             </div>
           </div>
 
-          {/* --- MENÚ ESCRITORIO (Hidden en Mobile) --- */}
+          {/* --- MENÚ ESCRITORIO --- */}
           <div className="hidden md:flex items-center gap-6">
             <a href="#beneficios" className="text-white hover:text-blue-200 transition text-sm font-medium">Beneficios</a>
-            <a href="#ubicaciones" className="text-white hover:text-blue-200 transition text-sm font-medium">Ubicaciones</a>
+            <a href="#ubicaciones" className="text-white hover:text-blue-200 transition text-sm font-medium">Espacios</a>
             
-            {/* Separador vertical decorativo */}
             <div className="h-6 w-px bg-white/30 ml-2 mr-2"></div>
 
-            {/* Botón de Acción Principal (CTA) */}
             <Link 
               to="/login" 
               className="bg-white text-[#003366] px-6 py-2.5 rounded-full font-bold hover:bg-blue-50 transition-all shadow-sm hover:shadow-md transform hover:-translate-y-0.5 flex items-center"
@@ -90,9 +92,8 @@ export const HomePage = () => {
             </Link>
           </div>
 
-          {/* --- BOTÓN HAMBURGUESA (Solo visible en Mobile) --- */}
+          {/* --- BOTÓN HAMBURGUESA --- */}
           <button className="md:hidden text-white" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {/* Alterna entre icono de Menú e icono de Cerrar (X) */}
             {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
@@ -101,7 +102,7 @@ export const HomePage = () => {
         {mobileMenuOpen && (
           <div className="md:hidden absolute top-full left-0 w-full bg-[#003366]/95 backdrop-blur-md border-t border-blue-800 shadow-xl py-4 px-6 flex flex-col gap-4 animate-fade-in-down">
             <a href="#beneficios" onClick={() => setMobileMenuOpen(false)} className="text-white py-2 border-b border-blue-800/50">Beneficios</a>
-            <a href="#ubicaciones" onClick={() => setMobileMenuOpen(false)} className="text-white py-2 border-b border-blue-800/50 mb-2">Ubicaciones</a>
+            <a href="#ubicaciones" onClick={() => setMobileMenuOpen(false)} className="text-white py-2 border-b border-blue-800/50 mb-2">Espacios</a>
             <Link to="/login" className="bg-white text-[#003366] text-center py-3 rounded-xl font-bold shadow-md">
               Ingresar
             </Link>
@@ -111,25 +112,18 @@ export const HomePage = () => {
 
       {/* ================================================================
         2. HERO SECTION (PORTADA)
-        ================================================================
-        Contiene la imagen principal de fondo con un overlay (capa oscura)
-        para asegurar que el texto blanco sea legible.
-      */}
+        ================================================================ */}
       <header className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Fondo e Imagen */}
         <div className="absolute inset-0 z-0">
             <img 
                 src="/landing/hero-bg.jpg" 
                 alt="Estudiantes UBB en bicicleta" 
                 className="w-full h-full object-cover"
-                // Fallback: Si la imagen local falla, carga una de Unsplash automáticamente.
                 onError={(e) => {e.target.src = 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1470&auto=format&fit=crop'}} 
             />
-            {/* Gradiente azul superpuesto para mejorar contraste del texto */}
             <div className="absolute inset-0 bg-linear-to-r from-[#003366]/90 via-[#003366]/70 to-transparent"></div>
         </div>
 
-        {/* Contenido del Hero */}
         <div className="container mx-auto px-6 relative z-10 grid md:grid-cols-2 gap-12 items-center">
           <div className="text-white space-y-6 animate-slide-right">
             <div className="inline-block bg-blue-500/20 border border-blue-400/30 backdrop-blur-md px-4 py-1 rounded-full text-sm font-semibold text-blue-100">
@@ -147,7 +141,7 @@ export const HomePage = () => {
                 Comenzar ahora <ChevronRight size={20} />
               </Link>
               <a href="#ubicaciones" className="border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white/10 transition flex items-center justify-center">
-                Ver Bicicleteros
+                Ver Galería
               </a>
             </div>
           </div>
@@ -156,9 +150,7 @@ export const HomePage = () => {
 
       {/* ================================================================
         3. SECCIÓN DE BENEFICIOS
-        ================================================================
-        Grid de 3 columnas mostrando las características clave.
-      */}
+        ================================================================ */}
       <section id="beneficios" className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16 max-w-2xl mx-auto">
@@ -167,7 +159,6 @@ export const HomePage = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Tarjeta 1: Protección */}
             <div className="bg-gray-50 p-8 rounded-2xl hover:shadow-xl transition duration-300 border border-gray-100 group">
               <div className="bg-blue-100 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
                 <Shield className="text-[#003366] w-8 h-8" />
@@ -178,7 +169,6 @@ export const HomePage = () => {
               </p>
             </div>
 
-            {/* Tarjeta 2: QR Digital */}
             <div className="bg-gray-50 p-8 rounded-2xl hover:shadow-xl transition duration-300 border border-gray-100 group">
               <div className="bg-blue-100 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
                 <Smartphone className="text-[#003366] w-8 h-8" />
@@ -189,7 +179,6 @@ export const HomePage = () => {
               </p>
             </div>
 
-            {/* Tarjeta 3: Disponibilidad */}
             <div className="bg-gray-50 p-8 rounded-2xl hover:shadow-xl transition duration-300 border border-gray-100 group">
               <div className="bg-blue-100 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
                 <Clock className="text-[#003366] w-8 h-8" />
@@ -204,93 +193,92 @@ export const HomePage = () => {
       </section>
 
       {/* ================================================================
-        4. SECCIÓN DE UBICACIONES
-        ================================================================
-        Muestra las tarjetas con fotos reales de los bicicleteros.
+        4. SECCIÓN DE UBICACIONES (CARRUSEL / SLIDER)
+        ================================================================ 
+        Implementación de slider automático con controles manuales.
       */}
-      <section id="ubicaciones" className="py-20 bg-gray-50 border-t border-gray-200">
+      <section id="ubicaciones" className="py-24 bg-gray-50 border-t border-gray-200">
         <div className="container mx-auto px-6">
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <span className="text-blue-600 font-bold tracking-wider uppercase text-sm">Campus Concepción</span>
-              <h2 className="text-[#003366] text-3xl md:text-4xl font-bold mt-2">Nuestros Espacios</h2>
-            </div>
-            <div className="hidden md:block h-1 w-20 bg-[#003366] mb-2"></div>
+          
+          {/* Cabecera */}
+          <div className="text-center mb-10">
+            <span className="text-blue-600 font-bold tracking-wider uppercase text-xs md:text-sm bg-blue-100 px-3 py-1 rounded-full">
+              Infraestructura
+            </span>
+            <h2 className="text-[#003366] text-3xl md:text-5xl font-bold mt-4 mb-4">Conoce nuestros espacios</h2>
+            <p className="text-gray-500 max-w-2xl mx-auto text-lg">
+                Recorre virtualmente nuestras instalaciones diseñadas para tu seguridad.
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* CONTENEDOR DEL SLIDER */}
+          <div className="max-w-5xl mx-auto relative group">
             
-            {/* Ubicación 1: FACE */}
-            <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition duration-300 group">
-              <div className="h-56 overflow-hidden relative">
-                <img 
-                    src="/landing/bici-face.jpg" 
-                    alt="Bicicletero FACE" 
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                    // Manejo de error de imagen
-                    onError={(e) => {e.target.src = 'https://images.unsplash.com/photo-1505705694340-019e1e335916?q=80&w=1632&auto=format&fit=crop'}}
-                />
-              </div>
-              <div className="p-6">
-                <div className="flex items-start justify-between">
-                    <div>
-                        <h3 className="text-lg font-bold text-gray-900">Bicicletero FACE</h3>
-                        <div className="flex items-center text-gray-500 text-sm mt-1">
-                            <MapPin size={14} className="mr-1" /> Entre las aulas AC y la FACE
+            {/* Marco de Imagen */}
+            <div className="relative h-100 md:h-125 w-full rounded-2xl overflow-hidden shadow-2xl bg-gray-200">
+                {/* Contenedor deslizante */}
+                <div 
+                    className="flex transition-transform duration-700 ease-out h-full"
+                    style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                >
+                    {galleryImages.map((img, index) => (
+                        <div key={index} className="min-w-full h-full relative">
+                            <img 
+                                src={img.src} 
+                                alt={img.alt} 
+                                className="w-full h-full object-cover"
+                                onError={(e) => {e.target.src = 'https://images.unsplash.com/photo-1505705694340-019e1e335916?q=80&w=1632&auto=format&fit=crop'}}
+                            />
+                            {/* Overlay informativo sobre la imagen */}
+                            <div className="absolute bottom-0 left-0 w-full bg-linear-to-t from-[#003366] via-[#003366]/60 to-transparent p-8 pt-20">
+                                <h3 className="text-white text-2xl font-bold">{img.location}</h3>
+                                <p className="text-blue-100 mt-1">{img.alt}</p>
+                            </div>
                         </div>
-                    </div>
+                    ))}
                 </div>
-                <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
-                    <span className="text-sm text-gray-500">Horario: 08:00 - 21:00</span>
-                </div>
-              </div>
             </div>
 
-            {/* Ubicación 2: Idiomas */}
-            <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition duration-300 group">
-              <div className="h-56 overflow-hidden relative">
-                <img 
-                    src="/landing/bici-idiomas.jpg" 
-                    alt="Bicicletero Idiomas" 
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                    onError={(e) => {e.target.src = 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1632&auto=format&fit=crop'}}
-                />
-              </div>
-              <div className="p-6">
-                <div className="flex items-start justify-between">
-                    <div>
-                        <h3 className="text-lg font-bold text-gray-900">Bicicletero Idiomas</h3>
-                        <div className="flex items-center text-gray-500 text-sm mt-1">
-                            <MapPin size={14} className="mr-1" /> Frente a las salas de Idiomas
-                        </div>
-                    </div>
-                </div>
-                <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
-                    <span className="text-sm text-gray-500">Horario: 08:00 - 20:00</span>
-                </div>
-              </div>
-            </div>
+            {/* Flecha Izquierda (Anterior) */}
+            <button 
+                onClick={prevSlide}
+                className="absolute top-1/2 left-4 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md border border-white/50 text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100 hover:scale-110"
+            >
+                <ChevronLeft size={32} />
+            </button>
 
-             {/* Ubicación 3: Placeholder (Espacio para futuros bicicleteros) */}
-             <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-xl overflow-hidden shadow-sm flex flex-col justify-center items-center p-8 text-center min-h-75">
-                <div className="bg-gray-200 p-4 rounded-full mb-4">
-                    <Info size={32} className="text-gray-400" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-500 mb-2">Próximamente</h3>
-                <p className="text-gray-400 text-sm max-w-xs">
-                    Cuando hayan nuevos bicicleteros habilitados en el campus, aparecerán listados en esta sección.
-                </p>
-             </div>
+            {/* Flecha Derecha (Siguiente) */}
+            <button 
+                onClick={nextSlide}
+                className="absolute top-1/2 right-4 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md border border-white/50 text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100 hover:scale-110"
+            >
+                <ChevronRight size={32} />
+            </button>
+
+            {/* Puntos Indicadores (Dots) */}
+            <div className="flex justify-center gap-2 mt-6">
+                {galleryImages.map((_, index) => (
+                    <button
+                        key={index}
+                        onClick={() => goToSlide(index)}
+                        className={`transition-all duration-300 rounded-full ${
+                            currentSlide === index 
+                                ? 'bg-[#003366] w-8 h-2' 
+                                : 'bg-gray-300 w-2 h-2 hover:bg-blue-400'
+                        }`}
+                        aria-label={`Ir a imagen ${index + 1}`}
+                    />
+                ))}
+            </div>
 
           </div>
+
         </div>
       </section>
 
       {/* ================================================================
         5. FOOTER (PIE DE PÁGINA)
-        ================================================================
-        Información de copyright y marca. Usa el mismo color base que el header.
-      */}
+        ================================================================ */}
       <footer className="bg-[#003366] text-white py-12 border-t border-blue-800">
         <div className="container mx-auto px-6">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
