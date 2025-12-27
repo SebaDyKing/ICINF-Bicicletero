@@ -2,27 +2,45 @@ import React, { useState, useEffect } from 'react';
 import { guardService } from '../services/guard.service';
 import IngresoModal from './IngresoModal';
 import { Search, Bike, Minus, Plus } from 'lucide-react';
-import Swal from 'sweetalert2'; // <--- IMPORTANTE
+import Swal from 'sweetalert2';
 
+/**
+ * Componente BicicletasTab
+ * ------------------------
+ * Tablero principal para el Guardia.
+ * Permite visualizar el estado actual de los bicicleteros, registrar ingresos
+ * y procesar retiros de bicicletas.
+ * * Características:
+ * - Vista de tarjetas con estadísticas diarias.
+ * - Buscador en tiempo real (RUT, Nombre, ID).
+ * - Vista dual: Tabla para Desktop y Tarjetas para Móvil.
+ * - Feedback visual mediante SweetAlert2.
+ */
 function BicicletasTab() {
-  const [registros, setRegistros] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [busqueda, setBusqueda] = useState('');
-  const [stats, setStats] = useState({ ingresosHoy: 0, retirosHoy: 0 });
+  // --- ESTADOS ---
+  const [registros, setRegistros] = useState([]); // Lista cruda de bicicletas activas
+  const [loading, setLoading] = useState(true);   // Estado de carga inicial
+  const [error, setError] = useState('');         // Manejo de errores de red
+  const [showModal, setShowModal] = useState(false); // Visibilidad del modal de ingreso
+  const [busqueda, setBusqueda] = useState('');   // Término de búsqueda
+  const [stats, setStats] = useState({ ingresosHoy: 0, retirosHoy: 0 }); // Contadores
 
+  // Carga inicial de datos al montar el componente
   useEffect(() => {
     cargarDatos();
   }, []);
 
+  /**
+   * Obtiene los registros activos y estadísticas desde el backend.
+   * Incluye normalización de datos para prevenir errores si la API devuelve null.
+   */
   const cargarDatos = async () => {
     try {
       setLoading(true);
       const resActivos = await guardService.getRegistrosActivos();
       const resStats = await guardService.getEstadisticas();
 
-      // Normalización de respuesta para evitar errores si cambia el backend
+      // Normalización: Asegura que siempre trabajemos con arrays/objetos válidos
       const dataActivos = resActivos?.data || resActivos || [];
       const dataStats = resStats?.data || resStats || { ingresosHoy: 0, retirosHoy: 0 };
 
@@ -36,14 +54,21 @@ function BicicletasTab() {
     }
   };
 
+  /**
+   * Maneja el proceso completo de retiro de una bicicleta.
+   * 1. Solicita confirmación visual (SweetAlert).
+   * 2. Llama a la API.
+   * 3. Muestra resultado (Éxito/Error).
+   * @param {string|number} idBicicleta - ID de la bicicleta a retirar
+   */
   const handleRetirar = async (idBicicleta) => {
-    // 1. CONFIRMACIÓN BONITA CON SWEETALERT
+    // 1. Confirmación con UI personalizada
     const result = await Swal.fire({
       title: '¿Confirmar retiro?',
       text: "La bicicleta quedará registrada como 'Salida'.",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33', // Rojo para acción destructiva/salida
+      confirmButtonColor: '#d33', // Rojo para indicar acción de salida
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Sí, retirar',
       cancelButtonText: 'Cancelar'
@@ -51,11 +76,11 @@ function BicicletasTab() {
 
     if (!result.isConfirmed) return;
 
-    // 2. PROCESO DE RETIRO
+    // 2. Proceso de Retiro API
     try {
       await guardService.registrarRetiro(idBicicleta);
       
-      // 3. ÉXITO BONITO
+      // 3. Feedback de Éxito
       await Swal.fire({
         title: '¡Retirada!',
         text: 'La bicicleta ha sido retirada exitosamente.',
@@ -63,9 +88,10 @@ function BicicletasTab() {
         confirmButtonColor: '#16a34a' // Verde
       });
 
+      // Recargar datos para actualizar la lista
       cargarDatos(); 
     } catch (err) {
-      // 4. ERROR BONITO
+      // 4. Manejo de Error
       const msg = err.response?.data?.message || 'No se pudo registrar el retiro.';
       Swal.fire({
         title: 'Error',
@@ -76,11 +102,16 @@ function BicicletasTab() {
     }
   };
 
+  // Callback para refrescar la tabla cuando se crea un ingreso desde el Modal
   const handleIngresoSuccess = () => {
     cargarDatos();
     setShowModal(false);
   };
 
+  /**
+   * Utilidad para limpiar textos (quitar acentos, pasar a minúsculas).
+   * Facilita la búsqueda insensible a mayúsculas/tildes.
+   */
   const normalizeText = (text) => {
     if (!text) return "";
     return text
@@ -90,17 +121,20 @@ function BicicletasTab() {
       .replace(/[\u0300-\u036f]/g, "");
   };
 
+  // --- LÓGICA DE FILTRADO ---
   const registrosFiltrados = registros.filter((reg) => {
-    // Protección contra datos null/undefined
+    // Protección contra datos corruptos (si owner es null)
     if (!reg?.bicycle?.owner) return false;
 
     const term = normalizeText(busqueda); 
+    // Normalizamos todos los campos buscables
     const rut = normalizeText(reg.bicycle.owner.rut);
     const nombre = normalizeText(reg.bicycle.owner.nombre);
     const apellido = normalizeText(reg.bicycle.owner.apellido);
     const idBici = normalizeText(reg.bicycle.id_bicicleta);
     const nombreCompleto = `${nombre} ${apellido}`;
 
+    // Retorna true si hay coincidencia en cualquiera de los campos
     return (
       rut.includes(term) ||
       nombre.includes(term) ||
@@ -110,6 +144,8 @@ function BicicletasTab() {
     );
   });
 
+  // --- LÓGICA DE AGRUPACIÓN ---
+  // Agrupa los registros filtrados según el nombre del Bicicletero (Rack)
   const registrosAgrupados = registrosFiltrados.reduce((acc, curr) => {
     const nombreRack = curr.bicycleRack?.nombre || 'Sin Ubicación';
     if (!acc[nombreRack]) acc[nombreRack] = [];
@@ -117,14 +153,18 @@ function BicicletasTab() {
     return acc;
   }, {});
 
+  // Renderizados condicionales de carga y error
   if (loading) return <div className="p-10 text-center text-gray-500">Cargando información...</div>;
   if (error) return <div className="p-10 text-center text-red-600 font-bold bg-red-50 rounded-lg mx-4 mt-4">{error}</div>;
 
   return (
     <div className="animate-fade-in pb-20">
       
-      {/* --- SECCIÓN DE TARJETAS SUPERIORES --- */}
+      {/* =================================================================
+          1. SECCIÓN DE ESTADÍSTICAS (TARJETAS SUPERIORES)
+         ================================================================= */}
       <div className="grid grid-cols-3 gap-2 md:gap-6 mb-4 md:mb-8">
+        {/* Card: Activas */}
         <div className="bg-white p-2 md:p-6 rounded-lg shadow-sm border border-gray-200 flex justify-between items-start">
           <div className="flex flex-col justify-between h-full">
             <p className="text-gray-500 text-[10px] md:text-sm font-medium leading-tight">Bicis Activas</p>
@@ -132,6 +172,8 @@ function BicicletasTab() {
           </div>
           <Bike className="text-gray-300 w-5 h-5 md:w-6 md:h-6 shrink-0" />
         </div>
+
+        {/* Card: Retiros */}
         <div className="bg-white p-2 md:p-6 rounded-lg shadow-sm border border-gray-200 flex justify-between items-start">
           <div className="flex flex-col justify-between h-full">
             <p className="text-gray-500 text-[10px] md:text-sm font-medium leading-tight">Retiradas Hoy</p>
@@ -139,6 +181,8 @@ function BicicletasTab() {
           </div>
           <Minus className="text-gray-300 w-5 h-5 md:w-6 md:h-6 shrink-0" />
         </div>
+
+        {/* Card: Ingresos */}
         <div className="bg-white p-2 md:p-6 rounded-lg shadow-sm border border-gray-200 flex justify-between items-start">
           <div className="flex flex-col justify-between h-full">
             <p className="text-gray-500 text-[10px] md:text-sm font-medium leading-tight">Ingresos Hoy</p>
@@ -148,13 +192,16 @@ function BicicletasTab() {
         </div>
       </div>
 
-      {/* --- BARRA HERRAMIENTAS --- */}
+      {/* =================================================================
+          2. BARRA DE HERRAMIENTAS (BÚSQUEDA Y BOTÓN INGRESO)
+         ================================================================= */}
       <div className="mb-6">
         <div className="mb-2">
           <h2 className="font-bold text-gray-800 text-lg">Bicicletas Registradas</h2>
           <p className="text-xs text-gray-500">Gestione el ingreso y retiro de bicicletas</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-row gap-4 items-center">
+          {/* Input Buscador */}
           <div className="relative flex-1">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="text-gray-400" size={18} />
@@ -167,6 +214,7 @@ function BicicletasTab() {
               onChange={(e) => setBusqueda(e.target.value)}
             />
           </div>
+          {/* Botón Modal */}
           <button 
             onClick={() => setShowModal(true)}
             className="bg-[#003366] text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-blue-900 transition flex items-center gap-2 whitespace-nowrap shadow-sm"
@@ -176,7 +224,9 @@ function BicicletasTab() {
         </div>
       </div>
 
-      {/* --- ÁREA DE DATOS --- */}
+      {/* =================================================================
+          3. LISTADO DE REGISTROS (AGRUPADOS POR BICICLETERO)
+         ================================================================= */}
       {Object.keys(registrosAgrupados).length === 0 ? (
         <div className="bg-white p-10 rounded-lg shadow-sm text-center text-gray-500 border border-gray-200">
           {busqueda ? 'No se encontraron resultados.' : 'No hay bicicletas activas.'}
@@ -184,13 +234,14 @@ function BicicletasTab() {
       ) : (
         Object.entries(registrosAgrupados).map(([nombreBicicletero, listaBicis]) => (
           <div key={nombreBicicletero} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-8">
-            {/* Encabezado del Bicicletero */}
+            
+            {/* Encabezado del Grupo (Nombre del Bicicletero) */}
             <div className="bg-[#003366] px-6 py-3 flex justify-between items-center">
               <h3 className="text-white font-bold text-sm uppercase tracking-wide">{nombreBicicletero}</h3>
               <span className="bg-white text-[#003366] text-xs font-bold px-2 py-0.5 rounded-full shadow-sm">{listaBicis.length} bicicletas</span>
             </div>
 
-            {/* ================= VISTA DE ESCRITORIO (TABLA) ================= */}
+            {/* --- VISTA DE ESCRITORIO (TABLA) --- */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm text-left table-fixed">
                 <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
@@ -227,7 +278,7 @@ function BicicletasTab() {
               </table>
             </div>
 
-            {/* ================= VISTA MÓVIL ================= */}
+            {/* --- VISTA MÓVIL (TARJETAS) --- */}
             <div className="md:hidden flex flex-col gap-4 p-4 bg-gray-50">
               {listaBicis.map((reg) => {
                 const fechaObj = new Date(reg.fechaIngreso);
@@ -279,6 +330,7 @@ function BicicletasTab() {
         ))
       )}
 
+      {/* MODAL DE INGRESO */}
       {showModal && (
         <IngresoModal 
           onClose={() => setShowModal(false)} 
