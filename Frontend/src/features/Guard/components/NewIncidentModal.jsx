@@ -48,13 +48,17 @@ const NewIncidentModal  = ({ isOpen, onClose }) => {
     try {
       if (bicicletero === '') throw new Error('Seleccione un bicicletero.')
       console.log(bicicletero)
+      console.log(listaBicicleteros[bicicletero-1].nombre)
         
       const users = await getOwnersByBicicleteroService(bicicletero)
       console.log(users)
+      
       const emails = users.data.data.resultQuery.map(owner => owner.email)
       console.log(emails)
 
-      const res = await createReportService(emails, fecha, bicicletero, descripcion)
+      const nombreBicicletero = listaBicicleteros[bicicletero-1].nombre
+
+      const res = await createReportService(emails, fecha, nombreBicicletero, descripcion)
 
       console.log(res);
 
