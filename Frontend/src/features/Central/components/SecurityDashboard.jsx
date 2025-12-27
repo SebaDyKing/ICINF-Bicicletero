@@ -16,7 +16,7 @@ import {
   Eye, 
   EyeOff 
 } from 'lucide-react';
-import { getGuardService, getUserService } from '../services/adminGuard.service';
+import { createGuardService, deleteGuardService, updateGuardService, getAllGuardService, getGuardService, getUserService, getAllReportsService, deleteOwnerService, deleteReportService } from '../services/adminGuard.service';
 import Swal from 'sweetalert2'
 import {formatRut} from '../../utils/rutUtils'
 
@@ -58,7 +58,7 @@ export default function SecurityDashboard() {
     // }
     const fetchReports = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/guards/report/getAllReports`);
+        const res = await getAllReportsService()
         console.log(res)
         
         const formatted = res.data.data.resultQuery.map(r => ({
@@ -90,7 +90,7 @@ export default function SecurityDashboard() {
     // }
     const fetchGuards = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/central/getAllGuards");
+        const res = await getAllGuardService()
 
         const formatted = res.data.data.resultQuery.map(g => ({
           nombre: `${g.nombre} ${g.apellido}`,
@@ -101,12 +101,30 @@ export default function SecurityDashboard() {
 
         setGuards(formatted);
       } catch (error) {
-        console.error("Error backend:", error);
-        Swal.fire({
-                icon: 'error',
-                title: 'Error al cargar guardias.',
-                timer: 2000
-              })
+        console.log(error)
+        const message = error.response?.data?.message;
+        if (error.response?.status === 401) {
+          Swal.fire({
+            icon: "warning",
+            title: "Acceso denegado",
+            text: message,
+          });
+          navigate('/')
+        } else if (error.response?.status === 403) {
+          Swal.fire({
+            icon: "error",
+            title: "Acceso denegado",
+            text: message,
+          });
+          navigate('/')
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: message || "Error inesperado",
+          });
+          navigate('/')
+        }
       }
     };
 
@@ -125,14 +143,7 @@ export default function SecurityDashboard() {
     try {
       console.log(rut, email, contrasenia, telefono, nombre, apellido)
 
-      const res = await axios.post("http://localhost:3000/api/central/createGuard", {
-        rut,
-        email,
-        contrasenia,
-        telefono,
-        nombre,
-        apellido
-      });
+      const res = await createGuardService(rut, email, contrasenia, telefono, nombre, apellido);
 
       await Swal.fire({
         icon: 'success',
@@ -157,11 +168,7 @@ export default function SecurityDashboard() {
 
   const handleDelete = async (rut) => {
     try {
-      const res = await axios.delete(
-        "http://localhost:3000/api/central/deleteGuard",
-        {
-          data: { rut },
-        });
+      const res = await deleteGuardService(rut)
       Swal.fire({
             icon: 'success',
             title: res.data.message,
@@ -181,11 +188,7 @@ export default function SecurityDashboard() {
 
   const handleDeleteOwner = async (rut) => {
     try {
-      const res = await axios.delete(
-        "http://localhost:3000/api/central/deleteOwner",
-        {
-          data: { rut },
-        });
+      const res = await deleteOwnerService(rut)
       Swal.fire({
             icon: 'success',
             title: res.data.message,
@@ -206,15 +209,7 @@ export default function SecurityDashboard() {
   
   const handleUpdate = async (guard) => {
     try {
-      const res = await axios.put(
-        "http://localhost:3000/api/central/updateGuard",
-        {
-          rut: guard.rut,
-          email,
-          contrasenia,
-          telefono
-        }
-      );
+      const res = await updateGuardService(guard.rut, email, contrasenia, telefono);
       console.log(res)
 
       await Swal.fire({
@@ -285,12 +280,7 @@ export default function SecurityDashboard() {
 
     const handleDeleteReport = async (ID_Informe) => {
       try {
-        const res = await axios.delete(
-          "http://localhost:3000/api/guards/report/deleteReport",
-          {
-            data: { ID_Informe },
-          }
-        );
+        await deleteReportService(ID_Informe)
 
         Swal.fire({
                 icon: 'success',
@@ -463,6 +453,18 @@ export default function SecurityDashboard() {
                     <th className="p-4 rounded-tr-lg text-right">Acciones</th>
                   </tr>
                 </thead>
+                {guards.length === 0 ? (
+                  <tr>
+                    {/* IMPORTANTE: colSpan debe ser igual al número de columnas de tu cabecera (ID, Fecha, etc.) */}
+                    <td colSpan="6" className="p-8 text-center text-gray-500">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        {/* Opcional: Un icono para que se vea más bonito */}
+                        <span className="text-2xl">👥</span> 
+                        <p>No se encuentran guardias registrados.</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
                 <tbody className="divide-y divide-gray-100">
                   {guards.map((guard) => (
                     <tr key={guard.id} className="hover:bg-gray-50 transition-colors">
@@ -488,6 +490,7 @@ export default function SecurityDashboard() {
                     </tr>
                   ))}
                 </tbody>
+                )}
               </table>
             </div>
           </div>
@@ -512,6 +515,18 @@ export default function SecurityDashboard() {
                     <th className="p-4">Acciones</th>
                   </tr>
                 </thead>
+                {reports.length === 0 ? (
+                  <tr>
+                    {/* IMPORTANTE: colSpan debe ser igual al número de columnas de tu cabecera (ID, Fecha, etc.) */}
+                    <td colSpan="6" className="p-8 text-center text-gray-500">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        {/* Opcional: Un icono para que se vea más bonito */}
+                        <span className="text-2xl">📂</span> 
+                        <p>No se encuentran reportes registrados.</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
                 <tbody className="divide-y divide-gray-100">
                   {reports.map((r) => (
                     <tr key={r.ID_Informe} className="hover:bg-gray-50 transition-colors">
@@ -530,6 +545,7 @@ export default function SecurityDashboard() {
                     </tr>
                   ))}
                 </tbody>
+                )}
               </table>
             </div>
           </div>

@@ -16,17 +16,18 @@ import {
   deleteOwner
 } from "../controllers/owner.controller.js";
 
+import { getOwnersByBicicletero } from "../controllers/owner.controller.js";
+
 import { authMiddleware, autorizeEntities } from "../middlewares/auth.middleware.js";
-import Report from './reports.routes.js';
+
+import Report from './reports.routes.js'
+import { getBicicleteros } from "../controllers/bicicletero.controller.js";
 
 const router = Router();
 
-// Sub-rutas para reportes (ej: /api/guard/report/...)
-router.use('/report', Report);
-
-// ==========================================
-//      GESTIÓN DE INGRESOS Y SALIDAS
-// ==========================================
+router.use('/report', Report)
+router.get('/getOwnersByBicicletero', getOwnersByBicicletero)
+router.get('/getBicicleteros', getBicicleteros)
 
 /**
  * @route POST /api/guard/ingreso

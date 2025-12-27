@@ -41,7 +41,7 @@ export const loginUser = async (req, res) => {
 
         //  3. Validar contraseña
         const isValidPass = await bcrypt.compare(contrasenia, userFound.contrasenia)
-        if(!isValidPass) handleErrorClient(res, 404, 'Contraseña incorrecta')
+        if(!isValidPass) return handleErrorClient(res, 404, 'Contraseña incorrecta')
 
         let nombreCompleto = null;
 

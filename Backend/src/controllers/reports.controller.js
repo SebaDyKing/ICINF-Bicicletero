@@ -48,6 +48,7 @@ export const createReport = async (req, res) => {
             });
         
         for (const email of emails){
+            console.log(email)
             await sendAlertEmail(email, fecha, bicicletero, descripcion)
         }
     } catch (error) {

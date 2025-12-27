@@ -21,11 +21,11 @@ const AppRoutes = () => {
       <Route path="/verify" element={<VerifyPage />} />
 
       {/* <Route path='/incidentes' element={<IncidentesPage/>} /> */}
-      <Route path="/central" element={<CentralPage />} />
-      <Route path="/central/seguridad" element={<SecurityDashboard />} />
+      <Route path="/central/home" element={<CentralPage />} />
+      <Route path="/central/security" element={<SecurityDashboard />} />
 
       {/* Rutas Guardia */}
-      <Route path="/guardia/home" element={<GuardPages />} />
+      <Route path="/guard/home" element={<GuardPages />} />
 
       {/* Rutas Owner */}
       <Route path="/owner/home" element={<OwnerPage />} />

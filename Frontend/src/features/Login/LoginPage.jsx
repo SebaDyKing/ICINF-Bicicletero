@@ -57,9 +57,9 @@ const LoginPage = () => {
       if (rol === "Owner") {
         navigate("/owner/home"); // Página principal de dueños
       } else if (rol === "Guard") {
-        navigate("/guardia/home"); // Página principal de guardias
+        navigate("/guard/home"); // Página principal de guardias
       } else if (rol === "Central") {
-        navigate("/central");
+        navigate("/central/home");
       } else {
         // Si el rol no coincide con nada conocido
         navigate("/");

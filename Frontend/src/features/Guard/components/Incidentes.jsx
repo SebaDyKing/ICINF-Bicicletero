@@ -4,6 +4,7 @@ import { User, LogOut, Bell, FileText, Calendar, Plus, Edit, X, Trash2 } from 'l
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import { useNavigate } from 'react-router-dom';
+import { editReportService, getAllReportsService } from '../services/guardReports.service';
 
 const IncidentesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,8 +12,6 @@ const IncidentesPage = () => {
   const [reports, setReports] = useState([]);
   const [reportSelected, setReportSelected] = useState(null)
   const [cantReportes, setCantReportes] = useState(null)
-  const [fecha, setFecha] = useState('')
-  const [bicicletero, setBicicletero] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const navigate = useNavigate()
 
@@ -23,7 +22,7 @@ const IncidentesPage = () => {
     // }
     const fetchReports = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/guards/report/getAllReports`);
+        const res = await getAllReportsService()
         console.log(res)
         console.log(res.data.data.resultCant[0].count)
         
@@ -66,13 +65,7 @@ const IncidentesPage = () => {
     console.log(typeof reportSelected.ID_Informe)
 
     try {
-        const res = await axios.put(
-        "http://localhost:3000/api/guards/report/updateReport",
-            {
-            ID_Informe: reportSelected.ID_Informe,
-            descripcion
-            }
-        );
+        await editReportService(reportSelected.ID_Informe, descripcion);
 
         await Swal.fire({
                 icon: 'success',
@@ -139,6 +132,19 @@ const IncidentesPage = () => {
                   <th className="p-4 text-center">Acciones</th> 
                 </tr>
               </thead>
+
+              {reports.length === 0 ? (
+                <tr>
+                  {/* IMPORTANTE: colSpan debe ser igual al número de columnas de tu cabecera (ID, Fecha, etc.) */}
+                  <td colSpan="6" className="p-8 text-center text-gray-500">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      {/* Opcional: Un icono para que se vea más bonito */}
+                      <span className="text-2xl">📂</span> 
+                      <p>No se encuentran reportes registrados</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
               <tbody className="divide-y divide-gray-100">
                 {reports.map((r) => (
                   <tr key={r.ID_Informe} className="hover:bg-gray-50 transition-colors">
@@ -159,6 +165,7 @@ const IncidentesPage = () => {
                   </tr>
                 ))}
               </tbody>
+              )}
             </table>
           </div>
         </div>

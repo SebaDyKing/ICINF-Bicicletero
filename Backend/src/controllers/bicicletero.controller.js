@@ -9,6 +9,7 @@ import {
   getBicicleterosStatusService 
 } from "../service/bicicleRack.service.js"; 
 import { actualizarDashboard } from "../service/webSocket.service.js";
+import { BicycleRack } from "../models/bicycleRack.entity.js";
 
 /**
  * @function getBicicletero
@@ -146,3 +147,14 @@ export async function getBicicleterosStatus(req, res) {
     handleErrorServer(res, 500, "Error obteniendo estado de bicicleteros", error.message);
   }
 }
+
+export const getBicicleteros = async (req, res) => {
+  try {
+    const bicicleteroRepo = AppDataSource.getRepository(BicycleRack);
+    // Busca todos los registros
+    const bicicleteros = await bicicleteroRepo.find(); 
+    return handleSuccess(res, 200, 'Success', bicicleteros)
+  } catch (error) {
+    return handleErrorServer(res, 500, 'Error.', error.message)
+  }
+};
