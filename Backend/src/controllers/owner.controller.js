@@ -502,12 +502,11 @@ export const getOwnersByBicicletero = async (req, res) => {
     // consulta SQL para ingresar a tabla Users
     const query = `
         SELECT DISTINCT
-        o.rut,
-        o.nombre,
-        o.apellido
+        u.email
         FROM owner o
         INNER JOIN bicycle b ON b.rut_duenio = o.rut
         INNER JOIN store s ON s.id_bicicleta = b.id_bicicleta
+        INNER JOIN users u ON o.rut = u.rut
         WHERE s.id_bicicletero = $1
         AND s.fecha_salida IS NULL;
     `;
