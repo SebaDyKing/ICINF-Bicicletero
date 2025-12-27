@@ -21,11 +21,13 @@ import { getOwnersByBicicletero } from "../controllers/owner.controller.js";
 import { authMiddleware, autorizeEntities } from "../middlewares/auth.middleware.js";
 
 import Report from './reports.routes.js'
+import { getBicicleteros } from "../controllers/bicicletero.controller.js";
 
 const router = Router();
 
 router.use('/report', Report)
 router.get('/getOwnersByBicicletero', getOwnersByBicicletero)
+router.get('/getBicicleteros', getBicicleteros)
 
 // Rutas para la gestión de ingresos y retiros
 router.post(
