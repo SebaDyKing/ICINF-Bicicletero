@@ -6,14 +6,14 @@ export const Bicycle = new EntitySchema({
   tableName: "bicycle",
 
   columns: {
-    id_bicicleta: { 
+    id_bicicleta: {
       primary: true,
       type: "int",
       generated: true,
     },
     alias: {
       type: "varchar",
-      length: 10,
+      length: 20,
       nullable: true,
     },
     color: {
@@ -37,7 +37,7 @@ export const Bicycle = new EntitySchema({
     fecha_creacion: {
       type: "timestamp",
       createDate: true,
-    }
+    },
   },
   relations: {
     owner: {

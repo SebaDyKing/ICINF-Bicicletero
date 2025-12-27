@@ -28,7 +28,7 @@ export function authMiddleware(req, res, next) {
     req.user = payload;
     next();
   } catch (error) {
-    return handleErrorClient(res, 401, "Token inválido o expirado.", error.message);
+    return handleErrorClient(res, 401, "Sesión expirada, inicie sesión nuevamente.", error.message);
   }
 }
 
