@@ -16,7 +16,7 @@ const mailMan = nodemailer.createTransport({
 
 const sendAlertEmail = async (toEmail, fecha, bicicletero, descripcion) => {
   try {
-      const FRONT_URL = 'http://localhost:5173'
+      const FRONT_URL = process.env.FRONT_URL || 'http://localhost:5173'
       const link = `${FRONT_URL}/login`
       const mailOptions = {
           from: `"Central de Guardias UBB" <${process.env.EMAIL_USER}>`,
