@@ -7,14 +7,11 @@ import { useNavigate } from 'react-router-dom';
 import { editReportService, getAllReportsService } from '../services/guardReports.service';
 
 const IncidentesPage = () => {
-  const FRONT_URL = 'http://localhost:3000'
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
   const [reports, setReports] = useState([]);
   const [reportSelected, setReportSelected] = useState(null)
   const [cantReportes, setCantReportes] = useState(null)
-  const [fecha, setFecha] = useState('')
-  const [bicicletero, setBicicletero] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const navigate = useNavigate()
 
