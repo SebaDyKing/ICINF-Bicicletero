@@ -243,8 +243,6 @@ export default function SecurityDashboard() {
 
   const searchUserByRut = async () => {
     try {
-      if (inputRut.length === 0) throw new Error ("El campo rut no puede estar vacio.")
-      if (inputRut.length < 12) throw new Error ("El campo rut debe tener al menos 12 caracteres.")
       const res = await getUserService(inputRut)
       // Guardas el resultado en un estado separado
       setUserSelected(res.data.data)
@@ -252,12 +250,12 @@ export default function SecurityDashboard() {
       setInputRut('')
     } catch (error) {
       console.error(error);
-      setUserSelected(null); // Limpia
       Swal.fire({
                 icon: 'error',
                 title: error || "Usuario no encontrado.",
                 timer: 2000
               })
+      setUserSelected(null); // Limpia
     }
   };
 
