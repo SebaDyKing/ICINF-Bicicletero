@@ -3,13 +3,14 @@ import { X, Upload } from 'lucide-react';
 import React, { useRef, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2'
-import { createReportService, getAllOwnersService } from '../services/guardReports.service';
+import { createReportService, getOwnersByBicicleteroService } from '../services/guardReports.service';
 
 // Componente Básico de Modal
 const NewIncidentModal  = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
   const [fecha, setFecha] = useState('')
   const [bicicletero, setBicicletero] = useState('')
+  const [bicicleteroID, setBicicleteroID] = useState(1)
   const [descripcion, setDescripcion] = useState('')
   const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState("");
@@ -27,11 +28,13 @@ const NewIncidentModal  = ({ isOpen, onClose }) => {
   const handleCreateRegister = async () => {
     try {
       if (bicicletero === '') throw new Error('Seleccione un bicicletero.')
+      console.log(bicicletero)
+      if (bicicletero === 'FACE') setBicicleteroID(1)
+      if (bicicletero === 'Idiomas') setBicicleteroID(2)
         
-      const users = await getAllOwnersService()
+      const users = await getOwnersByBicicleteroService(bicicleteroID)
       console.log(users)
-
-      const emails = users.data.data.map(owner => owner.email)
+      const emails = users.data.data.resultQuery.map(owner => owner.email)
       console.log(emails)
 
       const res = await createReportService(emails, fecha, bicicletero, descripcion)
