@@ -23,6 +23,7 @@ import {formatRut} from '../../utils/rutUtils'
 import {Header} from './Header';
 
 export default function SecurityDashboard() {
+  const FRONT_URL = 'http://localhost:3000'
   const [activeTab, setActiveTab] = useState('guards'); // 'guards' | 'reports'
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
@@ -58,7 +59,7 @@ export default function SecurityDashboard() {
     // }
     const fetchReports = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/guards/report/getAllReports`);
+        const res = await axios.get(`${FRONT_URL}/api/guards/report/getAllReports`);
         console.log(res)
         
         const formatted = res.data.data.resultQuery.map(r => ({
@@ -90,7 +91,7 @@ export default function SecurityDashboard() {
     // }
     const fetchGuards = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/central/getAllGuards");
+        const res = await axios.get(`${FRONT_URL}/api/central/getAllGuards`);
 
         const formatted = res.data.data.resultQuery.map(g => ({
           nombre: `${g.nombre} ${g.apellido}`,
@@ -125,7 +126,7 @@ export default function SecurityDashboard() {
     try {
       console.log(rut, email, contrasenia, telefono, nombre, apellido)
 
-      const res = await axios.post("http://localhost:3000/api/central/createGuard", {
+      const res = await axios.post(`${FRONT_URL}/api/central/createGuard`, {
         rut,
         email,
         contrasenia,
@@ -158,7 +159,7 @@ export default function SecurityDashboard() {
   const handleDelete = async (rut) => {
     try {
       const res = await axios.delete(
-        "http://localhost:3000/api/central/deleteGuard",
+        `${FRONT_URL}/api/central/deleteGuard`,
         {
           data: { rut },
         });
@@ -182,7 +183,7 @@ export default function SecurityDashboard() {
   const handleDeleteOwner = async (rut) => {
     try {
       const res = await axios.delete(
-        "http://localhost:3000/api/central/deleteOwner",
+        `${FRONT_URL}/api/central/deleteOwner`,
         {
           data: { rut },
         });
@@ -207,7 +208,7 @@ export default function SecurityDashboard() {
   const handleUpdate = async (guard) => {
     try {
       const res = await axios.put(
-        "http://localhost:3000/api/central/updateGuard",
+        `${FRONT_URL}/api/central/updateGuard`,
         {
           rut: guard.rut,
           email,
@@ -286,7 +287,7 @@ export default function SecurityDashboard() {
     const handleDeleteReport = async (ID_Informe) => {
       try {
         const res = await axios.delete(
-          "http://localhost:3000/api/guards/report/deleteReport",
+          `${FRONT_URL}/api/guards/report/deleteReport`,
           {
             data: { ID_Informe },
           }
