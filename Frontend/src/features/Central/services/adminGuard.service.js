@@ -113,7 +113,7 @@ export const deleteOwnerService = async (rut) => {
 export const deleteReportService = async (ID_Informe) => {
     try {
         const res = await axios.delete(
-          `${API_URL}/guards/report/deletegit Report`,
+          `${API_URL}/guards/report/deleteReport`,
           {
             data: { ID_Informe },
           }
