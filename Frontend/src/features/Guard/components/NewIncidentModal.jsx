@@ -3,6 +3,7 @@ import { X, Upload } from 'lucide-react';
 import React, { useRef, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2'
+import { createReportService, getAllOwnersService } from '../services/guardReports.service';
 
 // Componente Básico de Modal
 const NewIncidentModal  = ({ isOpen, onClose }) => {
@@ -28,18 +29,13 @@ const NewIncidentModal  = ({ isOpen, onClose }) => {
     try {
       if (bicicletero === '') throw new Error('Seleccione un bicicletero.')
         
-      const users = await axios.get(`${FRONT_URL}/api/owners/getAllOwners`)
+      const users = await getAllOwnersService()
       console.log(users)
 
       const emails = users.data.data.map(owner => owner.email)
       console.log(emails)
 
-      const res = await axios.post(`${FRONT_URL}/api/guards/report/createReport`, {
-        emails,
-        fecha, 
-        bicicletero,
-        descripcion
-      })
+      const res = await createReportService(emails, fecha, bicicletero, descripcion)
 
       console.log(res);
 
