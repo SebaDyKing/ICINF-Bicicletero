@@ -16,14 +16,13 @@ import {
   Eye, 
   EyeOff 
 } from 'lucide-react';
-import { getGuardService, getUserService } from '../services/adminGuard.service';
+import { createGuardService, deleteGuardService, updateGuardService, getAllGuardService, getGuardService, getUserService, getAllReportsService, deleteOwnerService, deleteReportService } from '../services/adminGuard.service';
 import Swal from 'sweetalert2'
 import {formatRut} from '../../utils/rutUtils'
 
 import {Header} from './Header';
 
 export default function SecurityDashboard() {
-  const FRONT_URL = 'http://localhost:3000'
   const [activeTab, setActiveTab] = useState('guards'); // 'guards' | 'reports'
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
@@ -59,7 +58,7 @@ export default function SecurityDashboard() {
     // }
     const fetchReports = async () => {
       try {
-        const res = await axios.get(`${FRONT_URL}/api/guards/report/getAllReports`);
+        const res = await getAllReportsService()
         console.log(res)
         
         const formatted = res.data.data.resultQuery.map(r => ({
@@ -91,7 +90,7 @@ export default function SecurityDashboard() {
     // }
     const fetchGuards = async () => {
       try {
-        const res = await axios.get(`${FRONT_URL}/api/central/getAllGuards`);
+        const res = await getAllGuardService()
 
         const formatted = res.data.data.resultQuery.map(g => ({
           nombre: `${g.nombre} ${g.apellido}`,
@@ -126,14 +125,7 @@ export default function SecurityDashboard() {
     try {
       console.log(rut, email, contrasenia, telefono, nombre, apellido)
 
-      const res = await axios.post(`${FRONT_URL}/api/central/createGuard`, {
-        rut,
-        email,
-        contrasenia,
-        telefono,
-        nombre,
-        apellido
-      });
+      const res = await createGuardService(rut, email, contrasenia, telefono, nombre, apellido);
 
       await Swal.fire({
         icon: 'success',
@@ -158,11 +150,7 @@ export default function SecurityDashboard() {
 
   const handleDelete = async (rut) => {
     try {
-      const res = await axios.delete(
-        `${FRONT_URL}/api/central/deleteGuard`,
-        {
-          data: { rut },
-        });
+      const res = await deleteGuardService(rut)
       Swal.fire({
             icon: 'success',
             title: res.data.message,
@@ -182,11 +170,7 @@ export default function SecurityDashboard() {
 
   const handleDeleteOwner = async (rut) => {
     try {
-      const res = await axios.delete(
-        `${FRONT_URL}/api/central/deleteOwner`,
-        {
-          data: { rut },
-        });
+      const res = await deleteOwnerService(rut)
       Swal.fire({
             icon: 'success',
             title: res.data.message,
@@ -207,15 +191,7 @@ export default function SecurityDashboard() {
   
   const handleUpdate = async (guard) => {
     try {
-      const res = await axios.put(
-        `${FRONT_URL}/api/central/updateGuard`,
-        {
-          rut: guard.rut,
-          email,
-          contrasenia,
-          telefono
-        }
-      );
+      const res = await updateGuardService(guard.rut, email, contrasenia, telefono);
       console.log(res)
 
       await Swal.fire({
@@ -286,12 +262,7 @@ export default function SecurityDashboard() {
 
     const handleDeleteReport = async (ID_Informe) => {
       try {
-        const res = await axios.delete(
-          `${FRONT_URL}/api/guards/report/deleteReport`,
-          {
-            data: { ID_Informe },
-          }
-        );
+        await deleteReportService(ID_Informe)
 
         Swal.fire({
                 icon: 'success',
