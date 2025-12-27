@@ -54,7 +54,7 @@ export const Header = () => {
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors text-sm cursor-pointer">
               <span>👤</span>
-              <span>Perfil</span>
+              <span>Central</span>
             </div>
             
             <div className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors text-sm cursor-pointer">

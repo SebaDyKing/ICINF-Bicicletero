@@ -32,7 +32,7 @@ export const createBicycleService = async (data) => {
 
   if (exist) return "EXISTS";
 
-  // Crear la bicicleta
+  // Crear la bicicleta (TypeORM maneja la relación automáticamente)
   const newBicycle = bicycleRepository.create({
     alias: data.alias,
     color: data.color,

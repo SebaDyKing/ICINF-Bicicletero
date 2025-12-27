@@ -1,65 +1,94 @@
 import React from 'react';
-import { Bike, MapPin, Clock, ArrowUp, ArrowDown } from 'lucide-react';
+import { MapPin, Clock, ArrowUp, ArrowDown, Sparkles } from 'lucide-react';
 
+export const RecentActivity = ({ movements }) => {
+    const activityList = movements || [];
 
-export const RecentActivity = ({movements}) => {
-  const activityList = movements || [];
+    return (
+        <div className="relative bg-white rounded-3xl shadow-lg border border-gray-200 h-full overflow-hidden flex flex-col font-sans backdrop-blur-sm">
+            <div className="relative bg-[#0066cc] px-6 py-5 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent shimmer" />
 
-  return (
-  <div className="bg-white rounded-xl shadow-sm border border-slate-200 h-full overflow-hidden flex flex-col">   
-      <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-        <div>
-          <h3 className="font-semibold text-slate-700">Últimos Movimientos</h3>
-        </div>
-        <Clock className="h-5 w-5 text-slate-400" />
-      </div>
-
-      <div className="overflow-y-auto flex-1 p-0 max-h-[400px]">
-        {activityList.length === 0 ? (
-            <div className="p-8 text-center text-slate-400 text-sm">
-                Sin actividad reciente
-            </div>
-        ) : (
-            <div className="divide-y divide-slate-50">
-            {activityList.map((mov) => (
-                <div key={mov.id} className="p-4 hover:bg-slate-50 transition-colors flex items-center gap-3">
-                    
-                    {/* Icono Circular */}
-                    <div className={`p-2 rounded-full ${
-                        mov.tipo === 'Ingreso' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
-                    }`}>
-                        {mov.tipo === 'Ingreso' ? <ArrowUp size={18}/> : <ArrowDown size={18}/>}
+                <div className="relative flex items-center gap-3 text-white">
+                    <div className="bg-white/20 backdrop-blur-md p-2.5 rounded-xl shadow-lg bounce-slow">
+                        <Sparkles className="h-5 w-5" />
                     </div>
-
-                    {/* Info Principal */}
-                    <div className="flex-1">
-                        <div className="flex justify-between">
-                            <h4 className="font-bold text-slate-700 text-sm">{mov.bici}</h4>
-                            <span className="text-xs text-slate-400">
-                                {new Date(mov.hora).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                            </span>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 mt-1">
-                             <span className={`text-[10px] px-1.5 py-0.5 rounded border ${
-                                mov.tipo === 'Ingreso' 
-                                ? 'bg-emerald-50 border-emerald-100 text-emerald-700' 
-                                : 'bg-rose-50 border-rose-100 text-rose-700'
-                             }`}>
-                                {mov.tipo}
-                             </span>
-                             
-                             <div className="flex items-center text-slate-500 text-xs">
-                                <MapPin size={10} className="mr-1"/>
-                                {mov.ubicacion}
-                             </div>
-                        </div>
+                    <div>
+                        <h3 className="font-bold text-lg tracking-tight">Actividad Reciente</h3>
+                        <p className="text-white/80 text-xs font-medium mt-0.5">Usuarios en tiempo real</p>
                     </div>
                 </div>
-            ))}
             </div>
-        )}
-      </div>
-    </div>
-  );
+
+            <div className="overflow-y-auto flex-1 p-4">
+                {activityList.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-12">
+                        <div className="relative">
+                            <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl flex items-center justify-center mb-4 float-anim">
+                                <Clock className="h-10 w-10 text-blue-500" />
+                            </div>
+                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-400 rounded-full animate-ping" />
+                        </div>
+                        <p className="font-semibold text-slate-600 text-sm">Sin actividad reciente</p>
+                        <p className="text-slate-400 text-xs mt-1">Los movimientos aparecerán aquí</p>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        {activityList.map((activity, index) => {
+                            const isRetiro = activity.estado?.toLowerCase().includes('salida') ||
+                                activity.estado?.toLowerCase().includes('retiro') ||
+                                activity.tipo?.toLowerCase() === 'salida';
+
+                            return (
+                                <div
+                                    key={activity.id}
+                                    style={{ animationDelay: `${index * 50}ms` }}
+                                    className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-md border border-white/60 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center gap-4 slide-in"
+                                >
+                                    <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity ${isRetiro ? 'bg-gradient-to-r from-slate-50/50 to-gray-50/50' : 'bg-gradient-to-r from-blue-50/50 to-cyan-50/50'}`} />
+
+                                    <div className="relative z-10">
+                                        <div className={`h-14 w-14 rounded-2xl flex items-center justify-center text-white shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300 ${isRetiro ? 'bg-gradient-to-br from-slate-500 via-gray-600 to-slate-700 shadow-slate-500/50' : 'bg-gradient-to-br from-[#003366] via-[#0055aa] to-[#0066cc] shadow-blue-500/50'}`}>
+                                            {isRetiro ? (
+                                                <ArrowDown size={26} strokeWidth={2.5} className="group-hover:animate-bounce" />
+                                            ) : (
+                                                <ArrowUp size={26} strokeWidth={2.5} className="group-hover:animate-bounce" />
+                                            )}
+                                        </div>
+                                        <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full animate-ping ${isRetiro ? 'bg-slate-400' : 'bg-cyan-400'}`} />
+                                        <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${isRetiro ? 'bg-slate-500' : 'bg-cyan-500'}`} />
+                                    </div>
+
+                                    <div className="flex-1 min-w-0 relative z-10">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h4 className="font-bold text-slate-800 text-base truncate pr-2 group-hover:text-blue-700 transition-colors">
+                                                {activity.nombre}
+                                            </h4>
+                                            <span className={`text-[10px] font-bold px-3 py-1.5 rounded-full shadow-sm border ${isRetiro ? 'bg-white text-slate-600 border-slate-200' : 'bg-white text-blue-600 border-blue-200'}`}>
+                                                {activity.horaEntrada}
+                                            </span>
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            <span className={`text-[11px] font-bold px-3 py-1 rounded-full shadow-sm flex items-center gap-1.5 ${isRetiro ? 'bg-gradient-to-r from-slate-100 to-gray-100 text-slate-700 border border-slate-200' : 'bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 border border-emerald-200'}`}>
+                                                <div className={`w-2 h-2 rounded-full animate-pulse shadow-lg ${isRetiro ? 'bg-slate-500 shadow-slate-500/50' : 'bg-emerald-500 shadow-emerald-500/50'}`} />
+                                                {activity.tagBici}
+                                            </span>
+
+                                            <div className="flex items-center gap-1 text-slate-600 text-xs px-2.5 py-1 bg-blue-50 rounded-full truncate border border-blue-100">
+                                                <MapPin size={11} className="flex-shrink-0 text-blue-500" />
+                                                <span className="truncate font-medium">{activity.ubicacion}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className={`absolute right-0 top-0 w-1.5 h-full rounded-r-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 ${isRetiro ? 'bg-gradient-to-b from-slate-500 via-gray-500 to-slate-500' : 'bg-gradient-to-b from-[#0066cc] via-[#0088ee] to-[#00aaff]'}`} />
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
 };

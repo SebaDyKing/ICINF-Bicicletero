@@ -1,7 +1,7 @@
 "use strict";
 
 import { Router } from "express";
-import { createOwner, getAllOwners, getOwner, solicitarGuard} from "../controllers/owner.controller.js";
+import { createOwner, getAllOwners, getOwner, solicitarGuard, getOwnerHistory} from "../controllers/owner.controller.js";
 import {
   updateOwner,
   deleteOwner,
@@ -15,6 +15,7 @@ router.get("/getAllUsers", getAllOwners)
 router.post("/solicitud",solicitarGuard)
 router.get("/getOwner", getOwner);
 router.get("/getAllOwners", getAllOwners);
+router.get("/history/:rut", getOwnerHistory);
 router.put("/updateOwner", updateOwner);
 router.delete("/deleteOwner", deleteOwner);
 

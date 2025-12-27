@@ -1,5 +1,7 @@
 import { guardBodyPartialValidation } from "../validations/guardia.validations.js"
 import { Users } from "../models/user.entity.js"
+import { Guard } from "../models/guard.entity.js" 
+import { Owner } from "../models/owner.entity.js"
 import jwt from 'jsonwebtoken'
 import {SECRET_JWT_KEY, JWT_EXPIRES_IN} from '../config/configEnv.js'
 import bcrypt from 'bcrypt'
@@ -41,10 +43,34 @@ export const loginUser = async (req, res) => {
         const isValidPass = await bcrypt.compare(contrasenia, userFound.contrasenia)
         if(!isValidPass) handleErrorClient(res, 404, 'Contraseña incorrecta')
 
+        let nombreCompleto = null;
+
+        try {
+            if (userFound.tipo_usuario === 'Guard') {
+                const guardRepo = AppDataSource.getRepository(Guard);
+                const guardFound = await guardRepo.findOneBy({rut: rut});
+
+                if (guardFound) {
+                    nombreCompleto = `${guardFound.nombre} ${guardFound.apellido}`;
+                }
+            } 
+            else if (userFound.tipo_usuario === 'Owner') {
+                const ownerRepo = AppDataSource.getRepository(Owner);
+                const ownerFound = await ownerRepo.findOneBy({rut: rut});
+
+                if (ownerFound) {
+                    nombreCompleto = `${ownerFound.nombre} ${ownerFound.apellido}`;
+                }
+            }
+        } catch (errName) {
+            console.log("No se pudo obtener el nombre, pero el login sigue:", errName);
+            // Si falla esto, no importa, el login sigue, solo que sin nombre.
+        }
+
         //  4. JWT - Guarda en un JWT todas las variables que tenga dentro del sign
         const token = jwt.sign({
                 rut: userFound.rut,
-                nombre: userFound.nombre,
+                nombre: nombreCompleto,
                 entity: userFound.tipo_usuario
             }, SECRET_JWT_KEY, {
                 expiresIn: JWT_EXPIRES_IN
@@ -52,6 +78,7 @@ export const loginUser = async (req, res) => {
         return handleSuccess(res, 200, 'Usuario logeado exitosamente', {
             token: token,
             rut: userFound.rut,
+            nombre: nombreCompleto,
             email: userFound.email,
             tipo_usuario: userFound.tipo_usuario,
         }) 

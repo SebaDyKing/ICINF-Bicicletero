@@ -93,10 +93,10 @@ export default function SecurityDashboard() {
         const res = await axios.get("http://localhost:3000/api/central/getAllGuards");
 
         const formatted = res.data.data.resultQuery.map(g => ({
-          name: `${g.nombre} ${g.apellido}`,
+          nombre: `${g.nombre} ${g.apellido}`,
           rut: g.rut,
           email: g.email,
-          phone: g.telefono
+          telefono: g.telefono
         }));
 
         setGuards(formatted);
@@ -117,7 +117,6 @@ export default function SecurityDashboard() {
     if (selectedGuard) {
       setEmail(selectedGuard.email || "");
       setTelefono(selectedGuard.telefono || "");
-      setContrasenia("");
     }
   }, [selectedGuard]);
 
@@ -141,12 +140,7 @@ export default function SecurityDashboard() {
         timer: 1000
       })
       console.log(res);
-      setNombre('')
-      setApellido('')
-      setContrasenia('')
-      setEmail('')
-      setTelefono('')
-      setRut('')
+      resetDatos()
       navigate(0)
     } catch (error) {
       console.log(error);
@@ -167,18 +161,38 @@ export default function SecurityDashboard() {
         "http://localhost:3000/api/central/deleteGuard",
         {
           data: { rut },
-        }
-      );
-
+        });
       Swal.fire({
-                icon: 'success',
-                title: res.data.message,
-                timer: 2000
-              })
-
+            icon: 'success',
+            title: res.data.message,
+            timer: 2000
+      })
       // actualizar UI — ejemplo filtrando
       setGuards(prev => prev.filter(g => g.rut !== rut));
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+                icon: 'error',
+                title: error.response?.data?.message || "No se pudo eliminar.",
+                timer: 2000
+              })
+    }
+  };
 
+  const handleDeleteOwner = async (rut) => {
+    try {
+      const res = await axios.delete(
+        "http://localhost:3000/api/central/deleteOwner",
+        {
+          data: { rut },
+        });
+      Swal.fire({
+            icon: 'success',
+            title: res.data.message,
+            timer: 2000
+      })
+      // actualizar UI — ejemplo filtrando
+      setGuards(prev => prev.filter(g => g.rut !== rut));
     } catch (error) {
       console.error(error);
       Swal.fire({
@@ -313,6 +327,14 @@ export default function SecurityDashboard() {
       return PREFIX + grouped;
     };
 
+    const resetDatos = () => {
+      setNombre('')
+      setApellido('')
+      setContrasenia('')
+      setEmail('')
+      setTelefono(PREFIX)
+      setRut('')
+    }
   
   
   return (
@@ -370,7 +392,7 @@ export default function SecurityDashboard() {
                 icon: 'warning',
                 title: 'Seleccione rol de usuario.',
                 timer: 2000
-              }) : rol==='guardia' ? searchGuardByRut() : searchUserByRut()}}>
+              }) : rol==='guardia' ? searchGuardByRut() : searchUserByRut(); console.log(userSelected)}}>
                 <Search size={14}/> Buscar
               </button>
               {userSelected && (
@@ -392,7 +414,7 @@ export default function SecurityDashboard() {
                         <td className="p-4">{userSelected.correo || userSelected.email}</td>
                         <td className="p-4">{userSelected.telefono}</td>
                         <td>
-                          <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium mt-3" onClick={async () => {await handleDelete(userSelected.rut); setTimeout(() => {navigate(0)}, 1300)}}>
+                          <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium mt-3" onClick={async () => { userSelected.tipo_usuario === 'Guard' ? handleDelete(userSelected.rut) : handleDeleteOwner(userSelected.rut); setTimeout(() => {navigate(0)}, 1300)}}>
                             <Trash2 size={14}/> Eliminar
                           </button>
                         </td>
@@ -444,14 +466,18 @@ export default function SecurityDashboard() {
                 <tbody className="divide-y divide-gray-100">
                   {guards.map((guard) => (
                     <tr key={guard.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="p-4 font-medium text-gray-800">{guard.name}</td>
+                      <td className="p-4 font-medium text-gray-800">{guard.nombre}</td>
                       <td className="p-4 text-gray-600">{guard.rut}</td>
                       <td className="p-4 text-gray-600">{guard.email}</td>
-                      <td className="p-4 text-gray-600">{guard.phone}</td>
+                      <td className="p-4 text-gray-600">{guard.telefono}</td>
                       <td className="p-4 flex justify-end gap-2">
                         <button className="flex items-center gap-1 text-blue-600 border border-blue-200 px-3 py-1.5 rounded-lg text-sm hover:bg-blue-50 font-medium" onClick={() => {
                           setIsModalOpenEdit(true);
-                          setSelectedGuard(guard)}}>
+                          setSelectedGuard(guard);
+                          console.log(selectedGuard)
+                          console.log(guard)
+                          console.log(email)
+                          console.log(telefono)}}>
                           <Edit size={14}/> Editar
                         </button>
 
@@ -520,7 +546,7 @@ export default function SecurityDashboard() {
                 <h3 className="text-xl font-bold text-gray-800">Agregar Nuevo Guardia</h3>
                 <p className="text-sm text-gray-500">Ingresa los datos del nuevo guardia de seguridad</p>
               </div>
-              <button onClick={() => {setIsModalOpen(false); setEmail(''); setTelefono(PREFIX); setRut('')}} className="text-gray-400 hover:text-gray-600">
+              <button onClick={() => {setIsModalOpen(false); resetDatos()}} className="text-gray-400 hover:text-gray-600">
                 <X size={24} />
               </button>
             </div>
@@ -601,7 +627,7 @@ export default function SecurityDashboard() {
                     // Bloquea borrar el prefijo
                     if (
                       e.key === 'Backspace' &&
-                      phone.length <= PREFIX.length
+                      telefono.length <= PREFIX.length
                     ) {
                       e.preventDefault();
                     }
@@ -633,7 +659,7 @@ export default function SecurityDashboard() {
             {/* Modal Footer */}
             <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-100">
               <button 
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => {setIsModalOpen(false); resetDatos()}}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition-colors"
               >
                 Cancelar
@@ -656,7 +682,7 @@ export default function SecurityDashboard() {
                 <h3 className="text-xl font-bold text-gray-800">Editar Guardia</h3>
                 <p className="text-sm text-gray-500">Actualice la informacion del guardia de seguridad</p>
               </div>
-              <button onClick={() => {setIsModalOpenEdit(false); setEmail('')}} className="text-gray-400 hover:text-gray-600">
+              <button onClick={() => {setIsModalOpenEdit(false); resetDatos()}} className="text-gray-400 hover:text-gray-600">
                 <X size={24} />
               </button>
             </div>
@@ -686,7 +712,7 @@ export default function SecurityDashboard() {
                     // Bloquea borrar el prefijo
                     if (
                       e.key === 'Backspace' &&
-                      phone.length <= PREFIX.length
+                      telefono.length <= PREFIX.length
                     ) {
                       e.preventDefault();
                     }
@@ -718,7 +744,7 @@ export default function SecurityDashboard() {
             {/* Modal Footer */}
             <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-100">
               <button 
-                onClick={() => setIsModalOpenEdit(false)}
+                onClick={() => {setIsModalOpenEdit(false); resetDatos()}}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition-colors"
               >
                 Cancelar
