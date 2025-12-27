@@ -7,7 +7,6 @@ import { createReportService, getAllOwnersService } from '../services/guardRepor
 
 // Componente Básico de Modal
 const NewIncidentModal  = ({ isOpen, onClose }) => {
-  const FRONT_URL = 'http://localhost:3000'
   if (!isOpen) return null;
   const [fecha, setFecha] = useState('')
   const [bicicletero, setBicicletero] = useState('')
