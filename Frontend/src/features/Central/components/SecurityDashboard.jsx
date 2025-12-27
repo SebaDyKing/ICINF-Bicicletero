@@ -101,12 +101,30 @@ export default function SecurityDashboard() {
 
         setGuards(formatted);
       } catch (error) {
-        console.error("Error backend:", error);
-        Swal.fire({
-                icon: 'error',
-                title: 'Error al cargar guardias.',
-                timer: 2000
-              })
+        console.log(error)
+        const message = error.response?.data?.message;
+        if (error.response?.status === 401) {
+          Swal.fire({
+            icon: "warning",
+            title: "Acceso denegado",
+            text: message,
+          });
+          navigate('/')
+        } else if (error.response?.status === 403) {
+          Swal.fire({
+            icon: "error",
+            title: "Acceso denegado",
+            text: message,
+          });
+          navigate('/')
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: message || "Error inesperado",
+          });
+          navigate('/')
+        }
       }
     };
 
