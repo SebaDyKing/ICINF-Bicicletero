@@ -29,24 +29,16 @@ export const Header = () => {
             </div>
 
             <nav className="hidden md:flex space-x-2">
-              
-     
-              <a className={`${linkBaseClasses} ${inactiveClasses}`}>
-                Bicicleteros
-              </a>
 
-         
-              <a className={`${linkBaseClasses} ${inactiveClasses}`}>
-                Reportes de Robo
-              </a>
+              <Link to="/central/home" className={`${linkBaseClasses} ${activeClasses}`}>
+                Estadísticas
+              </Link>
 
-              <Link to="/central/seguridad" className={`${linkBaseClasses} ${inactiveClasses}`}>
+              <Link to="/central/security" className={`${linkBaseClasses} ${inactiveClasses}`}>
                 Centro de seguridad
               </Link>
 
-              <Link to="/central" className={`${linkBaseClasses} ${activeClasses}`}>
-                Estadísticas
-              </Link>
+              
               
             </nav>
           </div>
