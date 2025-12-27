@@ -4,6 +4,7 @@ import { User, LogOut, Bell, FileText, Calendar, Plus, Edit, X, Trash2 } from 'l
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import { useNavigate } from 'react-router-dom';
+import { editReportService, getAllReportsService } from '../services/guardReports.service';
 
 const IncidentesPage = () => {
   const FRONT_URL = 'http://localhost:3000'
@@ -24,7 +25,7 @@ const IncidentesPage = () => {
     // }
     const fetchReports = async () => {
       try {
-        const res = await axios.get(`${FRONT_URL}/api/guards/report/getAllReports`);
+        const res = await getAllReportsService()
         console.log(res)
         console.log(res.data.data.resultCant[0].count)
         
@@ -67,13 +68,7 @@ const IncidentesPage = () => {
     console.log(typeof reportSelected.ID_Informe)
 
     try {
-        const res = await axios.put(
-        `${FRONT_URL}/api/guards/report/updateReport`,
-            {
-            ID_Informe: reportSelected.ID_Informe,
-            descripcion
-            }
-        );
+        await editReportService(reportSelected.ID_Informe, descripcion);
 
         await Swal.fire({
                 icon: 'success',
