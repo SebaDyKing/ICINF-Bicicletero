@@ -491,3 +491,33 @@ export async function getOwnerHistory(req, res) {
     handleErrorServer(res, 500, "Error al obtener historial", error.message);
   }
 }
+
+export const getOwnersByBicicletero = async (req, res) => {
+    const {id_bicicletero} = req.query
+    //verifica que la bdd este iniciada
+    if (!AppDataSource.isInitialized) {
+        await AppDataSource.initialize();
+    }
+
+    // consulta SQL para ingresar a tabla Users
+    const query = `
+        SELECT DISTINCT
+        o.rut,
+        o.nombre,
+        o.apellido
+        FROM owner o
+        INNER JOIN bicycle b ON b.rut_duenio = o.rut
+        INNER JOIN store s ON s.id_bicicleta = b.id_bicicleta
+        WHERE s.id_bicicletero = $1
+        AND s.fecha_salida IS NULL;
+    `;
+    try {
+        // Ejecuta consultas (consulta, valoresConsulta)
+        const resultQuery = await AppDataSource.query(query, [id_bicicletero]);
+        handleSuccess(res, 200, "Usuarios obtenido correctamente", {
+            resultQuery
+        });
+    } catch (error) {
+        return handleErrorServer(res, 500, "Error del servidor", error.message);
+    }
+}
