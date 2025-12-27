@@ -150,7 +150,7 @@ const IngresoModal = ({ onClose, onSuccess }) => {
     setSelectedBici(''); 
     
     try {
-      const res = await guardService.getOwnerByRut(rutBusqueda);
+      const res = await guardService.getOwnerWithBicycles(rutBusqueda);
       const dataDueño = res?.data?.data || res?.data || res;
 
       if (!dataDueño || !dataDueño.rut) {
