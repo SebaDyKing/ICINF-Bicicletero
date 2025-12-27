@@ -6,6 +6,7 @@ import Swal from 'sweetalert2'
 import { useNavigate } from 'react-router-dom';
 
 const IncidentesPage = () => {
+  const FRONT_URL = 'http://localhost:3000'
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
   const [reports, setReports] = useState([]);
@@ -23,7 +24,7 @@ const IncidentesPage = () => {
     // }
     const fetchReports = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/guards/report/getAllReports`);
+        const res = await axios.get(`${FRONT_URL}/api/guards/report/getAllReports`);
         console.log(res)
         console.log(res.data.data.resultCant[0].count)
         
@@ -67,7 +68,7 @@ const IncidentesPage = () => {
 
     try {
         const res = await axios.put(
-        "http://localhost:3000/api/guards/report/updateReport",
+        `${FRONT_URL}/api/guards/report/updateReport`,
             {
             ID_Informe: reportSelected.ID_Informe,
             descripcion

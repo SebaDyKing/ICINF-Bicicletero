@@ -6,8 +6,8 @@ import Swal from 'sweetalert2'
 
 // Componente Básico de Modal
 const NewIncidentModal  = ({ isOpen, onClose }) => {
+  const FRONT_URL = 'http://localhost:3000'
   if (!isOpen) return null;
-
   const [fecha, setFecha] = useState('')
   const [bicicletero, setBicicletero] = useState('')
   const [descripcion, setDescripcion] = useState('')
@@ -28,13 +28,13 @@ const NewIncidentModal  = ({ isOpen, onClose }) => {
     try {
       if (bicicletero === '') throw new Error('Seleccione un bicicletero.')
         
-      const users = await axios.get('http://localhost:3000/api/owners/getAllOwners')
+      const users = await axios.get(`${FRONT_URL}/api/owners/getAllOwners`)
       console.log(users)
 
       const emails = users.data.data.map(owner => owner.email)
       console.log(emails)
 
-      const res = await axios.post('http://localhost:3000/api/guards/report/createReport', {
+      const res = await axios.post(`${FRONT_URL}/api/guards/report/createReport`, {
         emails,
         fecha, 
         bicicletero,
