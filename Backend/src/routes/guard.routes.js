@@ -17,14 +17,22 @@ import {
 } from "../controllers/owner.controller.js";
 
 import { authMiddleware, autorizeEntities } from "../middlewares/auth.middleware.js";
-
-import Report from './reports.routes.js'
+import Report from './reports.routes.js';
 
 const router = Router();
 
-router.use('/report', Report)
+// Sub-rutas para reportes (ej: /api/guard/report/...)
+router.use('/report', Report);
 
-// Rutas para la gestión de ingresos y retiros
+// ==========================================
+//      GESTIÓN DE INGRESOS Y SALIDAS
+// ==========================================
+
+/**
+ * @route POST /api/guard/ingreso
+ * @brief Registra la entrada de una bicicleta.
+ * @access Guardia
+ */
 router.post(
   "/ingreso",
   authMiddleware,
@@ -32,6 +40,11 @@ router.post(
   registrarIngreso
 );
 
+/**
+ * @route PUT /api/guard/retiro
+ * @brief Registra la salida de una bicicleta.
+ * @access Guardia
+ */
 router.put(
   "/retiro",
   authMiddleware,
@@ -39,6 +52,11 @@ router.put(
   registrarRetiro
 );
 
+/**
+ * @route GET /api/guard/activos
+ * @brief Obtiene el listado de bicicletas actualmente dentro del recinto.
+ * @access Guardia, Central
+ */
 router.get(
   "/activos",
   authMiddleware,
@@ -46,6 +64,11 @@ router.get(
   getRegistrosActivos
 );
 
+/**
+ * @route GET /api/guard/capacidades
+ * @brief Muestra la ocupación de los bicicleteros.
+ * @access Guardia, Owner, Central
+ */
 router.get(
   "/capacidades",
   authMiddleware,
@@ -53,6 +76,11 @@ router.get(
   getCapacidadesBicicleteros
 );
 
+/**
+ * @route GET /api/guard/estadisticas
+ * @brief Obtiene métricas del día (Ingresos vs Retiros).
+ * @access Guardia, Central
+ */
 router.get(
   "/estadisticas",
   authMiddleware,
@@ -60,7 +88,15 @@ router.get(
   getEstadisticas
 );
 
-// Rutas para la gestión de propietarios
+// ==========================================
+//          GESTIÓN DE PROPIETARIOS
+// ==========================================
+
+/**
+ * @route POST /api/guard/owner/create
+ * @brief Crea un nuevo dueño en el sistema.
+ * @access Guardia, Central
+ */
 router.post(
   "/owner/create", 
   authMiddleware,
@@ -68,6 +104,12 @@ router.post(
   createOwner
 );
 
+/**
+ * @route GET /api/guard/owner/get
+ * @brief Busca un dueño específico.
+ * @note Revisa si el controlador espera el RUT por query param (?rut=...) o body.
+ * @access Guardia, Central
+ */
 router.get(
   "/owner/get",
   authMiddleware,
@@ -75,6 +117,11 @@ router.get(
   getOwner
 );
 
+/**
+ * @route GET /api/guard/owner/getAll
+ * @brief Obtiene la lista de todos los dueños.
+ * @access Guardia, Central
+ */
 router.get(
   "/owner/getAll",
   authMiddleware,
@@ -82,6 +129,11 @@ router.get(
   getAllOwners
 );
 
+/**
+ * @route PUT /api/guard/owner/update
+ * @brief Actualiza datos de un dueño.
+ * @access Guardia, Central
+ */
 router.put(
   "/owner/update",
   authMiddleware,
@@ -89,6 +141,11 @@ router.put(
   updateOwner
 );
 
+/**
+ * @route DELETE /api/guard/owner/delete
+ * @brief Elimina un dueño del sistema.
+ * @access Guardia, Central
+ */
 router.delete(
   "/owner/delete",
   authMiddleware,
