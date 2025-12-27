@@ -5,6 +5,17 @@ import { formatRut } from "../utils/rutUtils.js";
 import { Eye, EyeOff } from "lucide-react";
 import Swal from "sweetalert2";
 
+/**
+ * @component RegisterPage
+ * @brief Formulario de registro para nuevos dueños (usuarios).
+ *
+ * Este componente gestiona el alta de usuarios en el sistema.
+ * Sus principales características son:
+ * 1. Validación y formateo en tiempo real del RUT.
+ * 2. Restricción de entrada para el teléfono (solo números).
+ * 3. Comunicación asíncrona con el backend para crear la cuenta.
+ * 4. Redirección al flujo de verificación de correo tras un éxito.
+ */
 const RegisterPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -19,6 +30,10 @@ const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  /**
+   * @brief Manejador de cambios en los inputs.
+   * Aplica lógica específica dependiendo del campo modificado.
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -40,6 +55,10 @@ const RegisterPage = () => {
     }
   };
 
+  /**
+   * @brief Envío del formulario al backend.
+   * Transforma los datos necesarios antes de enviar.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -72,7 +91,7 @@ const RegisterPage = () => {
     }
   };
 
-  // Clases compartidas para los inputs para mantener consistencia
+  // Estilos base compartidos para inputs y labels
   const inputClasses =
     "w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition";
   const labelClasses = "block text-gray-700 font-medium mb-1 text-sm";
@@ -121,6 +140,7 @@ const RegisterPage = () => {
               <label className={labelClasses}>Nombre</label>
               <input
                 name="nombre"
+                placeholder="Juan"
                 onChange={handleChange}
                 value={formData.nombre}
                 className={inputClasses}
@@ -131,6 +151,7 @@ const RegisterPage = () => {
               <label className={labelClasses}>Apellido</label>
               <input
                 name="apellido"
+                placeholder="Peréz"
                 onChange={handleChange}
                 value={formData.apellido}
                 className={inputClasses}

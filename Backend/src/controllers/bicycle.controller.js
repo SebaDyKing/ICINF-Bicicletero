@@ -31,8 +31,16 @@ export const createBicycle = async (req, res) => {
 
     if (newBicycle === null) {
       return handleErrorClient(res, 404, "El dueño indicado no existe.");
-    }
-    
+    };
+
+    if (newBicycle === "EXISTS") {
+      return handleErrorClient(
+        res,
+        409,
+        "Ya existe una bicicleta con ese alias."
+      );
+    };
+
     handleSuccess(res, 201, "Bicicleta creada exitosamente.", {
       ...newBicycle,
       mensaje: `Se ha generado el código ${newBicycle.alias}`,
@@ -51,10 +59,10 @@ export const createBicycle = async (req, res) => {
  */
 export const getBicyclesByOwner = async (req, res) => {
   try {
-    const { rut } = req.params; 
+    const { rut } = req.params;
 
     if (!rut) {
-        return handleErrorClient(res, 400, "El RUT del dueño es obligatorio.");
+      return handleErrorClient(res, 400, "El RUT del dueño es obligatorio.");
     }
 
     const bicycles = await getBicyclesByOwnerService(rut);
@@ -80,6 +88,14 @@ export const deleteBicycleByOwner = async (req, res) => {
   try {
     const { id_bicicleta } = req.params;
     const result = await deleteBicycleService(id_bicicleta);
+
+    if (result === "PARKED") {
+      return handleErrorClient(
+        res,
+        404,
+        "No se puede eliminar la bicicleta porque se encuentra actualmente estacionada en la universidad."
+      );
+    }
 
     if (result.affected === 0) {
       return handleErrorClient(res, 404, "Bicicleta no encontrada");

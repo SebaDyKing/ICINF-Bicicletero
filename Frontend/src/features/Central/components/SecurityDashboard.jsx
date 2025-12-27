@@ -259,12 +259,12 @@ export default function SecurityDashboard() {
       setInputRut('')
     } catch (error) {
       console.error(error);
-      setUserSelected(null); // Limpia
       Swal.fire({
                 icon: 'error',
                 title: error || "Usuario no encontrado.",
                 timer: 2000
               })
+      setUserSelected(null); // Limpia
     }
   };
 

@@ -2,35 +2,42 @@ import React, { useState, useEffect, useRef } from 'react';
 import { guardService } from '../services/guard.service';
 import { FaKeyboard, FaQrcode } from 'react-icons/fa'; 
 import { Html5QrcodeScanner, Html5QrcodeScannerState } from 'html5-qrcode'; 
+import Swal from 'sweetalert2'; 
 
 /**
- * @component IngresoModal
- * @description Modal que permite registrar el ingreso de una bicicleta mediante
- * búsqueda manual (RUT) o escaneo de código QR.
+ * Componente IngresoModal
+ * -----------------------
+ * Modal interactivo que permite al guardia registrar el ingreso de una bicicleta.
+ * Soporta dos modos de operación:
+ * 1. MANUAL: Búsqueda por RUT del usuario.
+ * 2. QR: Escaneo directo mediante la cámara del dispositivo.
+ * * @param {function} onClose - Función para cerrar el modal.
+ * @param {function} onSuccess - Callback para recargar la tabla tras un registro exitoso.
  */
 const IngresoModal = ({ onClose, onSuccess }) => {
-  const [activeTab, setActiveTab] = useState('manual');
-  const [bicicleteros, setBicicleteros] = useState([]);
+  // --- CONTROL DE PESTAÑAS (TABS) ---
+  const [activeTab, setActiveTab] = useState('manual'); // 'manual' | 'qr'
+  const [bicicleteros, setBicicleteros] = useState([]); // Lista de ubicaciones disponibles
   
-  // --- Estados Manual ---
+  // --- ESTADOS PARA FLUJO MANUAL ---
   const [rutBusqueda, setRutBusqueda] = useState('');
-  const [ownerData, setOwnerData] = useState(null);
-  const [selectedBici, setSelectedBici] = useState('');
+  const [ownerData, setOwnerData] = useState(null);       // Datos del usuario encontrado
+  const [selectedBici, setSelectedBici] = useState('');   // ID de la bicicleta seleccionada
   const [selectedBicicletero, setSelectedBicicletero] = useState('');
   
-  // --- Estados QR ---
-  const [scanResult, setScanResult] = useState(null); 
+  // --- ESTADOS PARA FLUJO QR ---
+  const [scanResult, setScanResult] = useState(null);     // Datos decodificados del QR
   const [selectedBicicleteroQR, setSelectedBicicleteroQR] = useState('');
-  const [cameraActive, setCameraActive] = useState(true); 
-  const scannerRef = useRef(null);
+  const [cameraActive, setCameraActive] = useState(true); // Controla si la cámara está encendida
+  const scannerRef = useRef(null);                        // Referencia mutable para la instancia del escáner
 
-  // --- Estados Generales ---
+  // --- ESTADOS DE UI GENERALES ---
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   /**
-   * @function formatRut
-   * @description Formatea el RUT visualmente (XX.XXX.XXX-X).
+   * Formatea el RUT en tiempo real (agrega puntos y guión).
+   * @param {string} value - RUT sin formato.
    */
   const formatRut = (value) => {
     const cleaned = value.replace(/[^0-9kK]/g, "");
@@ -44,30 +51,31 @@ const IngresoModal = ({ onClose, onSuccess }) => {
     setRutBusqueda(formatRut(e.target.value));
   };
 
-  // Cargar bicicleteros al iniciar
+  // Carga inicial de la lista de bicicleteros (Racks)
   useEffect(() => {
     const loadBicicleteros = async () => {
       try {
         const res = await guardService.getBicicleteros();
-        
-        // Optimización: Buscamos el array en las ubicaciones probables
         const lista = res?.data?.bicicleteros || res?.data || res || [];
-        
         if (Array.isArray(lista)) {
             setBicicleteros(lista);
+            // Pre-selecciona el primer bicicletero para agilizar el flujo QR
             if (lista.length > 0) setSelectedBicicleteroQR(lista[0].id_bicicletero);
         }
-      } catch (err) {
-        console.error("Error cargando bicicleteros", err); // Mantenemos logs de error
-      }
+      } catch (err) { console.error("Error cargando bicicleteros", err); }
     };
     loadBicicleteros();
   }, []);
 
-  // ================= LÓGICA DEL ESCÁNER (QR) =================
+  /**
+   * ================= LÓGICA DEL ESCÁNER (QR) =================
+   * Este efecto gestiona el ciclo de vida de la cámara.
+   * Se activa solo cuando la pestaña es 'qr' y la cámara está activa.
+   */
   useEffect(() => {
     let scanner = null;
-
+    
+    // Función de limpieza para detener la cámara correctamente
     const cleanupScanner = async () => {
         if (scannerRef.current) {
             try {
@@ -81,31 +89,45 @@ const IngresoModal = ({ onClose, onSuccess }) => {
     };
 
     if (activeTab === 'qr' && !scanResult && cameraActive) {
+      // Retraso intencional para asegurar que el DOM ('qr-reader') esté listo
       const timer = setTimeout(async () => {
         await cleanupScanner();
         try {
+            // Inicialización de la librería html5-qrcode
             scanner = new Html5QrcodeScanner(
                 "qr-reader",
                 { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0, rememberLastUsedCamera: true },
                 false
             );
             scannerRef.current = scanner;
+            
+            // Callback de éxito al leer un código
             scanner.render(
                 (decodedText) => {
                     try {
                         const data = JSON.parse(decodedText);
-                        // Validamos que el QR sea de nuestro sistema
+                        // Validación básica del formato del QR
                         if (data.rut && (data.idBicicleta || data.id_bicicleta)) {
                             setScanResult(data);
-                            cleanupScanner(); 
+                            cleanupScanner(); // Detenemos cámara al encontrar un QR válido
                             setError('');
-                        } else { alert("QR inválido: No pertenece al sistema de bicicletas."); }
+                        } else { 
+                            // Feedback visual si el QR no es del sistema
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'QR Inválido',
+                                text: 'Este código no pertenece al sistema de bicicletas.',
+                                confirmButtonColor: '#d33',
+                            });
+                        }
                     } catch (err) { console.error("Error parseando QR", err); }
                 },
                 (errorMessage) => { /* Ignoramos errores de lectura cuadro a cuadro */ }
             );
         } catch (err) { setError("No se pudo iniciar la cámara."); }
       }, 500);
+      
+      // Cleanup al desmontar o cambiar dependencias
       return () => { clearTimeout(timer); cleanupScanner(); };
     } else { cleanupScanner(); }
   }, [activeTab, scanResult, cameraActive]);
@@ -116,7 +138,10 @@ const IngresoModal = ({ onClose, onSuccess }) => {
     setError('');
   };
 
-  // --- BÚSQUEDA DE RUT ---
+  /**
+   * Busca al dueño en la base de datos usando el RUT ingresado.
+   * Si existe, carga sus bicicletas en el selector.
+   */
   const handleBuscarRut = async () => {
     if (!rutBusqueda) return;
     setLoading(true);
@@ -126,19 +151,15 @@ const IngresoModal = ({ onClose, onSuccess }) => {
     
     try {
       const res = await guardService.getOwnerByRut(rutBusqueda);
-
-      // Optimización: Unificamos la lógica de desempaquetado de respuesta
       const dataDueño = res?.data?.data || res?.data || res;
 
       if (!dataDueño || !dataDueño.rut) {
-          setError('Usuario no encontrado o respuesta inválida.');
+          setError('Usuario no encontrado.');
       } else {
           setOwnerData(dataDueño);
-          // Auto-seleccionar la primera bici
           const bicis = dataDueño.bicycles || dataDueño.bicicletas || [];
           if (bicis.length > 0) setSelectedBici(bicis[0].id_bicicleta);
       }
-
     } catch (err) {
       console.error(err);
       setError('Usuario no encontrado o error de conexión.');
@@ -147,6 +168,9 @@ const IngresoModal = ({ onClose, onSuccess }) => {
     }
   };
 
+  /**
+   * Envía el formulario de ingreso MANUAL al backend.
+   */
   const handleSubmitManual = async () => {
     if (!selectedBici || !selectedBicicletero) return;
     try {
@@ -155,16 +179,35 @@ const IngresoModal = ({ onClose, onSuccess }) => {
         id_bicicleta: selectedBici,
         id_bicicletero: parseInt(selectedBicicletero)
       });
-      alert("Ingreso registrado con éxito");
+      
+      // Feedback de Éxito
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Ingreso Registrado!',
+        text: 'La bicicleta ha sido ingresada correctamente.',
+        confirmButtonColor: '#16a34a',
+        confirmButtonText: 'Aceptar'
+      });
+
       onSuccess();
       onClose();
     } catch (err) {
       const resData = err.response?.data;
       const mensajeError = resData?.errorDetails || resData?.message || "Error al registrar ingreso";
-      setError(mensajeError);
+      
+      // Feedback de Error
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al Ingresar',
+        text: mensajeError,
+        confirmButtonColor: '#d33',
+      });
     }
   };
 
+  /**
+   * Envía el formulario de ingreso vía QR al backend.
+   */
   const handleSubmitQR = async () => {
     if (!scanResult || !selectedBicicleteroQR) return;
     setLoading(true);
@@ -175,13 +218,27 @@ const IngresoModal = ({ onClose, onSuccess }) => {
             id_bicicleta: idBici,
             id_bicicletero: parseInt(selectedBicicleteroQR)
         });
-        alert("Ingreso por QR registrado con éxito");
+
+        await Swal.fire({
+            icon: 'success',
+            title: '¡Ingreso por QR Exitoso!',
+            text: 'La bicicleta ha sido ingresada correctamente.',
+            confirmButtonColor: '#16a34a',
+            confirmButtonText: 'Aceptar'
+        });
+
         onSuccess();
         onClose();
     } catch (err) {
         const resData = err.response?.data;
         const mensajeError = resData?.errorDetails || resData?.message || "Error al registrar ingreso QR";
-        setError(mensajeError);
+        
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: mensajeError,
+            confirmButtonColor: '#d33',
+        });
     } finally { setLoading(false); }
   };
 
@@ -191,13 +248,13 @@ const IngresoModal = ({ onClose, onSuccess }) => {
     <div className="fixed inset-0 bg-black/50 flex justify-center items-start pt-10 z-50 backdrop-blur-sm transition-opacity">
       <div className="bg-white rounded-xl w-full max-w-lg shadow-2xl relative overflow-hidden animate-slide-down">
         
-        {/* Header */}
+        {/* Encabezado del Modal */}
         <div className="bg-[#003366] px-6 py-4 flex justify-between items-center">
           <h2 className="text-xl font-bold text-white">Ingresar Nueva Bicicleta</h2>
           <button onClick={onClose} className="text-white hover:text-gray-300 text-2xl leading-none">&times;</button>
         </div>
 
-        {/* Pestañas de Navegación */}
+        {/* Navegación (Tabs) */}
         <div className="flex border-b bg-gray-50">
           <button 
             className={`flex-1 py-3 text-sm font-medium flex justify-center items-center gap-2 transition-colors
@@ -215,10 +272,8 @@ const IngresoModal = ({ onClose, onSuccess }) => {
           </button>
         </div>
 
-        {/* Contenido Principal */}
         <div className="p-6">
-          
-          {/* --- TAB MANUAL --- */}
+          {/* === CONTENIDO PESTAÑA MANUAL === */}
           {activeTab === 'manual' && (
             <div className="space-y-5 animate-fade-in">
               <div>
@@ -244,13 +299,13 @@ const IngresoModal = ({ onClose, onSuccess }) => {
               </div>
               {error && <p className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-100">{error}</p>}
 
+              {/* Resultado de búsqueda manual */}
               {ownerData && (
                 <div className="bg-blue-50 p-5 rounded-xl border border-blue-100 space-y-4 animate-fade-in-up">
                   <div className="border-b border-blue-200 pb-3">
                     <p className="text-blue-900 font-bold text-lg">{ownerData.nombre} {ownerData.apellido}</p>
                     <p className="text-gray-600 text-sm">{ownerData.rut}</p>
                   </div>
-                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Seleccionar Bicicleta</label>
                     <select 
@@ -266,7 +321,6 @@ const IngresoModal = ({ onClose, onSuccess }) => {
                       ))}
                     </select>
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Ubicación de Ingreso</label>
                     <select 
@@ -287,20 +341,20 @@ const IngresoModal = ({ onClose, onSuccess }) => {
             </div>
           )}
 
-          {/* --- TAB QR --- */}
+          {/* === CONTENIDO PESTAÑA QR === */}
           {activeTab === 'qr' && (
             <div className="flex flex-col items-center animate-fade-in">
                 {!scanResult ? (
                     <div className="w-full">
                         {cameraActive ? (
                             <>
-                                <div className="bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-gray-300 relative min-h-[250px] flex items-center justify-center mb-2">
+                                <div className="bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-gray-300 relative min-h-62.5 flex items-center justify-center mb-2">
                                     <div id="qr-reader" className="w-full h-full"></div>
                                 </div>
                                 <button onClick={() => setCameraActive(false)} className="w-full py-3 bg-blue-900 text-white rounded-lg font-bold hover:bg-blue-800 transition shadow-sm mb-3">Detener Escáner</button>
                             </>
                         ) : (
-                            <div className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 w-full min-h-[250px] gap-6">
+                            <div className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 w-full min-h-62.5 gap-6">
                                 <h3 className="text-gray-600 font-medium text-xl">El escáner está detenido</h3>
                                 <button onClick={() => setCameraActive(true)} className="px-8 py-3 bg-blue-900 text-white rounded-lg font-bold hover:bg-blue-800 transition shadow-lg flex items-center gap-2"><FaQrcode /> Iniciar Escáner</button>
                             </div>
@@ -331,7 +385,7 @@ const IngresoModal = ({ onClose, onSuccess }) => {
           )}
         </div>
 
-        {/* Footer Manual */}
+        {/* Footer del Modal (Botones para pestaña Manual) */}
         {activeTab === 'manual' && (
           <div className="p-4 border-t flex justify-end gap-3 bg-gray-50">
             <button onClick={onClose} className="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-white transition">Cancelar</button>

@@ -1,14 +1,19 @@
 "use strict";
+import { IsNull } from "typeorm";
 import { AppDataSource } from "../config/configDb.js";
 import { Bicycle } from "../models/bicycle.entity.js";
 import { Owner } from "../models/owner.entity.js";
+import { Store } from "../models/store.entity.js";
 
 /**
- * @function createBicycleService
- * @brief Crea una nueva bicicleta y la asocia a un dueño existente.
- * @details Genera un alias automático (ej: BIC-001) contando las bicicletas previas del dueño.
- * @param {object} data - Objeto con datos de la bici y rut_duenio.
- * @returns {Promise<Bicycle|null>} La bicicleta creada o null si el dueño no existe.
+ * @brief Servicio para registrar una nueva bicicleta en el sistema.
+ *
+ * Este servicio valida primero la existencia del dueño mediante su RUT. Luego, verifica
+ * que el dueño no tenga ya registrada una bicicleta con el mismo alias (para garantizar
+ * nombres únicos por usuario). Si las validaciones pasan, crea y guarda la nueva entidad.
+ *
+ * @param {Object} data Objeto con los datos de la bici (alias, color, marca, modelo, tipo, rut_duenio).
+ * @returns {Promise<Object|null|string>} Retorna el objeto de la bicicleta creada, `null` si el dueño no existe, o "EXISTS" si el alias ya está en uso.
  */
 export const createBicycleService = async (data) => {
   const bicycleRepository = AppDataSource.getRepository(Bicycle);
@@ -18,17 +23,18 @@ export const createBicycleService = async (data) => {
   const owner = await ownerRepository.findOneBy({ rut: data.rut_duenio });
   if (!owner) return null;
 
-  // Contar cuántas bicis tiene para generar el siguiente alias
-  const count = await bicycleRepository.countBy({
-    owner: { rut: data.rut_duenio },
+  const exist = await bicycleRepository.findOne({
+    where: {
+      alias: data.alias,
+      owner: { rut: data.rut_duenio },
+    },
   });
 
-  const nextAliasNumber = count + 1;
-  const alias = `BIC-${String(nextAliasNumber).padStart(3, "0")}`;
+  if (exist) return "EXISTS";
 
   // Crear la bicicleta (TypeORM maneja la relación automáticamente)
   const newBicycle = bicycleRepository.create({
-    alias: alias,
+    alias: data.alias,
     color: data.color,
     modelo: data.modelo,
     marca: data.marca,
@@ -40,35 +46,63 @@ export const createBicycleService = async (data) => {
 };
 
 /**
- * @function getBicyclesByOwnerService
- * @brief Busca un dueño y retorna su información junto con sus bicicletas.
- * @param {string} rut - RUT del dueño a buscar.
- * @returns {Promise<Owner|null>} Objeto Owner con relación 'bicycles' cargada.
+ * @brief Servicio para obtener las bicicletas de un dueño y su estado actual.
+ *
+ * Este servicio realiza una consulta a la base de datos filtrando por el RUT del dueño
+ * e incluyendo la relación con el historial de movimientos ('stores').
+ * Posteriormente, procesa cada bicicleta para determinar dinámicamente la propiedad
+ * "isParked" (verificando si existe un ingreso sin fecha de salida) y limpia el objeto
+ * eliminando el historial crudo antes de retornarlo.
+ *
+ * @param {string} rut RUT del dueño de las bicicletas.
+ * @returns {Promise<Array>} Retorna una promesa con el arreglo de bicicletas procesadas y su estado.
  */
 export const getBicyclesByOwnerService = async (rut) => {
-  const ownerRepository = AppDataSource.getRepository(Owner);
+  const bicycleRepository = AppDataSource.getRepository(Bicycle);
 
-  // Buscamos al Dueño y pedimos explícitamente la relación "bicycles"
-  const owner = await ownerRepository.findOne({
-    where: { rut: rut },
-    relations: ["bicycles"],
+  const bicycles = await bicycleRepository.find({
+    where: { owner: { rut: rut } },
+    relations: ["stores"],
+    order: { fecha_creacion: "ASC" },
   });
 
-  if (!owner) {
-    return null;
-  }
-
-  return owner;
+  return bicycles.map((bike) => {
+    const isParked = bike.stores && bike.stores.some((store) => store.fechaSalida === null);
+    const { stores, ...bikeData } = bike;
+    return {
+      ...bikeData,
+      isParked: isParked,
+    };
+  });
 };
 
 /**
- * @function deleteBicycleService
- * @brief Elimina una bicicleta de la base de datos por su ID.
- * @param {number} id_bicicleta - ID de la bicicleta a eliminar.
+ * @brief Servicio para eliminar una bicicleta.
+ *
+ * Este servicio verifica primero si la bicicleta se encuentra actualmente estacionada
+ * (tiene un registro de ingreso sin salida en la tabla 'store'). Si está estacionada,
+ * impide la eliminación retornando "PARKED". De lo contrario, procede a eliminar
+ * el registro de la bicicleta de la base de datos.
+ *
+ * @param {number} id_bicicleta ID único de la bicicleta a eliminar.
+ * @returns {Promise<Object|string>} Retorna el resultado de la eliminación o el string "PARKED" si no es posible borrarla.
  */
 export const deleteBicycleService = async (id_bicicleta) => {
   try {
     const bicycleRepository = AppDataSource.getRepository(Bicycle);
+    const storeRepository = AppDataSource.getRepository(Store);
+
+    const isParked = await storeRepository.findOne({
+      where: {
+        bicycle: { id_bicicleta: id_bicicleta },
+        fechaSalida: IsNull(),
+      },
+    });
+
+    if (isParked) {
+      return "PARKED";
+    }
+
     return await bicycleRepository.delete({ id_bicicleta });
   } catch (error) {
     throw new Error(`Error al eliminar bicicleta: ${error.message}`);
