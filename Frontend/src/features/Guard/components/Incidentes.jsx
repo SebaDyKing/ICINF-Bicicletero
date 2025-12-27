@@ -132,6 +132,19 @@ const IncidentesPage = () => {
                   <th className="p-4 text-center">Acciones</th> 
                 </tr>
               </thead>
+
+              {reports.length === 0 ? (
+                <tr>
+                  {/* IMPORTANTE: colSpan debe ser igual al número de columnas de tu cabecera (ID, Fecha, etc.) */}
+                  <td colSpan="6" className="p-8 text-center text-gray-500">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      {/* Opcional: Un icono para que se vea más bonito */}
+                      <span className="text-2xl">📂</span> 
+                      <p>No se encuentran reportes registrados</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
               <tbody className="divide-y divide-gray-100">
                 {reports.map((r) => (
                   <tr key={r.ID_Informe} className="hover:bg-gray-50 transition-colors">
@@ -152,6 +165,7 @@ const IncidentesPage = () => {
                   </tr>
                 ))}
               </tbody>
+              )}
             </table>
           </div>
         </div>
