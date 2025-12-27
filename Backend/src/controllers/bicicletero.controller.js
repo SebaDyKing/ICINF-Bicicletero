@@ -1,17 +1,18 @@
+import { AppDataSource } from "../config/configDb.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
 import { bicicleteroBodyPartialValidation } from "../validations/bicicletero.validations.js";
 import { 
   getBicicleterosService,
   updateBicicleteroService,
   createBicicleteroService,
-  deleteBicicleteroService
-} from "../service/bicicleRack.service.js";
+  deleteBicicleteroService,
+  getBicicleterosStatusService 
+} from "../service/bicicleRack.service.js"; 
 import { actualizarDashboard } from "../service/webSocket.service.js";
 
 /**
- * @brief Controlador para obtener la lista completa de bicicleteros.
- * @param {import("express").Request} req  Objeto de solicitud HTTP.
- * @param {import("express").Response} res Objeto de respuesta HTTP.
+ * @function getBicicletero
+ * @brief Obtiene la lista completa de bicicleteros registrados.
  */
 export async function getBicicletero(req, res) {
   try {
@@ -27,14 +28,14 @@ export async function getBicicletero(req, res) {
     });
 
   } catch (error) {
-    return handleErrorServer(res, 500, "Error del servidor", error.message);
+    console.error("Error al obtener bicicleteros:", error); // Mantenemos esto para que tú veas el error
+    return handleErrorServer(res, 500, "Error del servidor al obtener bicicleteros", error.message);
   }
 }
 
 /**
- * @brief Controlador para actualizar parcialmente un bicicletero existente.
- * @param {import("express").Request} req  Objeto de solicitud con datos a actualizar.
- * @param {import("express").Response} res Objeto de respuesta HTTP.
+ * @function updateBicicletero
+ * @brief Actualiza parcialmente los datos de un bicicletero.
  */
 export async function updateBicicletero(req, res) {
   try {
@@ -46,7 +47,6 @@ export async function updateBicicletero(req, res) {
     }
 
     const bicicleteroId = req.params.id;
-
     const updatedBicicletero = await updateBicicleteroService(bicicleteroId, value);
 
     if (!updatedBicicletero) {
@@ -60,16 +60,19 @@ export async function updateBicicletero(req, res) {
       longitud: updatedBicicletero.longitud,
       capacidad_maxima: updatedBicicletero.capacidad_maxima,
     });
+    
+    // Notificamos cambios a la central
+    if (req.io) actualizarDashboard(req.io);
 
   } catch (error) {
-    return handleErrorServer(res, 500, "Error del servidor", error.message);
+    console.error("Error al actualizar bicicletero:", error);
+    return handleErrorServer(res, 500, "Error del servidor al actualizar", error.message);
   }
 }
 
 /**
- * @brief Controlador para crear un nuevo bicicletero.
- * @param {import("express").Request} req  Objeto de solicitud con los datos del nuevo bicicletero.
- * @param {import("express").Response} res Objeto de respuesta HTTP.
+ * @function createBicicletero
+ * @brief Crea un nuevo registro de bicicletero (Ubicación).
  */
 export async function createBicicletero(req, res) {
   try {
@@ -87,25 +90,24 @@ export async function createBicicletero(req, res) {
       nombre: newBicicletero.nombre,
       latitud: newBicicletero.latitud,
       longitud: newBicicletero.longitud,
-      capacidad_maxima: newBicicletero.capacidad_maxima,
-      imagen: newBicicletero.imagen,
+      capacidad_maxima: newBicicletero.capacidad_maxima
     });
-    actualizarDashboard(req.io);
+
+    if (req.io) actualizarDashboard(req.io);
     
   } catch (error) {
-    return handleErrorServer(res, 500, "Error del servidor", error.message);
+    console.error("Error al crear bicicletero:", error);
+    return handleErrorServer(res, 500, "Error del servidor al crear bicicletero", error.message);
   }
 }
 
 /**
- * @brief Controlador para eliminar un bicicletero por su ID.
- * @param {import("express").Request} req  Objeto de solicitud que contiene el ID del bicicletero a eliminar.
- * @param {import("express").Response} res Objeto de respuesta HTTP.
+ * @function deleteBicicletero
+ * @brief Elimina un bicicletero del sistema.
  */
 export async function deleteBicicletero(req, res) {
   try {
     const { id } = req.params;
-
     const resultado = await deleteBicicleteroService(id);
 
     if (resultado.affected === 0) {
@@ -116,7 +118,31 @@ export async function deleteBicicletero(req, res) {
       message: `El bicicletero con ID ${id} ha sido eliminado.`,
     });
 
+    if (req.io) actualizarDashboard(req.io);
+
   } catch (error) {
-    return handleErrorServer(res, 500, "Error del servidor", error.message);
+    console.error("Error al eliminar bicicletero:", error);
+    return handleErrorServer(res, 500, "Error del servidor al eliminar", error.message);
+  }
+}
+
+/**
+ * @function getBicicleterosStatus
+ * @brief Obtiene el estado de ocupación (Lleno/Disponible).
+ */
+export async function getBicicleterosStatus(req, res) {
+  try {
+    const bicicleteros = await getBicicleterosStatusService();
+
+    const dataProcesada = bicicleteros.map(b => ({
+        ...b,
+        status: b.occupied >= b.total ? 'Lleno' : 'Disponible'
+    }));
+
+    handleSuccess(res, 200, "Estado obtenido exitosamente", dataProcesada);
+
+  } catch (error) {
+    console.error("Error status bicicleteros:", error);
+    handleErrorServer(res, 500, "Error obteniendo estado de bicicleteros", error.message);
   }
 }

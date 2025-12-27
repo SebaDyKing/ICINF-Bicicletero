@@ -1,5 +1,4 @@
 import { MapPin, Clock, Home } from 'lucide-react'; 
-import { getBicicletero } from '../services/BicycleRack.Services'
 
 const bicicleterosData = [
   {
