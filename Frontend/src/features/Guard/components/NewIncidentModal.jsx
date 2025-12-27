@@ -1,20 +1,39 @@
 import axios from 'axios';
 import { X, Upload } from 'lucide-react';
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2'
-import { createReportService, getOwnersByBicicleteroService } from '../services/guardReports.service';
+import { createReportService, getOwnersByBicicleteroService, getBicicleterosService} from '../services/guardReports.service';
 
 // Componente Básico de Modal
 const NewIncidentModal  = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
   const [fecha, setFecha] = useState('')
   const [bicicletero, setBicicletero] = useState('')
-  const [bicicleteroID, setBicicleteroID] = useState(1)
   const [descripcion, setDescripcion] = useState('')
+  const [listaBicicleteros, setListaBicicleteros] = useState([])
   const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState("");
   const navigate = useNavigate()
+
+  useEffect(() => {
+  const fetchBicicleteros = async () => {
+    try {
+      const res = await getBicicleterosService();
+      const bicicleteros = res.data.data
+      console.log(bicicleteros)
+      setListaBicicleteros(bicicleteros);
+    }catch(error){
+      Swal.fire({
+        icon: 'error',
+        title: 'Error.',
+        text: error,
+        timer: 2000
+      })
+    }
+  };
+  fetchBicicleteros();
+}, []);
 
   const handleDivClick = () => {
     fileInputRef.current.click(); 
@@ -29,10 +48,8 @@ const NewIncidentModal  = ({ isOpen, onClose }) => {
     try {
       if (bicicletero === '') throw new Error('Seleccione un bicicletero.')
       console.log(bicicletero)
-      if (bicicletero === 'FACE') setBicicleteroID(1)
-      if (bicicletero === 'Idiomas') setBicicleteroID(2)
         
-      const users = await getOwnersByBicicleteroService(bicicleteroID)
+      const users = await getOwnersByBicicleteroService(bicicletero)
       console.log(users)
       const emails = users.data.data.resultQuery.map(owner => owner.email)
       console.log(emails)
@@ -91,11 +108,19 @@ const NewIncidentModal  = ({ isOpen, onClose }) => {
           {/* Bicicletero */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Bicicletero</label>
-            <select value = {bicicletero} onChange={(e) => setBicicletero(e.target.value)}
-            className="w-full border border-gray-300 rounded-md p-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+            <select 
+              value={bicicletero} 
+              onChange={(e) => {
+                setBicicletero(e.target.value); 
+              }}
+              className="w-full border border-gray-300 rounded-md p-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+            >
               <option value="">Seleccione un bicicletero</option>
-              <option value="FACE">Bicicletero FACE</option>
-              <option value="Idiomas">Bicicletero Centro de Idiomas</option>
+              {listaBicicleteros.map((bicicletero) => (
+                <option key={bicicletero.id_bicicletero} value={bicicletero.id_bicicletero}>
+                  {bicicletero.nombre}
+                </option>
+              ))}
             </select>
           </div>
 
