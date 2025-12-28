@@ -98,7 +98,7 @@ const NewIncidentModal  = ({ isOpen, onClose }) => {
         </div>
 
         {/* Formulario */}
-        <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); onRegister(); }}>
+        <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); }}>
           
           {/* Fecha */}
           <div>
