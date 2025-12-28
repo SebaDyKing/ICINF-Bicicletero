@@ -41,9 +41,10 @@ export const loginUser = async (req, res) => {
 
         // Validar contraseña
         const isValidPass = await bcrypt.compare(contrasenia, userFound.contrasenia)
-        if(!isValidPass) handleErrorClient(res, 404, 'Contraseña incorrecta')
+        if(!isValidPass) return handleErrorClient(res, 404, 'Contraseña incorrecta')
 
-        let nombreCompleto = null;
+        let nombrePila = null;
+        let apellidoPila = null;
 
         try {
             if (userFound.tipo_usuario === 'Guard') {
@@ -51,7 +52,8 @@ export const loginUser = async (req, res) => {
                 const guardFound = await guardRepo.findOneBy({rut: rut});
 
                 if (guardFound) {
-                    nombreCompleto = `${guardFound.nombre} ${guardFound.apellido}`;
+                    nombrePila = guardFound.nombre;
+                    apellidoPila = guardFound.apellido;
                 }
             } 
             else if (userFound.tipo_usuario === 'Owner') {
@@ -59,18 +61,19 @@ export const loginUser = async (req, res) => {
                 const ownerFound = await ownerRepo.findOneBy({rut: rut});
 
                 if (ownerFound) {
-                    nombreCompleto = `${ownerFound.nombre}`;
+                    nombrePila = ownerFound.nombre;
+                    apellidoPila = ownerFound.apellido;
                 }
             }
         } catch (errName) {
             console.log("No se pudo obtener el nombre, pero el login sigue:", errName);
-            // Si falla esto, no importa, el login sigue, solo que sin nombre.
         }
 
         // JWT - Guarda en un JWT todas las variables que tenga dentro del sign
         const token = jwt.sign({
                 rut: userFound.rut,
-                nombre: nombreCompleto,
+                nombre: nombrePila,
+                apellido: apellidoPila,
                 entity: userFound.tipo_usuario
             }, SECRET_JWT_KEY, {
                 expiresIn: JWT_EXPIRES_IN
@@ -78,7 +81,8 @@ export const loginUser = async (req, res) => {
         return handleSuccess(res, 200, 'Usuario logeado exitosamente', {
             token: token,
             rut: userFound.rut,
-            nombre: nombreCompleto,
+            nombre: nombrePila,
+            apellido: apellidoPila,
             email: userFound.email,
             tipo_usuario: userFound.tipo_usuario,
         }) 

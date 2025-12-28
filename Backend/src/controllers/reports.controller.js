@@ -7,11 +7,6 @@ export const createReport = async (req, res) => {
     try {
         const {emails, fecha, descripcion, bicicletero} = req.body
         console.log(emails)
-        const files = req.files || {}
-        if (files.foto && files.foto[0]){
-            const foto = files.foto[0]
-            body.foto_url = `${req.protocol}://${req.get('host')}/uploads/${foto.filename}` //con esto crea la ruta
-        }
 
         if (fecha.length === 0) {
             return handleErrorClient(res, 400, "Fecha es requerida.")
@@ -20,10 +15,6 @@ export const createReport = async (req, res) => {
         if (descripcion.length === 0) {
             return handleErrorClient(res, 400, "El incidente debe tener una descripción breve.")
         }
-
-        // if (bicicletero) {
-        //     return handleErrorClient(res, 400, "Fecha es requerida")
-        // }
         
         //verifica que la bdd este iniciada
         if (!AppDataSource.isInitialized) {
@@ -46,10 +37,17 @@ export const createReport = async (req, res) => {
               descripcion, 
               bicicletero
             });
+        console.log(emails.length)
         
-        for (const email of emails){
+        if (emails.length !== 0){
+            for (const email of emails){
+            console.log(email)
             await sendAlertEmail(email, fecha, bicicletero, descripcion)
+            }
+        } else {
+            console.log('No hay usuarios afectados.')
         }
+        
     } catch (error) {
         return handleErrorServer(res, 500, "Error del servidor", error.message);
     }
@@ -149,8 +147,7 @@ export const getReport = async (req, res) => {
             id: resultQuery[0].ID_Informe,
             fecha: resultQuery[0].Fecha,
             descripcion: resultQuery[0].Descripcion,
-            bicicletero: resultQuery[0].Bicicletero,
-            informeurl: resultQuery[0].InformeURL
+            bicicletero: resultQuery[0].Bicicletero
         });
     } catch (error) {
         return handleErrorServer(res, 500, "Error del servidor", error.message);

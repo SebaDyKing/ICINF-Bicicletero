@@ -4,6 +4,7 @@ import { User, LogOut, Bell, FileText, Calendar, Plus, Edit, X, Trash2 } from 'l
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import { useNavigate } from 'react-router-dom';
+import { editReportService, getAllReportsService } from '../services/guardReports.service';
 
 const IncidentesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,8 +12,6 @@ const IncidentesPage = () => {
   const [reports, setReports] = useState([]);
   const [reportSelected, setReportSelected] = useState(null)
   const [cantReportes, setCantReportes] = useState(null)
-  const [fecha, setFecha] = useState('')
-  const [bicicletero, setBicicletero] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const navigate = useNavigate()
 
@@ -23,7 +22,7 @@ const IncidentesPage = () => {
     // }
     const fetchReports = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/guards/report/getAllReports`);
+        const res = await getAllReportsService()
         console.log(res)
         console.log(res.data.data.resultCant[0].count)
         
@@ -31,8 +30,7 @@ const IncidentesPage = () => {
           ID_Informe: r.ID_Informe,
           fecha: r.Fecha,
           descripcion: r.Descripcion,
-          bicicletero: r.Bicicletero,
-          imagenes: r.ImagenesURL
+          bicicletero: r.Bicicletero
         }));
         
 
@@ -66,13 +64,7 @@ const IncidentesPage = () => {
     console.log(typeof reportSelected.ID_Informe)
 
     try {
-        const res = await axios.put(
-        "http://localhost:3000/api/guards/report/updateReport",
-            {
-            ID_Informe: reportSelected.ID_Informe,
-            descripcion
-            }
-        );
+        await editReportService(reportSelected.ID_Informe, descripcion);
 
         await Swal.fire({
                 icon: 'success',
@@ -84,7 +76,7 @@ const IncidentesPage = () => {
         console.log(error);
         Swal.fire({
                 icon: 'error',
-                title: error.response?.data?.message || "Error en la solicitud",
+                title: error || error.response?.data?.message || "Error en la solicitud",
                 timer: 2000
               })
     }
@@ -135,30 +127,45 @@ const IncidentesPage = () => {
                   <th className="p-4">Fecha</th>
                   <th className="p-4">Bicicletero</th>
                   <th className="p-4 w-1/3">Descripción</th>
-                  <th className="p-4 text-center">Imágenes</th>
-                  <th className="p-4 text-center">Acciones</th> 
+                  <th className="p-4">Acciones</th> 
                 </tr>
               </thead>
+
+              {reports.length === 0 ? (
+                <tr>
+                  {/* IMPORTANTE: colSpan debe ser igual al número de columnas de tu cabecera (ID, Fecha, etc.) */}
+                  <td colSpan="5" className="p-8 text-center text-gray-500">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      {/* Opcional: Un icono para que se vea más bonito */}
+                      <span className="text-2xl">📂</span> 
+                      <p>No se encuentran reportes registrados</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
               <tbody className="divide-y divide-gray-100">
                 {reports.map((r) => (
                   <tr key={r.ID_Informe} className="hover:bg-gray-50 transition-colors">
-                    <td className="p-4 font-medium">{r.ID_Informe}</td>
-                    <td className="p-4">{formatDate(r.fecha)}</td>
-                    <td className="p-4">{r.bicicletero}</td>
-                    <td className="p-4 truncate max-w-xs" title={r.descripcion}>{r.descripcion}</td>
-                    <td className="p-4 text-center">
-                      <span className="bg-gray-100 px-3 py-1 rounded-full text-xs border border-gray-200">{r.imagenes} imágenes</span>
-                    </td>
-                    <td className="p-4 flex justify-end gap-2">
-                        <button className="flex items-center gap-1 text-blue-600 border border-blue-200 px-3 py-1.5 rounded-lg text-sm hover:bg-blue-50 font-medium" onClick={() => {
-                          setIsModalOpenEdit(true);
-                          setReportSelected(r)}}> 
-                          <Edit size={14}/> Editar
+                    <td className="p-5 wrap-break-word text-gray-600 text-base">{r.ID_Informe}</td>
+                    <td className="p-5 wrap-break-word text-gray-600 text-base">{formatDate(r.fecha)}</td>
+                    <td className="p-5 wrap-break-word text-gray-600 text-base">{r.bicicletero}</td>
+                    <td className="p-5 wrap-break-word text-gray-600 text-base" title={r.descripcion}>{r.descripcion}</td>
+                    <td className="p-5">
+                        <button 
+                          className="flex items-center bg-blue-50 text-blue-600 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-100 hover:text-blue-700 transition-all shadow-sm transform active:scale-95" 
+                          onClick={() => {
+                            setIsModalOpenEdit(true);
+                            setReportSelected(r)
+                          }}
+                        >
+                          <Edit size={18} className="stroke-2"/> {/* Ícono un poco más grande */}
+                          Editar
                         </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
+              )}
             </table>
           </div>
         </div>
@@ -180,7 +187,7 @@ const IncidentesPage = () => {
               </div>
       
               {/* Formulario */}
-              <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); onRegister(); }}>
+              <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); }}>
                 
                 {/* Descripción */}
                 <div>

@@ -82,12 +82,12 @@ export function AccessControl({ actividad = [] }) {
 
                     <div className="flex items-center gap-3 relative z-10 w-full md:w-auto justify-end mt-4 md:mt-0 pl-0 md:pl-6 border-t md:border-t-0 border-gray-100 pt-4 md:pt-0">
 
-                      <div className="px-4 py-2 rounded-xl bg-white border border-gray-200 shadow-sm flex items-center gap-2 group-hover:border-gray-300 transition-colors w-full md:w-auto justify-center md:justify-start clock-stomp">
+                      <div className="flex-1 md:flex-none md:min-w-[120px] px-4 py-2 rounded-xl bg-white border border-gray-200 shadow-sm flex items-center gap-2 group-hover:border-gray-300 transition-colors justify-center clock-stomp">
                         <Clock size={16} className="text-gray-400" />
                         <span className="font-semibold text-gray-600 text-sm">{user.horaEntrada}</span>
                       </div>
 
-                      <div className="px-4 py-2 rounded-xl bg-emerald-100 border border-emerald-200 text-emerald-700 font-medium flex items-center gap-2 shadow-sm text-sm w-full md:w-auto justify-center md:justify-start">
+                      <div className="flex-1 md:flex-none md:min-w-[120px] px-4 py-2 rounded-xl bg-emerald-100 border border-emerald-200 text-emerald-700 font-medium flex items-center gap-2 shadow-sm text-sm justify-center">
                         <span className="relative flex h-2.5 w-2.5">
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                           <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>

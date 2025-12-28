@@ -16,11 +16,12 @@ import {
   Eye, 
   EyeOff 
 } from 'lucide-react';
-import { getGuardService, getUserService } from '../services/adminGuard.service';
+import { createGuardService, deleteGuardService, updateGuardService, getAllGuardService, getGuardService, getUserService, getAllReportsService, deleteOwnerService, deleteReportService } from '../services/adminGuard.service';
 import Swal from 'sweetalert2'
 import {formatRut} from '../../utils/rutUtils'
 
 import {Header} from './Header';
+import {Footer} from './Footer';
 
 export default function SecurityDashboard() {
   const [activeTab, setActiveTab] = useState('guards'); // 'guards' | 'reports'
@@ -58,15 +59,14 @@ export default function SecurityDashboard() {
     // }
     const fetchReports = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/guards/report/getAllReports`);
+        const res = await getAllReportsService()
         console.log(res)
         
         const formatted = res.data.data.resultQuery.map(r => ({
           ID_Informe: r.ID_Informe,
           fecha: r.Fecha,
           descripcion: r.Descripcion,
-          bicicletero: r.Bicicletero,
-          imagenes: r.ImagenesURL
+          bicicletero: r.Bicicletero
         }));
         
 
@@ -75,7 +75,7 @@ export default function SecurityDashboard() {
         console.error("Error backend:", error);
         Swal.fire({
                 icon: 'error',
-                title: 'Error al cargar reportes.',
+                title: 'Error al cargar incidentes.',
                 timer: 2000
               })
       }
@@ -90,7 +90,7 @@ export default function SecurityDashboard() {
     // }
     const fetchGuards = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/central/getAllGuards");
+        const res = await getAllGuardService()
 
         const formatted = res.data.data.resultQuery.map(g => ({
           nombre: `${g.nombre} ${g.apellido}`,
@@ -101,12 +101,30 @@ export default function SecurityDashboard() {
 
         setGuards(formatted);
       } catch (error) {
-        console.error("Error backend:", error);
-        Swal.fire({
-                icon: 'error',
-                title: 'Error al cargar guardias.',
-                timer: 2000
-              })
+        console.log(error)
+        const message = error.response?.data?.message;
+        if (error.response?.status === 401) {
+          Swal.fire({
+            icon: "warning",
+            title: "Acceso denegado",
+            text: message,
+          });
+          navigate('/')
+        } else if (error.response?.status === 403) {
+          Swal.fire({
+            icon: "error",
+            title: "Acceso denegado",
+            text: message,
+          });
+          navigate('/')
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: message || "Error inesperado",
+          });
+          navigate('/')
+        }
       }
     };
 
@@ -125,14 +143,7 @@ export default function SecurityDashboard() {
     try {
       console.log(rut, email, contrasenia, telefono, nombre, apellido)
 
-      const res = await axios.post("http://localhost:3000/api/central/createGuard", {
-        rut,
-        email,
-        contrasenia,
-        telefono,
-        nombre,
-        apellido
-      });
+      const res = await createGuardService(rut, email, contrasenia, telefono, nombre, apellido);
 
       await Swal.fire({
         icon: 'success',
@@ -150,18 +161,14 @@ export default function SecurityDashboard() {
         title: error.response.data.message || "Error de validación"
       }) : Swal.fire({
         icon: 'error',
-        title: details?.[0] || "Error de validación"
+        title: error || details?.[0] || "Error de validación"
       });
     }
   };
 
   const handleDelete = async (rut) => {
     try {
-      const res = await axios.delete(
-        "http://localhost:3000/api/central/deleteGuard",
-        {
-          data: { rut },
-        });
+      const res = await deleteGuardService(rut)
       Swal.fire({
             icon: 'success',
             title: res.data.message,
@@ -181,11 +188,7 @@ export default function SecurityDashboard() {
 
   const handleDeleteOwner = async (rut) => {
     try {
-      const res = await axios.delete(
-        "http://localhost:3000/api/central/deleteOwner",
-        {
-          data: { rut },
-        });
+      const res = await deleteOwnerService(rut)
       Swal.fire({
             icon: 'success',
             title: res.data.message,
@@ -206,15 +209,7 @@ export default function SecurityDashboard() {
   
   const handleUpdate = async (guard) => {
     try {
-      const res = await axios.put(
-        "http://localhost:3000/api/central/updateGuard",
-        {
-          rut: guard.rut,
-          email,
-          contrasenia,
-          telefono
-        }
-      );
+      const res = await updateGuardService(guard.rut, email, contrasenia, telefono);
       console.log(res)
 
       await Swal.fire({
@@ -285,12 +280,7 @@ export default function SecurityDashboard() {
 
     const handleDeleteReport = async (ID_Informe) => {
       try {
-        const res = await axios.delete(
-          "http://localhost:3000/api/guards/report/deleteReport",
-          {
-            data: { ID_Informe },
-          }
-        );
+        await deleteReportService(ID_Informe)
 
         Swal.fire({
                 icon: 'success',
@@ -338,16 +328,16 @@ export default function SecurityDashboard() {
   
   
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <div className="min-h-screen bg-gray-50 font-sans flex flex-col">
       <Header />
       {/* --- Contenido Principal --- */}
-      <main className="p-8 max-w-7xl mx-auto">
+      <main className="p-8 max-w-7xl mx-auto grow w-full">
         
         {/* Header y Botón Nuevo Guardia */}
         <div className="flex justify-between items-start mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Centro de Seguridad</h1>
-            <p className="text-gray-500 mt-1">Gestión integral de guardias y reportes de robo</p>
+            <p className="text-gray-500 mt-1">Gestión integral de guardias e incidentes</p>
           </div>
           {activeTab === 'guards' && (
             <button 
@@ -440,7 +430,7 @@ export default function SecurityDashboard() {
             onClick={() => setActiveTab('reports')}
             className={`flex-1 py-2 rounded-full font-medium text-sm flex justify-center items-center gap-2 transition-all ${activeTab === 'reports' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'}`}
           >
-            <AlertTriangle size={16} /> Reportes ({reports.length})
+            <AlertTriangle size={16} /> Incidentes ({reports.length})
           </button>
         </div>
         
@@ -463,6 +453,18 @@ export default function SecurityDashboard() {
                     <th className="p-4 rounded-tr-lg text-right">Acciones</th>
                   </tr>
                 </thead>
+                {guards.length === 0 ? (
+                  <tr>
+                    {/* IMPORTANTE: colSpan debe ser igual al número de columnas de tu cabecera (ID, Fecha, etc.) */}
+                    <td colSpan="6" className="p-8 text-center text-gray-500">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        {/* Opcional: Un icono para que se vea más bonito */}
+                        <span className="text-2xl">👥</span> 
+                        <p>No se encuentran guardias registrados.</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
                 <tbody className="divide-y divide-gray-100">
                   {guards.map((guard) => (
                     <tr key={guard.id} className="hover:bg-gray-50 transition-colors">
@@ -488,17 +490,18 @@ export default function SecurityDashboard() {
                     </tr>
                   ))}
                 </tbody>
+                )}
               </table>
             </div>
           </div>
         )}
         
 
-        {/* --- VISTA: REPORTES --- */}
+        {/* --- VISTA: INCIDENTES --- */}
         {activeTab === 'reports' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-1">Reportes de Robo</h2>
-            <p className="text-gray-500 text-sm mb-6">Gestión y seguimiento de reportes de los estudiantes</p>
+            <h2 className="text-xl font-semibold text-gray-800 mb-1">Incidentes de Robo</h2>
+            <p className="text-gray-500 text-sm mb-6">Gestión y seguimiento de incidentes de los estudiantes</p>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
@@ -508,10 +511,21 @@ export default function SecurityDashboard() {
                     <th className="p-4">Fecha</th>
                     <th className="p-4">Bicicletero</th>
                     <th className="p-4 w-64">Descripción</th>
-                    <th className="p-4">Imagenes</th>
                     <th className="p-4">Acciones</th>
                   </tr>
                 </thead>
+                {reports.length === 0 ? (
+                  <tr>
+                    {/* IMPORTANTE: colSpan debe ser igual al número de columnas de tu cabecera (ID, Fecha, etc.) */}
+                    <td colSpan="6" className="p-8 text-center text-gray-500">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        {/* Opcional: Un icono para que se vea más bonito */}
+                        <span className="text-2xl">📂</span> 
+                        <p>No se encuentran incidentes registrados.</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
                 <tbody className="divide-y divide-gray-100">
                   {reports.map((r) => (
                     <tr key={r.ID_Informe} className="hover:bg-gray-50 transition-colors">
@@ -519,9 +533,6 @@ export default function SecurityDashboard() {
                       <td className="p-4">{formatDate(r.fecha)}</td>
                       <td className="p-4">{r.bicicletero}</td>
                       <td className="p-4 truncate max-w-xs" title={r.descripcion}>{r.descripcion}</td>
-                      <td className="p-4 text-center">
-                        <span className="bg-gray-100 px-3 py-1 rounded-full text-xs border border-gray-200">{r.imagenes} imágenes</span>
-                      </td>
                       <td className='p-4'>
                         <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium" onClick={() => handleDeleteReport(r.ID_Informe)}>
                           <Trash2 size={14}/> Eliminar
@@ -530,11 +541,14 @@ export default function SecurityDashboard() {
                     </tr>
                   ))}
                 </tbody>
+                )}
               </table>
             </div>
           </div>
         )}
       </main>
+
+      <Footer />
 
       {/* --- MODAL: AGREGAR GUARDIA --- */}
       {isModalOpen && (

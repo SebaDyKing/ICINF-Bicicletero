@@ -8,24 +8,25 @@ import {
   getEstadisticas,
 } from "../controllers/guard.controller.js";
 
-import {
-  createOwner,
-  getAllOwners,
-  getOwner,
-  updateOwner,
-  deleteOwner
-} from "../controllers/owner.controller.js";
+// Importaciones necesarias para las utilidades extras (Dropdowns, reportes)
+import { getBicicleteros } from "../controllers/bicicletero.controller.js";
+import Report from './reports.routes.js';
 
 import { authMiddleware, autorizeEntities } from "../middlewares/auth.middleware.js";
-import Report from './reports.routes.js';
 
 const router = Router();
 
-// Sub-rutas para reportes (ej: /api/guard/report/...)
+// ==========================================
+//        RUTAS UTILITARIAS / REPORTES
+// ==========================================
 router.use('/report', Report);
 
+// Nota: Esta ruta suele usarse para llenar el "Select" de bicicleteros en el Frontend.
+// Debería tener protección si no es pública.
+router.get('/getBicicleteros', authMiddleware, getBicicleteros); 
+
 // ==========================================
-//      GESTIÓN DE INGRESOS Y SALIDAS
+//          OPERACIONES DE GUARDIA
 // ==========================================
 
 /**
@@ -86,71 +87,6 @@ router.get(
   authMiddleware,
   autorizeEntities("Guard", "Central"),
   getEstadisticas
-);
-
-// ==========================================
-//          GESTIÓN DE PROPIETARIOS
-// ==========================================
-
-/**
- * @route POST /api/guard/owner/create
- * @brief Crea un nuevo dueño en el sistema.
- * @access Guardia, Central
- */
-router.post(
-  "/owner/create", 
-  authMiddleware,
-  autorizeEntities("Guard", "Central"), 
-  createOwner
-);
-
-/**
- * @route GET /api/guard/owner/get
- * @brief Busca un dueño específico.
- * @note Revisa si el controlador espera el RUT por query param (?rut=...) o body.
- * @access Guardia, Central
- */
-router.get(
-  "/owner/get",
-  authMiddleware,
-  autorizeEntities("Guard", "Central"),
-  getOwner
-);
-
-/**
- * @route GET /api/guard/owner/getAll
- * @brief Obtiene la lista de todos los dueños.
- * @access Guardia, Central
- */
-router.get(
-  "/owner/getAll",
-  authMiddleware,
-  autorizeEntities("Guard", "Central"),
-  getAllOwners
-);
-
-/**
- * @route PUT /api/guard/owner/update
- * @brief Actualiza datos de un dueño.
- * @access Guardia, Central
- */
-router.put(
-  "/owner/update",
-  authMiddleware,
-  autorizeEntities("Guard", "Central"),
-  updateOwner
-);
-
-/**
- * @route DELETE /api/guard/owner/delete
- * @brief Elimina un dueño del sistema.
- * @access Guardia, Central
- */
-router.delete(
-  "/owner/delete",
-  authMiddleware,
-  autorizeEntities("Guard", "Central"),
-  deleteOwner
 );
 
 export default router;

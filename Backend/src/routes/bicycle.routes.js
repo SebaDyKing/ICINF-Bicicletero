@@ -3,7 +3,8 @@ import { Router } from "express";
 import { 
   createBicycle, 
   deleteBicycleByOwner, 
-  getBicyclesByOwner 
+  getBicyclesByOwner,
+  getOwnerWithBicycles 
 } from "../controllers/bicycle.controller.js";
 import { 
   authMiddleware, 
@@ -46,6 +47,17 @@ router.delete(
   authMiddleware,
   autorizeEntities("Guard", "Owner", "Central"),
   deleteBicycleByOwner
+);
+
+/**
+ * @route GET /api/bicycles/owner-full/:rut
+ * @brief Ruta específica para el Modal de Ingreso (Trae Dueño + Bicis)
+ */
+router.get(
+  "/owner-full/:rut",
+  authMiddleware,
+  autorizeEntities("Guard", "Owner", "Central"),
+  getOwnerWithBicycles
 );
 
 export default router;

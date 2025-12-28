@@ -439,14 +439,19 @@ export async function deleteOwner(req, res) {
 
 
 /**
- * @brief Controlador para obtener el historial de movimientos de un dueño.
- *
- * Recupera los últimos registros de la tabla 'store' (ingresos y salidas)
- * asociados a las bicicletas que pertenecen al RUT proporcionado.
- * Utiliza una consulta SQL cruda para unir las tablas store, bicycleRack y bicycle.
- *
- * @param {import("express").Request} req  Objeto de solicitud HTTP.
- * @param {import("express").Response} res Objeto de respuesta HTTP.
+ * @function getOwnerHistory
+ * @brief Obtiene el historial cronológico de movimientos (Ingresos y Salidas) de un dueño.
+ * * @description 
+ * Esta función ejecuta una consulta SQL compleja para transformar los registros de estacionamiento
+ * en una línea de tiempo lineal.
+ * * **Lógica SQL implementada:**
+ * Utiliza `UNION ALL` para dividir un registro físico de la tabla `store` en dos eventos lógicos:
+ * 1. **Evento 'Ingreso':** Se selecciona siempre. Incluye explícitamente `fecha_salida` para permitir
+ * al frontend distinguir entre un ingreso activo (bici dentro) y uno histórico.
+ * 2. **Evento 'Salida':** Se genera una segunda fila solo si la bicicleta ya ha sido retirada.
+ * * **CAMBIO RECIENTE:** Se agrega la columna `marca` para mostrar "Marca Modelo".
+ * * @param {import("express").Request} req - Objeto Request. Debe contener el `rut` en `req.params`.
+ * @param {import("express").Response} res - Objeto Response. Devuelve una lista ordenada por fecha descendente.
  */
 export async function getOwnerHistory(req, res) {
   try {
@@ -457,21 +462,41 @@ export async function getOwnerHistory(req, res) {
     }
 
     const query = `
-      SELECT 
-        s.id_registro,
-        CASE 
-          WHEN s.fecha_salida IS NULL THEN 'Ingreso' 
-          ELSE 'Salida' 
-        END AS tipo,
-        br.nombre AS nombre_bicicletero,
-        b.modelo AS modelo_bicicleta,
-        s.fecha_ingreso AS fecha
-      FROM store s
-      LEFT JOIN "bicycleRack" br ON s.id_bicicletero = br.id_bicicletero
-      LEFT JOIN bicycle b ON s.id_bicicleta = b.id_bicicleta
-      WHERE b.rut_duenio = $1
-      ORDER BY s.fecha_ingreso DESC
-      LIMIT 10
+      SELECT * FROM (
+        -- BLOQUE 1: Eventos de INGRESO
+        SELECT 
+          s.id_registro,
+          'Ingreso' AS tipo,
+          br.nombre AS nombre_bicicletero,
+          b.marca, 
+          b.modelo AS modelo_bicicleta,
+          b.alias,
+          s.fecha_ingreso AS fecha,
+          s.fecha_salida
+        FROM store s
+        LEFT JOIN "bicycleRack" br ON s.id_bicicletero = br.id_bicicletero
+        LEFT JOIN bicycle b ON s.id_bicicleta = b.id_bicicleta
+        WHERE b.rut_duenio = $1
+
+        UNION ALL
+
+        -- BLOQUE 2: Eventos de SALIDA
+        SELECT 
+          s.id_registro,
+          'Salida' AS tipo,
+          br.nombre AS nombre_bicicletero,
+          b.marca,  -- <--- NUEVO CAMPO AGREGADO
+          b.modelo AS modelo_bicicleta,
+          b.alias,
+          s.fecha_salida AS fecha,
+          s.fecha_salida
+        FROM store s
+        LEFT JOIN "bicycleRack" br ON s.id_bicicletero = br.id_bicicletero
+        LEFT JOIN bicycle b ON s.id_bicicleta = b.id_bicicleta
+        WHERE b.rut_duenio = $1 AND s.fecha_salida IS NOT NULL
+      ) AS movimientos
+      ORDER BY fecha DESC
+      LIMIT 20;
     `;
 
     const historial = await AppDataSource.query(query, [rut]);
@@ -479,8 +504,36 @@ export async function getOwnerHistory(req, res) {
     handleSuccess(res, 200, "Historial obtenido", historial);
 
   } catch (error) {
-    // IMPORTANTE: Imprimimos el error en la consola del backend para verlo
     console.error("ERROR SQL HISTORIAL:", error); 
     handleErrorServer(res, 500, "Error al obtener historial", error.message);
   }
+}
+
+export const getOwnersByBicicletero = async (req, res) => {
+    const {id_bicicletero} = req.query
+    //verifica que la bdd este iniciada
+    if (!AppDataSource.isInitialized) {
+        await AppDataSource.initialize();
+    }
+
+    // consulta SQL para ingresar a tabla Users
+    const query = `
+        SELECT DISTINCT
+        u.email
+        FROM owner o
+        INNER JOIN bicycle b ON b.rut_duenio = o.rut
+        INNER JOIN store s ON s.id_bicicleta = b.id_bicicleta
+        INNER JOIN users u ON o.rut = u.rut
+        WHERE s.id_bicicletero = $1
+        AND s.fecha_salida IS NULL;
+    `;
+    try {
+        // Ejecuta consultas (consulta, valoresConsulta)
+        const resultQuery = await AppDataSource.query(query, [id_bicicletero]);
+        handleSuccess(res, 200, "Usuarios obtenido correctamente", {
+            resultQuery
+        });
+    } catch (error) {
+        return handleErrorServer(res, 500, "Error del servidor", error.message);
+    }
 }
