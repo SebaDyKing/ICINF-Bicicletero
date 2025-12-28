@@ -81,8 +81,8 @@ const Dashboard = ({ user }) => {
             
             setHistorial(listaHistorial);
 
-            // Filtramos las que siguen adentro (Tipo 'Ingreso' sin salida cerrada)
-            const activas = listaHistorial.filter(h => h.tipo === 'Ingreso');
+            // Filtramos solo los ingresos que NO tienen fecha de salida
+            const activas = listaHistorial.filter(h => h.tipo === 'Ingreso' && !h.fecha_salida);
             setBicisAdentro(activas);
 
         } catch (err) { console.error("Error historial:", err); }
