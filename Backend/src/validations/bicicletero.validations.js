@@ -14,18 +14,23 @@ export const bicicleteroBodyValition = Joi.object({
     'any.required': `El campo nombre es obligatorio`,
     'string.empty': `El campo nombre no puede estar vacío`,
   }),
-  latitud: Joi.number().required().messages({
+  latitud: Joi.number().min(-90).max(90).required().messages({
     'number.base': `El campo latitud debe ser un número`,
+    'number.min': `La latitud debe estar entre -90 y 90`,
+    'number.max': `La latitud debe estar entre -90 y 90`,
     'any.required': `El campo latitud es obligatorio`,
   }),
-  longitud: Joi.number().required().messages({
+  longitud: Joi.number().min(-180).max(180).required().messages({
     'number.base': `El campo longitud debe ser un número`,
+    'number.min': `La longitud debe estar entre -180 y 180`,
+    'number.max': `La longitud debe estar entre -180 y 180`,
     'any.required': `El campo longitud es obligatorio`,
   }),
-  capacidad_maxima: Joi.number().positive().required().messages({
+  capacidad_maxima: Joi.number().integer().positive().required().messages({
     'number.base': `El campo Capacidad Maxima debe ser un número`,
     'any.required': `El campo Capacidad Maxima es obligatorio`,
     'number.positive': `El campo Capacidad Maxima debe ser un número positivo`,
+    'number.integer': `La Capacidad Maxima debe ser un número entero`,
   }),
   imagen: Joi.string().uri().optional().messages({
     'string.uri': `El campo imageURL debe ser una URL válida`
@@ -50,5 +55,5 @@ export function validateBicicleteroBody(input) {
  * @return {Object} - Resultado de la validación parcial, con detalles de los errores si existen.
  */
 export function bicicleteroBodyPartialValidation(input) {
-  return bicicleteroBodyValition.fork(Object.keys(bicicleteroBodyValition.describe().keys), (schema) => schema.optional()).validate(input,{abortEarly:false})
+  return bicicleteroBodyValition.fork(Object.keys(bicicleteroBodyValition.describe().keys), (schema) => schema.optional()).validate(input, { abortEarly: false })
 }
