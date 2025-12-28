@@ -21,6 +21,7 @@ import Swal from 'sweetalert2'
 import {formatRut} from '../../utils/rutUtils'
 
 import {Header} from './Header';
+import {Footer} from './Footer';
 
 export default function SecurityDashboard() {
   const [activeTab, setActiveTab] = useState('guards'); // 'guards' | 'reports'
@@ -328,10 +329,10 @@ export default function SecurityDashboard() {
   
   
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <div className="min-h-screen bg-gray-50 font-sans flex flex-col">
       <Header />
       {/* --- Contenido Principal --- */}
-      <main className="p-8 max-w-7xl mx-auto">
+      <main className="p-8 max-w-7xl mx-auto grow w-full">
         
         {/* Header y Botón Nuevo Guardia */}
         <div className="flex justify-between items-start mb-8">
@@ -551,6 +552,8 @@ export default function SecurityDashboard() {
           </div>
         )}
       </main>
+
+      <Footer />
 
       {/* --- MODAL: AGREGAR GUARDIA --- */}
       {isModalOpen && (
