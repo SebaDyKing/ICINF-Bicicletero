@@ -46,11 +46,17 @@ export const createReport = async (req, res) => {
               descripcion, 
               bicicletero
             });
+        console.log(emails.length)
         
-        for (const email of emails){
+        if (emails.length !== 0){
+            for (const email of emails){
             console.log(email)
             await sendAlertEmail(email, fecha, bicicletero, descripcion)
+            }
+        } else {
+            console.log('No hay usuarios afectados.')
         }
+        
     } catch (error) {
         return handleErrorServer(res, 500, "Error del servidor", error.message);
     }
