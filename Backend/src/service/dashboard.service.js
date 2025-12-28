@@ -3,6 +3,25 @@ import { Store } from "../models/store.entity.js";
 import { BicycleRack } from "../models/bicycleRack.entity.js";
 import { IsNull, Between, MoreThanOrEqual } from "typeorm";
 
+/**
+ * @async
+ * @function getDashboardData
+ * @description Recopila y procesa todos los datos necesarios para el dashboard central.
+ * Calcula KPIs en tiempo real, ocupación por bicicletero, actividad reciente y datos para gráficos.
+ * 
+ * @returns {Promise<Object>} Objeto con todos los datos del dashboard.
+ * @returns {Object} returns.kpi - Indicadores clave de desempeño (KPIs).
+ * @returns {number} returns.kpi.totalBicicletas - Total de bicicletas actualmente estacionadas.
+ * @returns {number} returns.kpi.capacidadTotal - Suma de la capacidad de todos los bicicleteros.
+ * @returns {number} returns.kpi.ocupacionGlobal - Porcentaje de ocupación general del sistema.
+ * @returns {number} returns.kpi.ingresosHoy - Cantidad de ingresos registrados en el día actual.
+ * @returns {number} returns.kpi.salidasHoy - Cantidad de salidas registradas en el día actual.
+ * @returns {Array<Object>} returns.racks - Lista de bicicleteros con su estado detallado.
+ * @returns {Array<Object>} returns.actividad - Lista de los 5 movimientos más recientes (ingresos/salidas).
+ * @returns {Object} returns.graficos - Datos formateados para los gráficos del dashboard.
+ * @returns {Array<Object>} returns.graficos.porHora - Distribución de ingresos por hora (07:00 - 22:00).
+ * @returns {Array<Object>} returns.graficos.semanal - Resumen de ingresos de los últimos 7 días.
+ */
 export async function getDashboardData() {
     const storeRepository = AppDataSource.getRepository(Store);
     const rackRepo = AppDataSource.getRepository(BicycleRack);
@@ -70,9 +89,6 @@ export async function getDashboardData() {
         ingresos: conteoHoras[h] || 0
     }));
 
-    console.log('📊 Backend graficoHoras:', JSON.stringify(graficoHoras, null, 2));
-    console.log('🕐 Datos de hoy encontrados:', ingresosHoy, 'registros');
-
     const ultimosMovimientos = await storeRepository.find({
         order: { idRegistro: "DESC" },
         take: 5,
@@ -123,24 +139,24 @@ export async function getDashboardData() {
         total: conteoDias[dia]
     }));
 
-    const usuariosActivos = await storeRepository.find({
-        where: {
-            fechaSalida: IsNull()
-        },
+    const ultimosMovimientosFeed = await storeRepository.find({
         order: {
-            fechaIngreso: "DESC"
+            idRegistro: "DESC"
         },
-        take: 5,
+        take: 20,
         relations: {
             bicycle: { owner: true },
             bicycleRack: true
         }
-    })
+    });
 
-    const controlAccesoFeed = usuariosActivos.map(registro => {
+    const controlAccesoFeedCompleto = ultimosMovimientosFeed.map(registro => {
         const nombre = registro.bicycle?.owner ? registro.bicycle.owner.nombre : 'Desconocido';
 
-        const fechaObj = new Date(registro.fechaIngreso);
+        const esSalida = registro.tipoMovimiento === "Salida";
+
+        const fechaReferencia = esSalida ? registro.fechaSalida : registro.fechaIngreso;
+        const fechaObj = new Date(fechaReferencia);
         const horaFormateada = fechaObj.toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
@@ -154,10 +170,17 @@ export async function getDashboardData() {
             inicial: nombre.charAt(0).toUpperCase(),
             tagBici: `#${registro.bicycle?.id_bicicleta || '000'}`,
             horaEntrada: horaFormateada,
-            estado: "En recinto",
-            ubicacion: registro.bicycleRack?.nombre || 'Sin asignar'
+            tipo: esSalida ? 'Salida' : 'Ingreso',
+            estado: esSalida ? 'Salida' : 'En recinto',
+            ubicacion: registro.bicycleRack?.nombre || 'Sin asignar',
+            fechaReferencia: fechaReferencia
         };
-    })
+    });
+
+    const controlAccesoFeed = controlAccesoFeedCompleto
+        .sort((a, b) => new Date(b.fechaReferencia) - new Date(a.fechaReferencia))
+        .slice(0, 5)
+        .map(({ fechaReferencia, ...item }) => item);
 
     return {
         kpi: {

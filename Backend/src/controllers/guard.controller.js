@@ -47,7 +47,7 @@ export const registrarIngreso = async (req, res) => {
     }
 
     // Notificar cambio al dashboard en tiempo real
-    if (req.io) { await actualizarDashboard(req.io); }
+    await actualizarDashboard(req.io);
 
     handleSuccess(res, 201, "Ingreso registrado exitosamente.", nuevoIngreso);
   } catch (error) {
@@ -82,8 +82,7 @@ export const registrarRetiro = async (req, res) => {
       return handleErrorClient(res, 404, "No se encontró un ingreso activo para esta bicicleta.");
     }
 
-    // Notificar cambio al dashboard en tiempo real
-    if (req.io) { await actualizarDashboard(req.io); }
+    await actualizarDashboard(req.io);
 
     handleSuccess(res, 200, "Retiro registrado exitosamente.", registro);
   } catch (error) {

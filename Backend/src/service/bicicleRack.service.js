@@ -63,12 +63,22 @@ export async function createBicicleteroService(data) {
 
 /**
  * @function deleteBicicleteroService
- * @brief Elimina un bicicletero por su ID.
+ * @brief Elimina un bicicletero por su ID junto con todos sus registros históricos.
+ * @details Primero elimina todos los registros de Store asociados (cascade manual)
+ * y luego elimina el bicicletero. Esto asegura que no haya errores por restricciones de FK.
  * @param {number} id - ID del bicicletero a eliminar.
  */
 export async function deleteBicicleteroService(id) {
   try {
     const bicicleteroRepository = AppDataSource.getRepository(BicycleRack);
+
+    // Primero eliminar todos los registros de Store asociados con este bicicletero
+    await AppDataSource.manager.query(
+      `DELETE FROM store WHERE id_bicicletero = $1`,
+      [id]
+    );
+
+    // Luego eliminar el bicicletero
     return await bicicleteroRepository.delete({ id_bicicletero: id });
   } catch (error) {
     throw new Error(`Error al eliminar bicicletero: ${error.message}`);
@@ -82,8 +92,8 @@ export async function deleteBicicleteroService(id) {
  * para garantizar la correcta relación de tablas y evitar errores de ORM.
  */
 export async function getBicicleterosStatusService() {
-    try {
-        const query = `
+  try {
+    const query = `
           SELECT 
             br.id_bicicletero, 
             br.nombre, 
@@ -96,9 +106,9 @@ export async function getBicicleterosStatusService() {
             )::int as occupied
           FROM "bicycleRack" br
         `;
-        
-        return await AppDataSource.manager.query(query);
-    } catch (error) {
-        throw new Error(`Error obteniendo status: ${error.message}`);
-    }
+
+    return await AppDataSource.manager.query(query);
+  } catch (error) {
+    throw new Error(`Error obteniendo status: ${error.message}`);
+  }
 }

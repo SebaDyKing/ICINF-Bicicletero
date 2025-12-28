@@ -34,6 +34,7 @@ export const Store = new EntitySchema({
       type: "many-to-one",
       target: "BicycleRack",
       inverseSide: "stores",
+      onDelete: "CASCADE",
       joinColumn: {
         name: "id_bicicletero",
         referencedColumnName: "id_bicicletero",
