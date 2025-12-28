@@ -118,7 +118,7 @@ Sigue estos pasos para levantar el entorno de desarrollo:
 
 Desarrollado con ❤️ por el equipo de PeppaCode.
 
-*   **SebaDyK1ng** - *Lead Developer*
-*   **JeanMunozV** - *Lead Developer*
-*   **Benjaaaaa09** - *Lead Developer*
-*   **Neeidaan** - *Lead Developer*
+*   **SebaDyK1ng** - sebastian.fernandez2201@alumnos.ubiobio.cl
+*   **JeanMunozV** - jean.munoz2201@alumnos.ubiobio.cl
+*   **Benjaaaaa09** - benjamin.escobar2201@alumnos.ubiobio.cl
+*   **Neeidaan** - neidan.martinez2201@alumnos.ubiobio.cl
