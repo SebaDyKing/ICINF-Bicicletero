@@ -62,23 +62,18 @@ export const RequestGuard = ({ user }) => {
     <div className="flex flex-col min-h-screen bg-gray-50">
       <HeaderOwner user={user} />
 
-      {/* Contenedor Principal alineado al estilo del Dashboard */}
       <div className="flex-1 px-4 py-8 md:px-8 max-w-7xl mx-auto w-full">
 
-        {/* Encabezado de la Sección */}
         <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900">Solicitud de Asistencia</h1>
             <p className="text-gray-500">Contacta con seguridad del campus en caso de emergencia.</p>
         </div>
 
         <div className="flex justify-center">
-            {/* Tarjeta Principal */}
             <div className="bg-white w-full max-w-lg rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 
-                {/* Cabecera visual de la tarjeta */}
                 <div className="bg-blue-50 p-8 flex flex-col items-center justify-center border-b border-blue-100">
                     <div className="bg-white p-4 rounded-full shadow-sm mb-4">
-                        {/* Icono Principal (Lucide Shield) */}
                         <Shield className="w-16 h-16 text-blue-900" strokeWidth={1.5} />
                     </div>
                     <h2 className="text-xl font-bold text-blue-900 text-center">
@@ -87,7 +82,6 @@ export const RequestGuard = ({ user }) => {
                 </div>
 
                 <div className="p-8">
-                    {/* Advertencia de ubicación */}
                     <div className="mb-8 bg-yellow-50 border border-yellow-100 rounded-lg p-4 flex items-start">
                         {/* Icono de Ubicación (Lucide MapPin) */}
                         <MapPin className="w-5 h-5 text-yellow-600 mr-2 shrink-0" />
@@ -96,7 +90,6 @@ export const RequestGuard = ({ user }) => {
                         </p>
                     </div>
 
-                    {/* Botón de Acción Principal */}
                     <button
                         onClick={handleRequestGuard}
                         disabled={status === "loading" || status === "success"}
@@ -110,13 +103,11 @@ export const RequestGuard = ({ user }) => {
                     >
                         {status === "loading" ? (
                             <div className="flex items-center justify-center gap-3">
-                                {/* Spinner de carga (Lucide Loader2 animado) */}
                                 <Loader2 className="animate-spin h-6 w-6" />
                                 <span>Verificando ubicación...</span>
                             </div>
                         ) : status === "success" ? (
                             <span className="flex items-center justify-center gap-2">
-                                {/* Check de éxito (Lucide Check) */}
                                 <Check className="w-7 h-7" strokeWidth={3} />
                                 Solicitud Enviada
                             </span>
@@ -125,7 +116,7 @@ export const RequestGuard = ({ user }) => {
                         )}
                     </button>
 
-                    {/* Feedback y Mensajes de Estado con Iconos Lucide */}
+                    {/* Feedback y Mensajes de Estado */}
                     {message && (
                         <div className={`mt-6 p-4 rounded-lg text-sm border flex items-start gap-3 animate-fade-in transition-colors duration-300
                             ${status === "error" ? "bg-red-50 text-red-700 border-red-100" : ""}

@@ -28,17 +28,6 @@ export const Reports = new EntitySchema({
       length: 100,
       nullable: true,
     },
-    informeURL: {
-      name: "InformeURL",
-      type: "varchar",
-      length: 255,
-      nullable: true,
-    },
-    imagenesURL: {
-      name: "ImagenesURL",
-      type: "simple-json",
-      nullable: true,
-    },
   },
 
   relations: {
