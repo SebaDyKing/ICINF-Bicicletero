@@ -77,7 +77,7 @@ const IncidentesPage = () => {
         console.log(error);
         Swal.fire({
                 icon: 'error',
-                title: error.response?.data?.message || "Error en la solicitud",
+                title: error || error.response?.data?.message || "Error en la solicitud",
                 timer: 2000
               })
     }

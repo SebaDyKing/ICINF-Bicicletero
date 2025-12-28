@@ -75,7 +75,7 @@ export default function SecurityDashboard() {
         console.error("Error backend:", error);
         Swal.fire({
                 icon: 'error',
-                title: 'Error al cargar reportes.',
+                title: 'Error al cargar incidentes.',
                 timer: 2000
               })
       }
@@ -337,7 +337,7 @@ export default function SecurityDashboard() {
         <div className="flex justify-between items-start mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Centro de Seguridad</h1>
-            <p className="text-gray-500 mt-1">Gestión integral de guardias y reportes de robo</p>
+            <p className="text-gray-500 mt-1">Gestión integral de guardias e incidentes</p>
           </div>
           {activeTab === 'guards' && (
             <button 
@@ -430,7 +430,7 @@ export default function SecurityDashboard() {
             onClick={() => setActiveTab('reports')}
             className={`flex-1 py-2 rounded-full font-medium text-sm flex justify-center items-center gap-2 transition-all ${activeTab === 'reports' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'}`}
           >
-            <AlertTriangle size={16} /> Reportes ({reports.length})
+            <AlertTriangle size={16} /> Incidentes ({reports.length})
           </button>
         </div>
         
@@ -497,11 +497,11 @@ export default function SecurityDashboard() {
         )}
         
 
-        {/* --- VISTA: REPORTES --- */}
+        {/* --- VISTA: INCIDENTES --- */}
         {activeTab === 'reports' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-1">Reportes de Robo</h2>
-            <p className="text-gray-500 text-sm mb-6">Gestión y seguimiento de reportes de los estudiantes</p>
+            <h2 className="text-xl font-semibold text-gray-800 mb-1">Incidentes de Robo</h2>
+            <p className="text-gray-500 text-sm mb-6">Gestión y seguimiento de incidentes de los estudiantes</p>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
@@ -522,7 +522,7 @@ export default function SecurityDashboard() {
                       <div className="flex flex-col items-center justify-center gap-2">
                         {/* Opcional: Un icono para que se vea más bonito */}
                         <span className="text-2xl">📂</span> 
-                        <p>No se encuentran reportes registrados.</p>
+                        <p>No se encuentran incidentes registrados.</p>
                       </div>
                     </td>
                   </tr>
