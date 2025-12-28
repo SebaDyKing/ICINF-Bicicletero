@@ -49,6 +49,7 @@ const ownerCreationSchema = Joi.object({
     }),
 
   email: Joi.string().email().required().messages({
+     "string.empty": "El campo email no puede estar vacío.",
     "string.email": "El formato del correo no es válido.",
     "any.required": "El campo correo es obligatorio.",
   }),
@@ -59,6 +60,7 @@ const ownerCreationSchema = Joi.object({
     .pattern(/^(?=(?:.*\d){2,})(?=.*[A-Z]).*$/)
     .required()
     .messages({
+      "string.empty": "El campo contraseña no puede estar vacío.",
       "string.min": "La contraseña debe tener al menos 8 caracteres.",
       "string.max": "La contraseña no puede exceder los 20 caracteres.",
       "any.required": "El campo contraseña es obligatorio.",
