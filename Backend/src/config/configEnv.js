@@ -1,16 +1,17 @@
-import {config} from 'dotenv'
-config()
+import { config } from 'dotenv';
+config();
 
 export const db = {
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    database: process.env.DB_DATABASE
+  user: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  host: process.env.HOST,
+  port: Number(process.env.DB_PORT) || 5432,
+  database: process.env.DATABASE
 }
 
-export const port = 3000
+export const PORT = Number(process.env.PORT) || 3000;
+export const HOST = process.env.HOST || 'localhost';
+export const HASH_VALUE = Number(process.env.HSH_VALUE) || 10;
+
 export const SECRET_JWT_KEY = process.env.SECRET_JWT_KEY;
 export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
-export const HASH_VALUE = process.env.HSH_VALUE;
-export const host = process.env.DB_HOST
