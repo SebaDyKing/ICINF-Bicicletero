@@ -44,7 +44,7 @@ export const Users = new EntitySchema({
     },
     codigo_verificacion: {
       type: "varchar",
-      length: 6,
+      length: 50,
       nullable: true,
     },
   },

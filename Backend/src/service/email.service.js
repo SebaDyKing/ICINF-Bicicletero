@@ -34,7 +34,7 @@ const transporter = nodemailer.createTransport({
 export async function sendVerificationEmail(toEmail, code) {
 
   const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
-  const link = `${FRONTEND_URL}/verify?email=${toEmail}`
+  const link = `${FRONTEND_URL}verify?email=${toEmail}`
 
   const mailOptions = {
     from: `"Central de Guardias UBB" <${process.env.EMAIL_USER}>`, // Quién envía
@@ -52,6 +52,7 @@ export async function sendVerificationEmail(toEmail, code) {
           ${code}
         </h1>
         <p>Por favor, ingresa este código en la aplicación para activar tu cuenta.</p>
+        <p>Este código tiene una duración de 10 minutos.</p>
         <hr/>
         <p>Si cerraste la página, puedes volver a entrar haciendo clic aquí:</p>
         <a href="${link}" style="color: #004D99; font-weight: bold;">
