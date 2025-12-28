@@ -249,27 +249,20 @@ export const solicitarGuard = async (req, res) => {
   try {
     const { lat, lon } = req.body;
 
-    if (lat === undefined || lon === undefined) {
-      return handleErrorClient(res, 400, "Latitud y longitud son requeridos");
-    }
+    const result = await solicitarGuardService(lat, lon, req.io);
 
-    const resultado = await solicitarGuardService(lat, lon);
+    handleSuccess(res, 200, result.message, result);
 
-    return handleSuccess(
-      res,
-      resultado.status,
-      "Solicitud enviada",
-      resultado.payload
-    );
   } catch (error) {
-    return handleErrorServer(
-      res,
-      500,
-      "Error interno del servidor",
-      error.message
-    );
+    if (error.message.includes("No hay bicicletarios") || error.message.includes("requeridos")) {
+        return handleErrorClient(res, 400, error.message);
+    }
+    
+    console.error("Error en solicitarGuard Controller:", error);
+    handleErrorServer(res, 404, error.message);
   }
 };
+
 /**
  * @brief Controlador para actualizar parcialmente la información de un dueño (Owner).
  *

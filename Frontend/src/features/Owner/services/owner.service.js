@@ -36,7 +36,6 @@ export const updateOwnerService = async (ownerData) => {
   }
 };
 
-
 export const getBicyclesByRut = async (rut) => {
   try {
     const response = await api.get(`/bicycles/owner/${rut}`);
@@ -53,7 +52,7 @@ export const getBicyclesByRut = async (rut) => {
 export const getOwnerHistory = async (rut) => {
   try {
     const response = await api.get(`/owners/history/${rut}`);
-    return response.data.data || []; 
+    return response.data.data || [];
   } catch (error) {
     console.error("Error obteniendo historial:", error);
     return [];
@@ -65,11 +64,23 @@ export const getOwnerHistory = async (rut) => {
  */
 export const getBicicleterosStatus = async () => {
   try {
-    const response = await api.get('/bicicleteros/status');
+    const response = await api.get("/bicicleteros/status");
     return response.data.data || [];
   } catch (error) {
     console.error("Error cargando status bicicleteros:", error);
-    return []; 
+    return [];
   }
 };
 
+export const solicitarGuardService = async (latitude, longitude) => {
+  try {
+    const response = await api.post(`/owners/solicitud`, {
+      lat: latitude,
+      lon: longitude,
+    });
+    return response.data.data;
+  } catch (error) {
+    console.error("Error:", error.response?.data);
+    throw error.response?.data || { message: "Error de conexión con el servidor" };
+  }
+};
