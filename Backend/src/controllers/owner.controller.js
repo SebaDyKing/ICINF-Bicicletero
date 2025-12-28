@@ -475,7 +475,7 @@ export async function getOwnerHistory(req, res) {
           s.id_registro,
           'Ingreso' AS tipo,
           br.nombre AS nombre_bicicletero,
-          b.marca,  -- <--- NUEVO CAMPO AGREGADO
+          b.marca, 
           b.modelo AS modelo_bicicleta,
           b.alias,
           s.fecha_ingreso AS fecha,

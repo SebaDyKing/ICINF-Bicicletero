@@ -122,7 +122,7 @@ const Dashboard = ({ user }) => {
         rut: user.rut,
         nombre: `${user.nombre} ${user.apellido}`,
         idBicicleta: bike.id_bicicleta, 
-        marca: bike.marca, // AGREGADO: Marca en el QR
+        marca: bike.marca,
         modelo: bike.modelo,
         color: bike.color,
         generado_a: new Date().getTime()
@@ -235,7 +235,6 @@ const Dashboard = ({ user }) => {
                                     onChange={(e) => setSelectedBike(misBicicletas.find(b => b.id_bicicleta.toString() === e.target.value))}
                                 >
                                     {misBicicletas.map(b => (
-                                        // CAMBIO VISUAL: Agregada la Marca en el selector
                                         <option key={b.id_bicicleta} value={b.id_bicicleta} className="bg-[#0f172a] text-white">
                                             {b.marca} {b.modelo} ({b.color})
                                         </option>
@@ -244,7 +243,7 @@ const Dashboard = ({ user }) => {
                                 <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-blue-200 pointer-events-none" size={20} />
                         </div>
                           <p className="text-blue-300 text-xs mt-2 ml-2">
-                            ID: <span className="font-mono text-white font-bold">{selectedBike?.id_bicicleta}</span>
+                            Alias: <span className="font-mono text-white font-bold">{selectedBike?.alias || 'Sin Alias'}</span>
                         </p>
                     </div>
                 </div>
@@ -268,7 +267,6 @@ const Dashboard = ({ user }) => {
                                     {bicisAdentro.map((ingreso, i) => (
                                         <div key={i} className="flex items-center justify-between text-sm bg-slate-50 p-2 rounded-lg border border-slate-100">
                                             <div>
-                                                {/* CAMBIO VISUAL: Agregada Marca */}
                                                 <p className="font-bold text-slate-700">
                                                     {ingreso.marca} {ingreso.modelo_bicicleta}
                                                 </p>
@@ -289,7 +287,6 @@ const Dashboard = ({ user }) => {
                                 <div>
                                     <p className="font-bold text-slate-800 text-lg">En Campus</p>
                                     <p className="text-sm text-slate-600 font-medium">{bicisAdentro[0].nombre_bicicletero}</p>
-                                    {/* CAMBIO VISUAL: Agregada Marca */}
                                     <p className="text-xs text-slate-400 mt-1">
                                         {bicisAdentro[0].marca} {bicisAdentro[0].modelo_bicicleta} • {formatDateShort(bicisAdentro[0].fecha)}
                                     </p>
@@ -372,8 +369,6 @@ const Dashboard = ({ user }) => {
                                         )}
                                     </td>
                                     <td className="px-4 py-3 text-slate-600">{log.nombre_bicicletero || '-'}</td>
-                                    
-                                    {/* CAMBIO VISUAL: Agregada Marca */}
                                     <td className="px-4 py-3 text-slate-600 font-medium">
                                         {log.marca ? `${log.marca} ${log.modelo_bicicleta}` : log.modelo_bicicleta || '-'}
                                     </td>
