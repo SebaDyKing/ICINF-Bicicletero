@@ -4,6 +4,7 @@ import { MapPin, Clock, ArrowUp, ArrowDown, Sparkles } from 'lucide-react';
 export const RecentActivity = ({ movements }) => {
     const activityList = movements || [];
 
+
     return (
         <div className="relative bg-white rounded-3xl shadow-lg border border-gray-200 h-full overflow-hidden flex flex-col font-sans backdrop-blur-sm">
             <div className="relative bg-[#0066cc] px-6 py-5 overflow-hidden">
@@ -41,22 +42,22 @@ export const RecentActivity = ({ movements }) => {
 
                             return (
                                 <div
-                                    key={activity.id}
+                                    key={`${activity.id}-${index}`}
                                     style={{ animationDelay: `${index * 50}ms` }}
                                     className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-md border border-white/60 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center gap-4 slide-in"
                                 >
-                                    <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity ${isRetiro ? 'bg-gradient-to-r from-slate-50/50 to-gray-50/50' : 'bg-gradient-to-r from-blue-50/50 to-cyan-50/50'}`} />
+                                    <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity ${isRetiro ? 'bg-gradient-to-r from-rose-50/50 to-pink-50/50' : 'bg-gradient-to-r from-blue-50/50 to-cyan-50/50'}`} />
 
                                     <div className="relative z-10">
-                                        <div className={`h-14 w-14 rounded-2xl flex items-center justify-center text-white shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300 ${isRetiro ? 'bg-gradient-to-br from-slate-500 via-gray-600 to-slate-700 shadow-slate-500/50' : 'bg-gradient-to-br from-[#003366] via-[#0055aa] to-[#0066cc] shadow-blue-500/50'}`}>
+                                        <div className={`h-14 w-14 rounded-2xl flex items-center justify-center text-white shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300 ${isRetiro ? 'bg-gradient-to-br from-rose-300 via-rose-400 to-rose-500 shadow-rose-400/50' : 'bg-gradient-to-br from-[#003366] via-[#0055aa] to-[#0066cc] shadow-blue-500/50'}`}>
                                             {isRetiro ? (
                                                 <ArrowDown size={26} strokeWidth={2.5} className="group-hover:animate-bounce" />
                                             ) : (
                                                 <ArrowUp size={26} strokeWidth={2.5} className="group-hover:animate-bounce" />
                                             )}
                                         </div>
-                                        <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full animate-ping ${isRetiro ? 'bg-slate-400' : 'bg-cyan-400'}`} />
-                                        <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${isRetiro ? 'bg-slate-500' : 'bg-cyan-500'}`} />
+                                        <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full animate-ping ${isRetiro ? 'bg-rose-300' : 'bg-cyan-400'}`} />
+                                        <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${isRetiro ? 'bg-rose-400' : 'bg-cyan-500'}`} />
                                     </div>
 
                                     <div className="flex-1 min-w-0 relative z-10">
@@ -64,14 +65,14 @@ export const RecentActivity = ({ movements }) => {
                                             <h4 className="font-bold text-slate-800 text-base truncate pr-2 group-hover:text-blue-700 transition-colors">
                                                 {activity.nombre}
                                             </h4>
-                                            <span className={`text-[10px] font-bold px-3 py-1.5 rounded-full shadow-sm border ${isRetiro ? 'bg-white text-slate-600 border-slate-200' : 'bg-white text-blue-600 border-blue-200'}`}>
+                                            <span className={`text-[10px] font-bold px-3 py-1.5 rounded-full shadow-sm border ${isRetiro ? 'bg-white text-rose-600 border-rose-200' : 'bg-white text-blue-600 border-blue-200'}`}>
                                                 {activity.horaEntrada}
                                             </span>
                                         </div>
 
                                         <div className="flex items-center gap-2">
-                                            <span className={`text-[11px] font-bold px-3 py-1 rounded-full shadow-sm flex items-center gap-1.5 ${isRetiro ? 'bg-gradient-to-r from-slate-100 to-gray-100 text-slate-700 border border-slate-200' : 'bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 border border-emerald-200'}`}>
-                                                <div className={`w-2 h-2 rounded-full animate-pulse shadow-lg ${isRetiro ? 'bg-slate-500 shadow-slate-500/50' : 'bg-emerald-500 shadow-emerald-500/50'}`} />
+                                            <span className={`text-[11px] font-bold px-3 py-1 rounded-full shadow-sm flex items-center gap-1.5 ${isRetiro ? 'bg-gradient-to-r from-rose-100 to-pink-100 text-rose-700 border border-rose-200' : 'bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 border border-emerald-200'}`}>
+                                                <div className={`w-2 h-2 rounded-full animate-pulse shadow-lg ${isRetiro ? 'bg-rose-400 shadow-rose-400/50' : 'bg-emerald-500 shadow-emerald-500/50'}`} />
                                                 {activity.tagBici}
                                             </span>
 
@@ -82,7 +83,7 @@ export const RecentActivity = ({ movements }) => {
                                         </div>
                                     </div>
 
-                                    <div className={`absolute right-0 top-0 w-1.5 h-full rounded-r-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 ${isRetiro ? 'bg-gradient-to-b from-slate-500 via-gray-500 to-slate-500' : 'bg-gradient-to-b from-[#0066cc] via-[#0088ee] to-[#00aaff]'}`} />
+                                    <div className={`absolute right-0 top-0 w-1.5 h-full rounded-r-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 ${isRetiro ? 'bg-gradient-to-b from-rose-400 via-rose-500 to-rose-400' : 'bg-gradient-to-b from-[#0066cc] via-[#0088ee] to-[#00aaff]'}`} />
                                 </div>
                             );
                         })}
