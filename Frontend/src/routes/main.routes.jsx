@@ -9,6 +9,7 @@ import GuardPages from "../features/Guard/GuardPages";
 import { CentralPage } from "../features/Central/CentralPage";
 import SecurityDashboard from "../features/Central/components/SecurityDashboard";
 import { NotFoundPage } from "../features/NotFoundPage";
+import { ProtectedRoute } from "./ProtectedRoute";
 
 const AppRoutes = () => {
   return (
@@ -21,13 +22,26 @@ const AppRoutes = () => {
       <Route path="/verify" element={<VerifyPage />} />
 
       {/* <Route path='/incidentes' element={<IncidentesPage/>} /> */}
-      <Route path="/central/home" element={<CentralPage />} />
-      <Route path="/central/security" element={<SecurityDashboard />} />
+      <Route
+        path="/central/home"
+        element={
+          <ProtectedRoute allowedRoles={['Central', 'Owner']}>
+            <CentralPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/central/security"
+        element={
+          <ProtectedRoute allowedRoles={['Central', 'Owner']}>
+            <SecurityDashboard />
+          </ProtectedRoute>
+        }
+      />
 
-      {/* Rutas Guardia */}
       <Route path="/guard/home" element={<GuardPages />} />
 
-      {/* Rutas Owner */}
+
       <Route path="/owner/home" element={<OwnerPage />} />
 
       <Route path="*" element={<NotFoundPage />} />
