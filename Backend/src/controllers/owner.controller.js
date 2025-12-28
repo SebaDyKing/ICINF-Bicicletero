@@ -456,6 +456,7 @@ export async function deleteOwner(req, res) {
  * 1. **Evento 'Ingreso':** Se selecciona siempre. Incluye explícitamente `fecha_salida` para permitir
  * al frontend distinguir entre un ingreso activo (bici dentro) y uno histórico.
  * 2. **Evento 'Salida':** Se genera una segunda fila solo si la bicicleta ya ha sido retirada.
+ * * **CAMBIO RECIENTE:** Se agrega la columna `marca` para mostrar "Marca Modelo".
  * * @param {import("express").Request} req - Objeto Request. Debe contener el `rut` en `req.params`.
  * @param {import("express").Response} res - Objeto Response. Devuelve una lista ordenada por fecha descendente.
  */
@@ -469,15 +470,16 @@ export async function getOwnerHistory(req, res) {
 
     const query = `
       SELECT * FROM (
-        -- Eventos de INGRESO
+        -- BLOQUE 1: Eventos de INGRESO
         SELECT 
           s.id_registro,
           'Ingreso' AS tipo,
           br.nombre AS nombre_bicicletero,
+          b.marca,  -- <--- NUEVO CAMPO AGREGADO
           b.modelo AS modelo_bicicleta,
           b.alias,
           s.fecha_ingreso AS fecha,
-          s.fecha_salida  -- <--- ESTO ES LO QUE FALTABA
+          s.fecha_salida
         FROM store s
         LEFT JOIN "bicycleRack" br ON s.id_bicicletero = br.id_bicicletero
         LEFT JOIN bicycle b ON s.id_bicicleta = b.id_bicicleta
@@ -485,15 +487,16 @@ export async function getOwnerHistory(req, res) {
 
         UNION ALL
 
-        -- Eventos de SALIDA (Solo si ya salió)
+        -- BLOQUE 2: Eventos de SALIDA
         SELECT 
           s.id_registro,
           'Salida' AS tipo,
           br.nombre AS nombre_bicicletero,
+          b.marca,  -- <--- NUEVO CAMPO AGREGADO
           b.modelo AS modelo_bicicleta,
           b.alias,
           s.fecha_salida AS fecha,
-          s.fecha_salida -- <--- Se repite para mantener la estructura de columnas
+          s.fecha_salida
         FROM store s
         LEFT JOIN "bicycleRack" br ON s.id_bicicletero = br.id_bicicletero
         LEFT JOIN bicycle b ON s.id_bicicleta = b.id_bicicleta

@@ -11,8 +11,7 @@ import Swal from 'sweetalert2';
  * Soporta dos modos de operación:
  * 1. MANUAL: Búsqueda por RUT del usuario.
  * 2. QR: Escaneo directo mediante la cámara del dispositivo.
- * * @param {function} onClose - Función para cerrar el modal.
- * @param {function} onSuccess - Callback para recargar la tabla tras un registro exitoso.
+ * * ACTUALIZACIÓN: Se agregó visualización de la MARCA en el selector y en el resultado QR.
  */
 const IngresoModal = ({ onClose, onSuccess }) => {
   // --- CONTROL DE PESTAÑAS (TABS) ---
@@ -315,8 +314,9 @@ const IngresoModal = ({ onClose, onSuccess }) => {
                     >
                       <option value="">-- Seleccione --</option>
                       {(ownerData.bicycles || ownerData.bicicletas || []).map(bici => (
+                        // CAMBIO: Mostrar Marca + Modelo
                         <option key={bici.id_bicicleta} value={bici.id_bicicleta}>
-                          {bici.modelo} ({bici.color})
+                          {bici.marca} {bici.modelo} ({bici.color})
                         </option>
                       ))}
                     </select>
@@ -366,7 +366,13 @@ const IngresoModal = ({ onClose, onSuccess }) => {
                             <h3 className="font-bold text-green-800 text-lg">¡Lectura Exitosa!</h3>
                             <p className="text-green-700 font-medium mt-1">{scanResult.nombre || 'Usuario detectado'}</p>
                             <p className="font-mono text-sm text-gray-600">{scanResult.rut}</p>
-                            {scanResult.modelo && (<div className="mt-3 inline-block bg-white px-3 py-1 rounded border border-green-200 text-xs text-gray-500 font-bold">🚲 {scanResult.modelo}</div>)}
+                            
+                            {/* CAMBIO: Mostrar Marca + Modelo en resultado QR */}
+                            {scanResult.modelo && (
+                                <div className="mt-3 inline-block bg-white px-3 py-1 rounded border border-green-200 text-xs text-gray-500 font-bold">
+                                    🚲 {scanResult.marca} {scanResult.modelo} ({scanResult.color})
+                                </div>
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Guardar en:</label>

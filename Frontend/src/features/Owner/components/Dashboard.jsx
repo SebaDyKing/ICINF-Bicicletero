@@ -122,8 +122,10 @@ const Dashboard = ({ user }) => {
         rut: user.rut,
         nombre: `${user.nombre} ${user.apellido}`,
         idBicicleta: bike.id_bicicleta, 
+        marca: bike.marca, // AGREGADO: Marca en el QR
         modelo: bike.modelo,
-        generado_a: new Date().getTime() // Timestamp para unicidad (opcional)
+        color: bike.color,
+        generado_a: new Date().getTime()
       };
       
       const url = await QRCode.toDataURL(JSON.stringify(dataParaQR), {
@@ -217,7 +219,6 @@ const Dashboard = ({ user }) => {
                         
                         <h2 className="text-3xl font-bold mb-1">Pase de Acceso</h2>
                         
-                        {/* FECHA Y HORA EN VIVO */}
                         <div className="text-blue-300 font-mono text-sm mb-4">
                           {fechaActual.toLocaleDateString()} <span className="mx-1">|</span> {fechaActual.toLocaleTimeString()}
                         </div>
@@ -234,12 +235,15 @@ const Dashboard = ({ user }) => {
                                     onChange={(e) => setSelectedBike(misBicicletas.find(b => b.id_bicicleta.toString() === e.target.value))}
                                 >
                                     {misBicicletas.map(b => (
-                                        <option key={b.id_bicicleta} value={b.id_bicicleta} className="bg-[#0f172a] text-white">{b.modelo} ({b.color})</option>
+                                        // CAMBIO VISUAL: Agregada la Marca en el selector
+                                        <option key={b.id_bicicleta} value={b.id_bicicleta} className="bg-[#0f172a] text-white">
+                                            {b.marca} {b.modelo} ({b.color})
+                                        </option>
                                     ))}
                                 </select>
                                 <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-blue-200 pointer-events-none" size={20} />
                         </div>
-                         <p className="text-blue-300 text-xs mt-2 ml-2">
+                          <p className="text-blue-300 text-xs mt-2 ml-2">
                             ID: <span className="font-mono text-white font-bold">{selectedBike?.id_bicicleta}</span>
                         </p>
                     </div>
@@ -254,7 +258,6 @@ const Dashboard = ({ user }) => {
                             <MapPin size={14} /> Estado Actual
                         </h3>
 
-                        {/* MÚLTIPLES BICIS ADENTRO */}
                         {bicisAdentro.length > 1 ? (
                             <div className="space-y-3">
                                 <div className="flex items-center gap-2 text-indigo-600 mb-2">
@@ -265,7 +268,10 @@ const Dashboard = ({ user }) => {
                                     {bicisAdentro.map((ingreso, i) => (
                                         <div key={i} className="flex items-center justify-between text-sm bg-slate-50 p-2 rounded-lg border border-slate-100">
                                             <div>
-                                                <p className="font-bold text-slate-700">{ingreso.modelo_bicicleta}</p>
+                                                {/* CAMBIO VISUAL: Agregada Marca */}
+                                                <p className="font-bold text-slate-700">
+                                                    {ingreso.marca} {ingreso.modelo_bicicleta}
+                                                </p>
                                                 <p className="text-xs text-slate-500">{ingreso.nombre_bicicletero}</p>
                                             </div>
                                             <span className="text-xs font-mono bg-white px-2 py-1 rounded border text-slate-400">
@@ -276,7 +282,6 @@ const Dashboard = ({ user }) => {
                                 </div>
                             </div>
                         ) : bicisAdentro.length === 1 ? (
-                            /* UNA BICI ADENTRO */
                             <div className="flex items-start gap-4">
                                 <div className="p-3 rounded-2xl bg-green-50 text-green-600">
                                     <Bike size={24} />
@@ -284,13 +289,13 @@ const Dashboard = ({ user }) => {
                                 <div>
                                     <p className="font-bold text-slate-800 text-lg">En Campus</p>
                                     <p className="text-sm text-slate-600 font-medium">{bicisAdentro[0].nombre_bicicletero}</p>
+                                    {/* CAMBIO VISUAL: Agregada Marca */}
                                     <p className="text-xs text-slate-400 mt-1">
-                                        {bicisAdentro[0].modelo_bicicleta} • {formatDateShort(bicisAdentro[0].fecha)}
+                                        {bicisAdentro[0].marca} {bicisAdentro[0].modelo_bicicleta} • {formatDateShort(bicisAdentro[0].fecha)}
                                     </p>
                                 </div>
                             </div>
                         ) : (
-                            /* NINGUNA BICI ADENTRO */
                             <div className="flex items-start gap-4">
                                 <div className="p-3 rounded-2xl bg-slate-50 text-slate-400">
                                     <Bike size={24} />
@@ -367,7 +372,11 @@ const Dashboard = ({ user }) => {
                                         )}
                                     </td>
                                     <td className="px-4 py-3 text-slate-600">{log.nombre_bicicletero || '-'}</td>
-                                    <td className="px-4 py-3 text-slate-600 font-medium">{log.modelo_bicicleta || '-'}</td>
+                                    
+                                    {/* CAMBIO VISUAL: Agregada Marca */}
+                                    <td className="px-4 py-3 text-slate-600 font-medium">
+                                        {log.marca ? `${log.marca} ${log.modelo_bicicleta}` : log.modelo_bicicleta || '-'}
+                                    </td>
                                     
                                     <td className="px-4 py-3 text-slate-400 font-mono whitespace-nowrap">
                                         {formatDateShort(log.fecha)}
