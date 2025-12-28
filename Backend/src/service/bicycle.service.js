@@ -108,3 +108,23 @@ export const deleteBicycleService = async (id_bicicleta) => {
     throw new Error(`Error al eliminar bicicleta: ${error.message}`);
   }
 };
+
+/**
+ * @brief Servicio ESPECÍFICO para el ingreso del guardia.
+ * @description Retorna al dueño completo CON sus bicicletas anidadas.
+ */
+export const getOwnerWithBicyclesService = async (rut) => {
+  const ownerRepository = AppDataSource.getRepository(Owner);
+
+  // Buscamos al Dueño y pedimos explícitamente la relación "bicycles"
+  const owner = await ownerRepository.findOne({
+    where: { rut: rut },
+    relations: ["bicycles"],
+  });
+
+  if (!owner) {
+    return null;
+  }
+
+  return owner;
+};

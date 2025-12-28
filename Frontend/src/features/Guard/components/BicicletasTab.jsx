@@ -15,6 +15,7 @@ import Swal from 'sweetalert2';
  * - Buscador en tiempo real (RUT, Nombre, ID).
  * - Vista dual: Tabla para Desktop y Tarjetas para Móvil.
  * - Feedback visual mediante SweetAlert2.
+ * * ACTUALIZACIÓN: Se agregó visualización de la MARCA en la tabla y tarjetas.
  */
 function BicicletasTab() {
   // --- ESTADOS ---
@@ -249,7 +250,7 @@ function BicicletasTab() {
                     <th className="px-6 py-3 font-semibold w-[15%]">ID Bicicleta</th>
                     <th className="px-6 py-3 font-semibold w-[15%]">RUT</th>
                     <th className="px-6 py-3 font-semibold w-[20%]">Nombre</th>
-                    <th className="px-6 py-3 font-semibold w-[20%]">Tipo/Color</th>
+                    <th className="px-6 py-3 font-semibold w-[20%]">Bicicleta</th> {/* CAMBIO: Tipo/Color -> Bicicleta */}
                     <th className="px-6 py-3 font-semibold w-[20%]">Fecha/Hora</th>
                     <th className="px-6 py-3 font-semibold w-[10%] text-center">Acciones</th>
                   </tr>
@@ -260,7 +261,14 @@ function BicicletasTab() {
                       <td className="px-6 py-4 font-medium text-gray-900 truncate">{reg.bicycle.id_bicicleta}</td>
                       <td className="px-6 py-4 text-gray-600 truncate">{reg.bicycle.owner.rut}</td>
                       <td className="px-6 py-4 text-gray-600 truncate">{reg.bicycle.owner.nombre} {reg.bicycle.owner.apellido}</td>
-                      <td className="px-6 py-4 text-gray-600 truncate">{reg.bicycle.modelo} ({reg.bicycle.color})</td>
+                      
+                      {/* CAMBIO: Mostrar Marca + Modelo + Color */}
+                      <td className="px-6 py-4 text-gray-600 truncate">
+                          {reg.bicycle.marca ? `${reg.bicycle.marca} ` : ''} 
+                          {reg.bicycle.modelo} 
+                          <span className="text-gray-400 text-xs ml-1">({reg.bicycle.color})</span>
+                      </td>
+
                       <td className="px-6 py-4 text-gray-600 truncate">
                         {new Date(reg.fechaIngreso).toLocaleDateString()} <span className="text-gray-300 mx-1">|</span> {new Date(reg.fechaIngreso).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                       </td>
@@ -305,10 +313,16 @@ function BicicletasTab() {
                       <span className="text-gray-500">RUT: </span>
                       <span className="font-bold ml-1">{reg.bicycle.owner.rut}</span>
                     </div>
+                    
+                    {/* CAMBIO: Mostrar Marca también en móvil */}
                     <div>
                       <span className="text-gray-500">Bicicleta: </span>
-                      <span className="font-bold ml-1">{reg.bicycle.modelo} - {reg.bicycle.color}</span>
+                      <span className="font-bold ml-1">
+                          {reg.bicycle.marca ? `${reg.bicycle.marca} ` : ''} 
+                          {reg.bicycle.modelo} - {reg.bicycle.color}
+                      </span>
                     </div>
+
                     <div>
                       <span className="text-gray-500">Hora ingreso: </span>
                       <span className="font-bold ml-1">{horaStr}</span>

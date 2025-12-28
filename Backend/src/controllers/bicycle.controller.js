@@ -3,6 +3,7 @@ import {
   createBicycleService,
   deleteBicycleService,
   getBicyclesByOwnerService,
+  getOwnerWithBicyclesService
 } from "../service/bicycle.service.js";
 import {
   handleSuccess,
@@ -105,5 +106,30 @@ export const deleteBicycleByOwner = async (req, res) => {
   } catch (error) {
     console.error("Error al eliminar bicicleta:", error);
     handleErrorServer(res, 500, "Error al eliminar bicicleta.", error.message);
+  }
+};
+
+
+/**
+ * @function getOwnerWithBicycles
+ * @brief Obtiene un dueño completo incluyendo sus bicicletas anidadas.
+ * @description Controlador específico para el Ingreso Manual del Guardia. 
+ * Permite visualizar el nombre del alumno y sus bicicletas en una sola petición.
+ * @param {import("express").Request} req - Debe contener el RUT en los parámetros de la URL.
+ * @param {import("express").Response} res - Objeto Owner con la propiedad 'bicycles' poblada.
+ */
+export const getOwnerWithBicycles = async (req, res) => {
+  try {
+    const { rut } = req.params;
+    
+    const ownerData = await getOwnerWithBicyclesService(rut);
+
+    if (!ownerData) {
+      return handleErrorClient(res, 404, "Usuario no encontrado", "El RUT ingresado no corresponde a un dueño registrado.");
+    }
+
+    handleSuccess(res, 200, "Dueño y bicicletas encontrados", ownerData);
+  } catch (error) {
+    handleErrorServer(res, 500, error.message);
   }
 };

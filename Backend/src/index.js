@@ -5,7 +5,9 @@ import morgan from "morgan";
 import { connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
 import { createCentral } from './config/initialSetup.js'
-import { host, port } from "./config/configEnv.js"
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { PORT, HOST } from "./config/configEnv.js"
 import http from "http";
 import cors from "cors";
 import { Server } from "socket.io";
@@ -16,10 +18,10 @@ const app = express();
 const server = http.createServer(app);
 
 const corsOptions = {
-  origin: ['http://localhost:5173','http://146.83.198.35:1354'],
-  methods: ['GET','POST','PATCH','DELETE', 'PUT'],
-  allowedHeaders: ['Content-Type','Authorization','Accept'],
-  credentials : true
+  origin: ['http://localhost:5173', 'http://146.83.198.35:1354'],
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  credentials: true
 };
 
 app.use(cors(corsOptions));
@@ -30,7 +32,7 @@ const io = new Server(server, {
   cors: corsOptions
 });
 
-app.use((req,res,next)=> {
+app.use((req, res, next) => {
   req.io = io;
   next();
 })
@@ -40,8 +42,8 @@ connectDB()
     await createCentral();
     socketController(io);
     routerApi(app);
-    server.listen(port, () => {
-      console.log(`Servidor iniciado en ${host}:${port}`);
+    server.listen(PORT, () => {
+      console.log(`Servidor iniciado en http://${HOST}:${PORT}`);
     });
   })
   .catch((error) => {
