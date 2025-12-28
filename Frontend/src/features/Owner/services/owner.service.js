@@ -72,6 +72,19 @@ export const getBicicleterosStatus = async () => {
   }
 };
 
+/**
+ * @function solicitarGuardService
+ * @brief Envía la solicitud de asistencia presencial al servidor.
+ *
+ * Esta función actúa como puente entre el Frontend y el Backend. Toma las coordenadas
+ * GPS obtenidas del navegador y las envía al endpoint `/owners/solicitud` para que
+ * el servidor valide la geocerca y emita la notificación vía WebSockets.
+ *
+ * @param {number} latitude Latitud geográfica actual del usuario.
+ * @param {number} longitude Longitud geográfica actual del usuario.
+ * @returns {Promise<Object>} Retorna la respuesta del servidor (mensaje de éxito y datos del bicicletero).
+ * @throws {Object} Lanza un error con el mensaje del servidor (ej: "Estás muy lejos") o un error genérico de red.
+ */
 export const solicitarGuardService = async (latitude, longitude) => {
   try {
     const response = await api.post(`/owners/solicitud`, {

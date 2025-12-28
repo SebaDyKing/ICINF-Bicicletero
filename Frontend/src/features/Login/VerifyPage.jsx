@@ -2,6 +2,20 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { verifyAccountService } from "./services/auth.service";
 
+/**
+ * @component VerifyPage
+ * @brief Pantalla de verificación de cuenta mediante código OTP (One-Time Password).
+ *
+ * Esta vista presenta 6 inputs individuales para ingresar el código de verificación enviado por correo.
+ *
+ * Funcionalidades clave de UX (Experiencia de Usuario):
+ * 1. **Auto-focus:** El cursor salta automáticamente al siguiente campo al escribir un número.
+ * 2. **Navegación con Teclado:** La tecla Backspace borra y retrocede al campo anterior.
+ * 3. **Pegado Inteligente:** Permite pegar (Ctrl+V) el código completo de 6 dígitos y lo distribuye automáticamente.
+ * 4. **Detección de Origen:** Identifica si el usuario viene del registro (state) o de un link directo del correo (URL params).
+ *
+ * @returns {JSX.Element} Interfaz de validación de código.
+ */
 const VerifyPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -26,9 +40,7 @@ const VerifyPage = () => {
       navigate("/login");
     }
     // Enfocar el primer input al cargar
-    if (inputRefs.current[0]) {
-      inputRefs.current[0].focus();
-    }
+    inputRefs.current[0].focus()
   }, [emailFromRegister, navigate]);
 
   // Maneja el cambio en cada input
@@ -39,7 +51,7 @@ const VerifyPage = () => {
     if (isNaN(value)) return;
 
     const newCode = [...code];
-    // Tomar solo el último caracter ingresado (por si acaso)
+    // Tomar solo el último caracter ingresado
     newCode[index] = value.substring(value.length - 1);
     setCode(newCode);
 
