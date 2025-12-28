@@ -138,32 +138,6 @@ const NewIncidentModal  = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Imágenes (Input File simulado) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Imágenes
-            </label>
-
-            <div
-              onClick={handleDivClick}
-              className="border border-gray-300 rounded-md p-2 flex justify-between items-center bg-gray-50 cursor-pointer hover:bg-gray-100"
-            >
-              <span className="text-gray-500 text-sm">
-                <span className="font-medium text-gray-700">Elegir archivos</span>{" "}
-                {fileName || "No se ha seleccionado ningún archivo"}
-              </span>
-              <Upload size={18} className="text-gray-400" />
-            </div>
-
-            <input
-              type="file"
-              multiple
-              ref={fileInputRef}
-              className="hidden"
-              onChange={handleFileChange}
-            />
-          </div>
-
           {/* Botones de Acción */}
           <div className="flex justify-end gap-3 mt-6">
             <button 

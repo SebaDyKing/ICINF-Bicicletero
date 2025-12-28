@@ -65,8 +65,7 @@ export default function SecurityDashboard() {
           ID_Informe: r.ID_Informe,
           fecha: r.Fecha,
           descripcion: r.Descripcion,
-          bicicletero: r.Bicicletero,
-          imagenes: r.ImagenesURL
+          bicicletero: r.Bicicletero
         }));
         
 
@@ -511,7 +510,6 @@ export default function SecurityDashboard() {
                     <th className="p-4">Fecha</th>
                     <th className="p-4">Bicicletero</th>
                     <th className="p-4 w-64">Descripción</th>
-                    <th className="p-4">Imagenes</th>
                     <th className="p-4">Acciones</th>
                   </tr>
                 </thead>
@@ -534,9 +532,6 @@ export default function SecurityDashboard() {
                       <td className="p-4">{formatDate(r.fecha)}</td>
                       <td className="p-4">{r.bicicletero}</td>
                       <td className="p-4 truncate max-w-xs" title={r.descripcion}>{r.descripcion}</td>
-                      <td className="p-4 text-center">
-                        <span className="bg-gray-100 px-3 py-1 rounded-full text-xs border border-gray-200">{r.imagenes} imágenes</span>
-                      </td>
                       <td className='p-4'>
                         <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium" onClick={() => handleDeleteReport(r.ID_Informe)}>
                           <Trash2 size={14}/> Eliminar

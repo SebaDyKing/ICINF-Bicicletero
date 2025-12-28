@@ -30,8 +30,7 @@ const IncidentesPage = () => {
           ID_Informe: r.ID_Informe,
           fecha: r.Fecha,
           descripcion: r.Descripcion,
-          bicicletero: r.Bicicletero,
-          imagenes: r.ImagenesURL
+          bicicletero: r.Bicicletero
         }));
         
 
@@ -128,15 +127,14 @@ const IncidentesPage = () => {
                   <th className="p-4">Fecha</th>
                   <th className="p-4">Bicicletero</th>
                   <th className="p-4 w-1/3">Descripción</th>
-                  <th className="p-4 text-center">Imágenes</th>
-                  <th className="p-4 text-center">Acciones</th> 
+                  <th className="p-4">Acciones</th> 
                 </tr>
               </thead>
 
               {reports.length === 0 ? (
                 <tr>
                   {/* IMPORTANTE: colSpan debe ser igual al número de columnas de tu cabecera (ID, Fecha, etc.) */}
-                  <td colSpan="6" className="p-8 text-center text-gray-500">
+                  <td colSpan="5" className="p-8 text-center text-gray-500">
                     <div className="flex flex-col items-center justify-center gap-2">
                       {/* Opcional: Un icono para que se vea más bonito */}
                       <span className="text-2xl">📂</span> 
@@ -148,18 +146,20 @@ const IncidentesPage = () => {
               <tbody className="divide-y divide-gray-100">
                 {reports.map((r) => (
                   <tr key={r.ID_Informe} className="hover:bg-gray-50 transition-colors">
-                    <td className="p-4 font-medium">{r.ID_Informe}</td>
-                    <td className="p-4">{formatDate(r.fecha)}</td>
-                    <td className="p-4">{r.bicicletero}</td>
-                    <td className="p-4 truncate max-w-xs" title={r.descripcion}>{r.descripcion}</td>
-                    <td className="p-4 text-center">
-                      <span className="bg-gray-100 px-3 py-1 rounded-full text-xs border border-gray-200">{r.imagenes} imágenes</span>
-                    </td>
-                    <td className="p-4 flex justify-end gap-2">
-                        <button className="flex items-center gap-1 text-blue-600 border border-blue-200 px-3 py-1.5 rounded-lg text-sm hover:bg-blue-50 font-medium" onClick={() => {
-                          setIsModalOpenEdit(true);
-                          setReportSelected(r)}}> 
-                          <Edit size={14}/> Editar
+                    <td className="p-5 wrap-break-word text-gray-600 text-base">{r.ID_Informe}</td>
+                    <td className="p-5 wrap-break-word text-gray-600 text-base">{formatDate(r.fecha)}</td>
+                    <td className="p-5 wrap-break-word text-gray-600 text-base">{r.bicicletero}</td>
+                    <td className="p-5 wrap-break-word text-gray-600 text-base" title={r.descripcion}>{r.descripcion}</td>
+                    <td className="p-5">
+                        <button 
+                          className="flex items-center bg-blue-50 text-blue-600 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-100 hover:text-blue-700 transition-all shadow-sm transform active:scale-95" 
+                          onClick={() => {
+                            setIsModalOpenEdit(true);
+                            setReportSelected(r)
+                          }}
+                        >
+                          <Edit size={18} className="stroke-2"/> {/* Ícono un poco más grande */}
+                          Editar
                         </button>
                     </td>
                   </tr>
