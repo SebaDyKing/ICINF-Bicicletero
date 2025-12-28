@@ -16,7 +16,7 @@ export const loginUser = async (req, res) => {
             await AppDataSource.initialize();
         }
 
-        // 1. Validaciones de formato
+        // Validaciones de formato
         let validation = guardBodyPartialValidation({rut})
         if (validation.error) {
             const errorMessages = validation.error.details.map((detail) => detail.message)
@@ -32,14 +32,14 @@ export const loginUser = async (req, res) => {
         const user = AppDataSource.getRepository(Users);
         const userFound = await user.findOneBy({rut});
 
-        //  2. Validacion si se encuentra registrado
+        // Validacion si se encuentra registrado
         if (!userFound) return handleErrorClient(res, 404, `El rut ${rut} no se encuentra registrado.`);
 
         if (!userFound.verificado) {
             return handleErrorClient(res, 403, "Tu cuenta no ha sido verificada. Por favor, revisa tu email.");
         }
 
-        //  3. Validar contraseña
+        // Validar contraseña
         const isValidPass = await bcrypt.compare(contrasenia, userFound.contrasenia)
         if(!isValidPass) handleErrorClient(res, 404, 'Contraseña incorrecta')
 
@@ -59,7 +59,7 @@ export const loginUser = async (req, res) => {
                 const ownerFound = await ownerRepo.findOneBy({rut: rut});
 
                 if (ownerFound) {
-                    nombreCompleto = `${ownerFound.nombre} ${ownerFound.apellido}`;
+                    nombreCompleto = `${ownerFound.nombre}`;
                 }
             }
         } catch (errName) {
@@ -67,7 +67,7 @@ export const loginUser = async (req, res) => {
             // Si falla esto, no importa, el login sigue, solo que sin nombre.
         }
 
-        //  4. JWT - Guarda en un JWT todas las variables que tenga dentro del sign
+        // JWT - Guarda en un JWT todas las variables que tenga dentro del sign
         const token = jwt.sign({
                 rut: userFound.rut,
                 nombre: nombreCompleto,

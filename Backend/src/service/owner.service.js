@@ -1,40 +1,44 @@
-import { AppDataSource } from "../config/configDb.js";
-import { BicycleRack } from "../models/bicycleRack.entity.js";
-import { calcularDistancia } from "../utils/CalcularDistancia.js";
+import { AppDataSource } from "../config/configDb.js"; // Ajusta la ruta a tu configDb
+import { BicycleRack } from "../models/bicycleRack.entity.js"; // Ajusta a tu entidad
+import { DentroBicicletero } from "../utils/CalcularDistancia.js"; // Asumo que tienes esta utilidad
 
-export const solicitarGuardService = async (lat, lon) => {
+export const solicitarGuardService = async (lat, lon, io) => {
   if (!lat || !lon) {
     throw new Error("Latitud y longitud son requeridos");
   }
 
- 
+  // Obtener bicicleteros
   const bicicletarios = await AppDataSource.getRepository(BicycleRack).find();
 
-  const RADIO = 50;  
-  const resultado = calcularDistancia(lat, lon, bicicletarios, RADIO);
+  // Calcular cercanía 
+  const RADIO = 20; 
+  const resultado = DentroBicicletero(lat, lon, bicicletarios, RADIO);
 
   if (!resultado.dentro) {
-    throw new Error("No hay bicicletarios cercanos");
+    throw new Error("No hay bicicleros cercanos. Debes estar a menos de 20m.");
   }
 
   const bicicletarioCercano = resultado.bicicletario;
 
+  console.log(bicicletarioCercano)
 
-  io.to("guardias").emit("nueva_solicitud_guardia", { 
-    message: "Se ha solicitado un guardia en el bicicletario cercano",
-    bicicletarioID: bicicletarioCercano.id_bicicletero,
-    bicicletarioNombre: bicicletarioCercano.nombre
-  });
-
+  //  Emitir evento Socket
+  if (io) {
+    io.emit("nueva_solicitud_guardia", {
+      message: "Se requiere asistencia en un bicicletero.",
+      bicicletarioID: bicicletarioCercano.id_bicicletero,
+      bicicletarioNombre: bicicletarioCercano.nombre,
+      ubicacion: { lat, lon }
+    });
+  } else {
+    console.warn("Socket.io no está disponible en el req.");
+  }
 
   return {
-    status: 200,
-    payload: {
-      message: "Solicitud de guardia enviada exitosamente",
-      bicicletario: {
-        id: bicicletarioCercano.id_bicicletero,
-        nombre: bicicletarioCercano.nombre
-      }
-    }
+    message: "Solicitud enviada correctamente. Un guardia ha sido notificado.",
+    bicicletario: {
+      id: bicicletarioCercano.id_bicicletero,
+      nombre: bicicletarioCercano.nombre,
+    },
   };
 };
