@@ -15,10 +15,6 @@ import { socketController } from "./controllers/socketController.controller.js";
 
 const app = express();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const uploadsPath = path.resolve(__dirname, '../../../uploads');
-
 const server = http.createServer(app);
 
 const corsOptions = {
@@ -40,7 +36,6 @@ app.use((req, res, next) => {
   req.io = io;
   next();
 })
-app.use('/uploads', express.static(uploadsPath));
 
 connectDB()
   .then(async () => {

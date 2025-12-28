@@ -66,8 +66,7 @@ export default function SecurityDashboard() {
           ID_Informe: r.ID_Informe,
           fecha: r.Fecha,
           descripcion: r.Descripcion,
-          bicicletero: r.Bicicletero,
-          imagenes: r.ImagenesURL
+          bicicletero: r.Bicicletero
         }));
         
 
@@ -76,7 +75,7 @@ export default function SecurityDashboard() {
         console.error("Error backend:", error);
         Swal.fire({
                 icon: 'error',
-                title: 'Error al cargar reportes.',
+                title: 'Error al cargar incidentes.',
                 timer: 2000
               })
       }
@@ -162,7 +161,7 @@ export default function SecurityDashboard() {
         title: error.response.data.message || "Error de validación"
       }) : Swal.fire({
         icon: 'error',
-        title: details?.[0] || "Error de validación"
+        title: error || details?.[0] || "Error de validación"
       });
     }
   };
@@ -338,7 +337,7 @@ export default function SecurityDashboard() {
         <div className="flex justify-between items-start mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Centro de Seguridad</h1>
-            <p className="text-gray-500 mt-1">Gestión integral de guardias y reportes de robo</p>
+            <p className="text-gray-500 mt-1">Gestión integral de guardias e incidentes</p>
           </div>
           {activeTab === 'guards' && (
             <button 
@@ -431,7 +430,7 @@ export default function SecurityDashboard() {
             onClick={() => setActiveTab('reports')}
             className={`flex-1 py-2 rounded-full font-medium text-sm flex justify-center items-center gap-2 transition-all ${activeTab === 'reports' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'}`}
           >
-            <AlertTriangle size={16} /> Reportes ({reports.length})
+            <AlertTriangle size={16} /> Incidentes ({reports.length})
           </button>
         </div>
         
@@ -498,11 +497,11 @@ export default function SecurityDashboard() {
         )}
         
 
-        {/* --- VISTA: REPORTES --- */}
+        {/* --- VISTA: INCIDENTES --- */}
         {activeTab === 'reports' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-1">Reportes de Robo</h2>
-            <p className="text-gray-500 text-sm mb-6">Gestión y seguimiento de reportes de los estudiantes</p>
+            <h2 className="text-xl font-semibold text-gray-800 mb-1">Incidentes de Robo</h2>
+            <p className="text-gray-500 text-sm mb-6">Gestión y seguimiento de incidentes de los estudiantes</p>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
@@ -512,7 +511,6 @@ export default function SecurityDashboard() {
                     <th className="p-4">Fecha</th>
                     <th className="p-4">Bicicletero</th>
                     <th className="p-4 w-64">Descripción</th>
-                    <th className="p-4">Imagenes</th>
                     <th className="p-4">Acciones</th>
                   </tr>
                 </thead>
@@ -523,7 +521,7 @@ export default function SecurityDashboard() {
                       <div className="flex flex-col items-center justify-center gap-2">
                         {/* Opcional: Un icono para que se vea más bonito */}
                         <span className="text-2xl">📂</span> 
-                        <p>No se encuentran reportes registrados.</p>
+                        <p>No se encuentran incidentes registrados.</p>
                       </div>
                     </td>
                   </tr>
@@ -535,9 +533,6 @@ export default function SecurityDashboard() {
                       <td className="p-4">{formatDate(r.fecha)}</td>
                       <td className="p-4">{r.bicicletero}</td>
                       <td className="p-4 truncate max-w-xs" title={r.descripcion}>{r.descripcion}</td>
-                      <td className="p-4 text-center">
-                        <span className="bg-gray-100 px-3 py-1 rounded-full text-xs border border-gray-200">{r.imagenes} imágenes</span>
-                      </td>
                       <td className='p-4'>
                         <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium" onClick={() => handleDeleteReport(r.ID_Informe)}>
                           <Trash2 size={14}/> Eliminar

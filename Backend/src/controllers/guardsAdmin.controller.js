@@ -21,9 +21,13 @@ export const createGuard = async (req, res) => {
     }
 
     const user = AppDataSource.getRepository(Users); //toma la tabla Users y la guarda como variable
-    const isValid = await user.findOneBy({rut}); //busca el user con el rut y lo guarda en isValid
+    let isValid = await user.findOneBy({rut}); //busca el user con el rut y lo guarda en isValid
 
     if (isValid) return handleErrorClient(res, 409, `El RUT ${rut} ya está registrado.`); //si hay es porque el rut ya se registro
+
+    isValid = await user.findOneBy({email});
+
+    if (isValid) return handleErrorClient(res, 409, `El correo ${email} ya se encuentra registrado.`);
 
     // consulta SQL para ingresar a tabla Users
     const queryUsers = `
