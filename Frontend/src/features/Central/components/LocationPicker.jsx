@@ -9,7 +9,7 @@ import { MapUpdater, MapFix, MapClickEvents } from "../utils/mapHelpers";
 import { useGeolocation } from "../hooks/useGeolocation";
 
 
-const DEFAULT_CENTER = [-33.4489, -70.6693]; 
+const DEFAULT_CENTER = [-33.4489, -70.6693];
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -20,7 +20,7 @@ L.Icon.Default.mergeOptions({
 
 export function LocationPicker({ lat, lng, onChange }) {
   const { loading: loadingLoc, getCurrentLocation } = useGeolocation();
-  
+
   const position = (lat && lng) ? [Number(lat), Number(lng)] : null;
 
   const handleGpsClick = () => {
@@ -41,25 +41,25 @@ export function LocationPicker({ lat, lng, onChange }) {
           className="text-xs flex items-center gap-1 text-[#003366] hover:text-blue-700 font-medium transition-colors"
         >
           {loadingLoc ? <Loader2 className="w-3 h-3 animate-spin" /> : <Navigation className="w-3 h-3" />}
-          {loadingLoc ? "Buscando..." : "Usar mi ubicación"}
+          {loadingLoc ? "Buscando..." : "Usar mi ubicación aproximada"}
         </button>
       </div>
 
       <AddressSearch onSelectAddress={onChange} />
 
       <div className="relative h-64 w-full rounded-xl overflow-hidden border border-gray-200 shadow-sm z-0">
-        <MapContainer 
-          center={position || DEFAULT_CENTER} 
-          zoom={position ? 16 : 13} 
+        <MapContainer
+          center={position || DEFAULT_CENTER}
+          zoom={position ? 16 : 13}
           className="h-full w-full"
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; OpenStreetMap'
           />
-          
+
           {position && <Marker position={position} />}
-          
+
           <MapClickEvents onLocationSelect={onChange} />
           <MapUpdater position={position} />
           <MapFix />
