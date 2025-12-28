@@ -223,7 +223,7 @@ const Dashboard = ({ user }) => {
                           {fechaActual.toLocaleDateString()} <span className="mx-1">|</span> {fechaActual.toLocaleTimeString()}
                         </div>
 
-                        <p className="text-blue-100 text-sm mb-6 opacity-90">Escanea este código con un guardia al ingresar o salir.</p>
+                        <p className="text-blue-100 text-sm mb-6 opacity-90">Escanea este código con un guardia al ingresar.</p>
                         
                         <div className="bg-blue-900/50 p-1.5 rounded-xl border border-blue-500/30 backdrop-blur-sm w-full max-w-md relative">
                                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
