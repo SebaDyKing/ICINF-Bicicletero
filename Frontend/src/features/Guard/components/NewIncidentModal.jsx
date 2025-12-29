@@ -6,14 +6,12 @@ import Swal from 'sweetalert2'
 import { createReportService, getOwnersByBicicleteroService, getBicicleterosService} from '../services/guardReports.service';
 
 // Componente Básico de Modal
-const NewIncidentModal  = ({ isOpen, onClose }) => {
+const NewIncidentModal  = ({ isOpen, onClose, onSuccess }) => {
   if (!isOpen) return null;
   const [fecha, setFecha] = useState('')
   const [bicicletero, setBicicletero] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const [listaBicicleteros, setListaBicicleteros] = useState([])
-  const fileInputRef = useRef(null);
-  const [fileName, setFileName] = useState("");
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -58,7 +56,7 @@ const NewIncidentModal  = ({ isOpen, onClose }) => {
             title: 'Se ha registrado el incidente exitosamente',
             timer: 2000
           })
-      navigate(0)
+      onSuccess();
     } catch (error) {
       console.log(error);
       error.status === 400 ? Swal.fire({

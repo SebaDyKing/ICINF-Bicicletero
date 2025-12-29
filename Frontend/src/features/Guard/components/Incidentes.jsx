@@ -16,11 +16,7 @@ const IncidentesPage = () => {
   const navigate = useNavigate()
 
 
-  useEffect(() => {
-    // if (!emailFromRegister) {
-    //   navigate("/login");
-    // }
-    const fetchReports = async () => {
+  const fetchReports = async () => {
       try {
         const res = await getAllReportsService()
         console.log(res)
@@ -46,8 +42,14 @@ const IncidentesPage = () => {
       }
     };
 
+  useEffect(() => {
     fetchReports();
   }, []);
+
+  const handleSucess = () => {
+    setIsModalOpen(false);
+    fetchReports();
+  }
 
   const formatDate = (fechaHora) => {
     const date = new Date(fechaHora);
@@ -71,7 +73,8 @@ const IncidentesPage = () => {
                 title: 'Reporte actualizado correctamente.',
                 timer: 2000
               })
-        navigate(0)
+        setIsModalOpenEdit(false);
+        fetchReports();
     } catch (error) {
         console.log(error);
         Swal.fire({
@@ -225,6 +228,7 @@ const IncidentesPage = () => {
       <NewIncidentModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
+        onSuccess = {handleSucess}
       />
     </div>
   );
