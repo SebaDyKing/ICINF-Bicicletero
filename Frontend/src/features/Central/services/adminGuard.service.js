@@ -15,20 +15,20 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
  * @throws {string} Mensaje de error si la solicitud falla.
  */
 export const createGuardService = async (rut, email, contrasenia, telefono, nombre, apellido) => {
-  try {
-    const res = await axios.post(`${API_URL}/central/createGuard`, {
-      rut,
-      email,
-      contrasenia,
-      telefono,
-      nombre,
-      apellido
-    });
-    return res
-  } catch (error) {
-    console.log(error);
-    throw error.response?.data?.message || "Error en la solicitud";
-  }
+    try {
+        const res = await axios.post(`${API_URL}/central/createGuard`, {
+        rut,
+        email,
+        contrasenia,
+        telefono,
+        nombre,
+        apellido
+      });
+      return res
+    } catch (error) {
+      console.log(error);
+      throw error || "Error en la solicitud";
+    }
 }
 
 /**
@@ -147,15 +147,15 @@ export const getUserService = async (rut) => {
  * @throws {string} Mensaje de error si la solicitud falla.
  */
 export const getAllReportsService = async () => {
-  try {
-    const res = await axios.get(
-      `${API_URL}/guards/report/getAllReports`
-    );
-    return res
-  } catch (error) {
-    console.log(error);
-    throw error.response?.data?.message || "Error en la solicitud";
-  }
+    try {
+        const res = await axios.get(
+        `${API_URL}/central/getAllReports`
+      );
+      return res
+    } catch (error) {
+      console.log(error);
+      throw error.response?.data?.message || "Error en la solicitud";
+    }
 }
 
 /**
@@ -189,16 +189,16 @@ export const deleteOwnerService = async (rut) => {
  * @throws {string} Mensaje de error si la solicitud falla.
  */
 export const deleteReportService = async (ID_Informe) => {
-  try {
-    const res = await axios.delete(
-      `${API_URL}/guards/report/deleteReport`,
-      {
-        data: { ID_Informe },
-      }
-    );
-    return res
-  } catch (error) {
-    console.log(error);
-    throw error.response?.data?.message || "Error en la solicitud";
-  }
+    try {
+        const res = await axios.delete(
+          `${API_URL}/central/deleteReport`,
+          {
+            data: { ID_Informe },
+          }
+        );
+      return res
+    } catch (error) {
+      console.log(error);
+      throw error.response?.data?.message || "Error en la solicitud";
+    }
 }

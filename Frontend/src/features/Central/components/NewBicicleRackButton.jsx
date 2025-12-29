@@ -10,7 +10,7 @@ export function NewBicicleRackButton({ isOpen, onClose, initialData }) {
 
   const [formData, setFormData] = useState({
     nombre: "",
-    capacidad_maxima: 15,
+    capacidad_maxima: "",
     latitud: "",
     longitud: "",
     imagen: ""
@@ -29,7 +29,7 @@ export function NewBicicleRackButton({ isOpen, onClose, initialData }) {
       } else {
         setFormData({
           nombre: "",
-          capacidad_maxima: 15,
+          capacidad_maxima: "",
           latitud: "-36.82220000",
           longitud: "-73.01220000",
           imagen: ""
@@ -117,6 +117,7 @@ export function NewBicicleRackButton({ isOpen, onClose, initialData }) {
               <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
               <input
                 required
+                placeholder="Ej: Bicicletero Central"
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-[#003366] transition-all"
                 value={formData.nombre}
                 onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
@@ -127,6 +128,7 @@ export function NewBicicleRackButton({ isOpen, onClose, initialData }) {
               <label className="block text-sm font-medium text-gray-700 mb-1">Capacidad</label>
               <input
                 type="number" required min="1"
+                placeholder="15"
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-[#003366] transition-all"
                 value={formData.capacidad_maxima}
                 onChange={(e) => setFormData({ ...formData, capacidad_maxima: e.target.value })}

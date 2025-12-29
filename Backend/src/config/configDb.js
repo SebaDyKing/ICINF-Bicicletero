@@ -3,13 +3,13 @@ import { db } from './configEnv.js';
 
 export const AppDataSource = new DataSource({
   type: "postgres",
-  host: db.host,          
-  port: Number(db.port),  
-  username: db.user,      
-  password: db.password,  
-  database: db.database,  
+  host: db.host,
+  port: Number(db.port),
+  username: db.user,
+  password: db.password,
+  database: db.database,
   entities: ["src/models/**/*.js"],
-  synchronize: true, 
+  synchronize: true,
   logging: false,
 });
 

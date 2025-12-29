@@ -35,15 +35,6 @@ const NewIncidentModal  = ({ isOpen, onClose }) => {
   fetchBicicleteros();
 }, []);
 
-  const handleDivClick = () => {
-    fileInputRef.current.click(); 
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) setFileName(file.name);
-  };
-
   const handleCreateRegister = async () => {
     try {
       if (bicicletero === '') throw new Error('Seleccione un bicicletero.')
