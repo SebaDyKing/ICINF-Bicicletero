@@ -161,7 +161,7 @@ export default function SecurityDashboard() {
         title: error.response.data.message || "Error de validación"
       }) : Swal.fire({
         icon: 'error',
-        title: error || details?.[0] || "Error de validación"
+        title: details?.[0] || "Error de validación"
       });
     }
   };
@@ -532,7 +532,7 @@ export default function SecurityDashboard() {
                       <td className="p-4 font-medium">{r.ID_Informe}</td>
                       <td className="p-4">{formatDate(r.fecha)}</td>
                       <td className="p-4">{r.bicicletero}</td>
-                      <td className="p-4 truncate max-w-xs" title={r.descripcion}>{r.descripcion}</td>
+                      <td className="p-4 wrap-break-word" title={r.descripcion}>{r.descripcion}</td>
                       <td className='p-4'>
                         <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium" onClick={() => handleDeleteReport(r.ID_Informe)}>
                           <Trash2 size={14}/> Eliminar
