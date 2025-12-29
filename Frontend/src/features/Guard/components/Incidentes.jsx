@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import NewIncidentModal from './NewIncidentModal'; // Componente del modal
-import { User, LogOut, Bell, FileText, Calendar, Plus, Edit, X, Trash2 } from 'lucide-react';
+import { Bell, Plus, Edit, X} from 'lucide-react';
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import { useNavigate } from 'react-router-dom';
 import { editReportService, getAllReportsService } from '../services/guardReports.service';
 
 const IncidentesPage = () => {
@@ -13,7 +12,6 @@ const IncidentesPage = () => {
   const [reportSelected, setReportSelected] = useState(null)
   const [cantReportes, setCantReportes] = useState(null)
   const [descripcion, setDescripcion] = useState('')
-  const navigate = useNavigate()
 
 
   const fetchReports = async () => {

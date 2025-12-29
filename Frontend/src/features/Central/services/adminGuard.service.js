@@ -26,7 +26,7 @@ export const createGuardService = async (rut, email, contrasenia, telefono, nomb
     return res
   } catch (error) {
     console.log(error);
-    throw error.response?.data?.message || "Error en la solicitud";
+    throw error || "Error en la solicitud";
   }
 }
 

@@ -4,14 +4,10 @@ import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import {
   Shield,
   AlertTriangle,
-  Clock,
-  TrendingUp,
   Search,
   Plus,
   Edit,
   Trash2,
-  User,
-  LogOut,
   X,
   Eye,
   EyeOff
@@ -41,22 +37,13 @@ export default function SecurityDashboard() {
   const [apellido, setApellido] = useState("");
   const [rut, setRut] = useState("");
   const [email, setEmail] = useState("");
-  const PREFIX = '+56 9 '
-  const ONLY_LETTERS = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/;
-  const [telefono, setTelefono] = useState(PREFIX);
+  const prefijo = '+56 9 '
+  const letras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/;
+  const [telefono, setTelefono] = useState(prefijo);
   const [contrasenia, setContrasenia] = useState("");
-
-  //login
   const navigate = useNavigate();
-  const location = useLocation();
-  const [searchParams] = useSearchParams();
-  const emailFromUrl = searchParams.get("email");
-  const emailFromRegister = emailFromUrl || location.state?.email;
 
   useEffect(() => {
-    // if (!emailFromRegister) {
-    //   navigate("/login");
-    // }
     const fetchReports = async () => {
       try {
         const res = await getAllReportsService()
@@ -85,9 +72,6 @@ export default function SecurityDashboard() {
   }, []);
 
   useEffect(() => {
-    // if (!emailFromRegister) {
-    //   navigate("/login");
-    // }
     const fetchGuards = async () => {
       try {
         const res = await getAllGuardService()
@@ -161,7 +145,7 @@ export default function SecurityDashboard() {
         title: error.response.data.message || "Error de validación"
       }) : Swal.fire({
         icon: 'error',
-        title: error || details?.[0] || "Error de validación"
+        title: details?.[0] || "Error de validación"
       });
     }
   };
@@ -303,7 +287,7 @@ export default function SecurityDashboard() {
 
   const formatPhone = (value) => {
     // Quitar el prefijo si viene duplicado
-    let clean = value.replace(PREFIX, '');
+    let clean = value.replace(prefijo, '');
 
     // Solo números
     clean = clean.replace(/\D/g, '');
@@ -314,7 +298,7 @@ export default function SecurityDashboard() {
     // Agrupar de 4 en 4
     const grouped = clean.match(/.{1,4}/g)?.join(' ') || '';
 
-    return PREFIX + grouped;
+    return prefijo + grouped;
   };
 
   const resetDatos = () => {
@@ -322,7 +306,7 @@ export default function SecurityDashboard() {
     setApellido('')
     setContrasenia('')
     setEmail('')
-    setTelefono(PREFIX)
+    setTelefono(prefijo)
     setRut('')
   }
 
@@ -607,7 +591,7 @@ export default function SecurityDashboard() {
                     onChange={(e) => {
                       const value = e.target.value;
 
-                      if (ONLY_LETTERS.test(value)) {
+                      if (letras.test(value)) {
                         setNombre(value);
                       }
                     }}
@@ -624,7 +608,7 @@ export default function SecurityDashboard() {
                     onChange={(e) => {
                       const value = e.target.value;
 
-                      if (ONLY_LETTERS.test(value)) {
+                      if (letras.test(value)) {
                         setApellido(value);
                       }
                     }}
@@ -670,7 +654,7 @@ export default function SecurityDashboard() {
                     // Bloquea borrar el prefijo
                     if (
                       e.key === 'Backspace' &&
-                      telefono.length <= PREFIX.length
+                      telefono.length <= prefijo.length
                     ) {
                       e.preventDefault();
                     }
@@ -755,7 +739,7 @@ export default function SecurityDashboard() {
                     // Bloquea borrar el prefijo
                     if (
                       e.key === 'Backspace' &&
-                      telefono.length <= PREFIX.length
+                      telefono.length <= prefijo.length
                     ) {
                       e.preventDefault();
                     }

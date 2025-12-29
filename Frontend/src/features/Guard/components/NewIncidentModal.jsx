@@ -1,7 +1,6 @@
 import axios from 'axios';
-import { X, Upload } from 'lucide-react';
-import React, { useRef, useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
+import { X } from 'lucide-react';
+import React, { useState, useEffect } from "react";
 import Swal from 'sweetalert2'
 import { createReportService, getOwnersByBicicleteroService, getBicicleterosService} from '../services/guardReports.service';
 
@@ -12,7 +11,6 @@ const NewIncidentModal  = ({ isOpen, onClose, onSuccess }) => {
   const [bicicletero, setBicicletero] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const [listaBicicleteros, setListaBicicleteros] = useState([])
-  const navigate = useNavigate()
 
   useEffect(() => {
   const fetchBicicleteros = async () => {
