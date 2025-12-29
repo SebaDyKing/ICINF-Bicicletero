@@ -15,8 +15,7 @@ import {
 /**
  * @component Dashboard
  * @description Panel principal del Dueño. 
- * Se usa 'es-CL' para convertir automáticamente 
- * la hora UTC del servidor a la hora local de Chile.
+ * CORRECCIÓN HORA FINAL: Uso estricto de getUTC para leer la hora "cruda" del servidor.
  */
 const Dashboard = ({ user }) => {
   // ==========================================
@@ -144,17 +143,15 @@ const Dashboard = ({ user }) => {
       return 'bg-green-400';                         
   };
 
-  // --- HELPER PARA CORREGIR LA HORA (FIX FINAL) ---
-  // Transforma la hora UTC del servidor a la hora local (Chile)
+  // --- HELPER FIX HORA (UTC RAW) ---
+  // Muestra la fecha exacta que llega del servidor, ignorando la zona horaria del navegador.
   const formatDateTime = (dateString) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
+    const pad = (n) => n.toString().padStart(2, '0');
     
-    // 'es-CL' forzará el formato día/mes hora:minutos chilena
-    const fecha = date.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit' });
-    const hora = date.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false });
-    
-    return `${fecha} ${hora}`;
+    // getUTC... obtiene el valor numérico tal cual está guardado
+    return `${pad(date.getUTCDate())}/${pad(date.getUTCMonth() + 1)} ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`;
   };
 
   // ==========================================
