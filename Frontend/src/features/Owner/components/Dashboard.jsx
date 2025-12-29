@@ -15,8 +15,8 @@ import {
 /**
  * @component Dashboard
  * @description Panel principal del Dueño. 
- * Gestiona la generación del QR de acceso, visualiza el estado de las bicicletas (dentro/fuera)
- * y muestra la disponibilidad de los bicicleteros en tiempo real.
+ * Se usa 'es-CL' para convertir automáticamente 
+ * la hora UTC del servidor a la hora local de Chile.
  */
 const Dashboard = ({ user }) => {
   // ==========================================
@@ -24,15 +24,15 @@ const Dashboard = ({ user }) => {
   // ==========================================
   
   // --- Datos del Negocio ---
-  const [misBicicletas, setMisBicicletas] = useState([]); // Lista total de bicis
-  const [historial, setHistorial] = useState([]);         // Log de movimientos
-  const [bicisAdentro, setBicisAdentro] = useState([]);   // Bicis actualmente en campus
-  const [bicicleteros, setBicicleteros] = useState([]);   // Estado de ocupación (barras)
+  const [misBicicletas, setMisBicicletas] = useState([]); 
+  const [historial, setHistorial] = useState([]);         
+  const [bicisAdentro, setBicisAdentro] = useState([]);   
+  const [bicicleteros, setBicicleteros] = useState([]);   
 
   // --- UI y Control ---
   const [loadingGlobal, setLoadingGlobal] = useState(true);
-  const [selectedBike, setSelectedBike] = useState(null); // Bici seleccionada para el QR
-  const [qrImage, setQrImage] = useState('');             // URL base64 del QR
+  const [selectedBike, setSelectedBike] = useState(null); 
+  const [qrImage, setQrImage] = useState('');             
   const [loadingQr, setLoadingQr] = useState(false);
   const [fechaActual, setFechaActual] = useState(new Date());
 
@@ -40,13 +40,13 @@ const Dashboard = ({ user }) => {
   // EFECTOS (Lógica)
   // ==========================================
 
-  // 1. Reloj en vivo (Actualiza cada segundo)
+  // 1. Reloj en vivo
   useEffect(() => {
     const timer = setInterval(() => setFechaActual(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // 2. Carga inicial de datos (Bicis, Historial, Disponibilidad)
+  // 2. Carga inicial de datos
   useEffect(() => {
     const fetchAllData = async () => {
       if (!user?.rut) return;
@@ -57,31 +57,28 @@ const Dashboard = ({ user }) => {
         // A. Obtener Bicicletas
         try {
             const response = await getBicyclesByRut(user.rut);
-            // Normalización de respuesta por seguridad
             const rawBicis = response?.data?.data || response?.data || response?.bicycles || response?.bicicletas || response || [];
             const listaBicis = Array.isArray(rawBicis) ? rawBicis : [];
             setMisBicicletas(listaBicis);
             
-            // Seleccionar la primera por defecto
             if (listaBicis.length > 0) setSelectedBike(listaBicis[0]);
         } catch (err) { 
             console.error("Error cargando bicicletas:", err); 
             setMisBicicletas([]); 
         }
 
-        // B. Cargar Historial y Filtrar Activos (En Campus)
+        // B. Cargar Historial y Filtrar Activos
         try {
             const historyResponse = await getOwnerHistory(user.rut);
             const rawHistory = historyResponse?.data?.data || historyResponse?.data || historyResponse || [];
             const listaHistorial = Array.isArray(rawHistory) ? rawHistory : [];
             setHistorial(listaHistorial);
             
-            // Filtro: Si es ingreso y no tiene salida, sigue adentro
             const activas = listaHistorial.filter(h => h.tipo === 'Ingreso' && !h.fecha_salida);
             setBicisAdentro(activas);
         } catch (err) { console.error("Error historial:", err); }
 
-        // C. Cargar Disponibilidad de Bicicleteros
+        // C. Cargar Disponibilidad
         try {
             const statusResponse = await getBicicleterosStatus();
             const rawStatus = statusResponse?.data || statusResponse || [];
@@ -96,7 +93,7 @@ const Dashboard = ({ user }) => {
     fetchAllData();
   }, [user]);
 
-  // 3. Regenerar QR automáticamente al cambiar de bicicleta
+  // 3. Regenerar QR automáticamente
   useEffect(() => {
     if (selectedBike) handleGenerarQR(selectedBike);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -106,7 +103,6 @@ const Dashboard = ({ user }) => {
   // FUNCIONES
   // ==========================================
 
-  /** Genera la imagen QR en base64 con los datos necesarios para el guardia */
   const handleGenerarQR = async (bike) => {
     setLoadingQr(true);
     try {
@@ -131,7 +127,6 @@ const Dashboard = ({ user }) => {
     }
   };
 
-  /** Descarga el QR actual como imagen .png */
   const handleDescargarQR = () => {
     if (!qrImage || !selectedBike) return;
     const link = document.createElement('a');
@@ -142,20 +137,24 @@ const Dashboard = ({ user }) => {
     document.body.removeChild(link);
   };
 
-  /** Retorna clase de color (Tailwind) según porcentaje de ocupación */
   const getBarColor = (ocupados, total) => {
       const porcentaje = total > 0 ? (ocupados / total) * 100 : 0;
-      if (porcentaje >= 100) return 'bg-red-500';    // Lleno
-      if (porcentaje >= 50) return 'bg-yellow-400';  // Medio
-      return 'bg-green-400';                         // Disponible
+      if (porcentaje >= 100) return 'bg-red-500';    
+      if (porcentaje >= 50) return 'bg-yellow-400';  
+      return 'bg-green-400';                         
   };
 
-  /** Formatea fecha a DD/MM HH:MM */
-  const formatDateShort = (dateString) => {
+  // --- HELPER PARA CORREGIR LA HORA (FIX FINAL) ---
+  // Transforma la hora UTC del servidor a la hora local (Chile)
+  const formatDateTime = (dateString) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
-    const pad = (n) => n.toString().padStart(2, '0');
-    return `${pad(date.getDate())}/${pad(date.getMonth() + 1)} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    
+    // 'es-CL' forzará el formato día/mes hora:minutos chilena
+    const fecha = date.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit' });
+    const hora = date.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false });
+    
+    return `${fecha} ${hora}`;
   };
 
   // ==========================================
@@ -277,7 +276,7 @@ const Dashboard = ({ user }) => {
                                             <p className="text-xs text-gray-500">{ingreso.nombre_bicicletero}</p>
                                         </div>
                                         <span className="text-xs font-mono bg-white px-2 py-1 rounded border text-gray-400">
-                                            {formatDateShort(ingreso.fecha)}
+                                            {formatDateTime(ingreso.fecha)}
                                         </span>
                                     </div>
                                 ))}
@@ -292,7 +291,7 @@ const Dashboard = ({ user }) => {
                                 <p className="font-bold text-gray-800 text-lg">En Campus</p>
                                 <p className="text-sm text-gray-600 font-medium">{bicisAdentro[0].nombre_bicicletero}</p>
                                 <p className="text-xs text-gray-400 mt-1">
-                                    {bicisAdentro[0].marca} {bicisAdentro[0].modelo_bicicleta} • {formatDateShort(bicisAdentro[0].fecha)}
+                                    {bicisAdentro[0].marca} {bicisAdentro[0].modelo_bicicleta} • {formatDateTime(bicisAdentro[0].fecha)}
                                 </p>
                             </div>
                         </div>
@@ -376,7 +375,7 @@ const Dashboard = ({ user }) => {
                                     </td>
                                     
                                     <td className="px-4 py-3 text-gray-400 font-mono whitespace-nowrap">
-                                        {formatDateShort(log.fecha)}
+                                        {formatDateTime(log.fecha)}
                                     </td>
                                 </tr>
                             )) : (

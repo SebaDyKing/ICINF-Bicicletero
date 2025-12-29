@@ -8,14 +8,8 @@ import Swal from 'sweetalert2';
  * Componente BicicletasTab
  * ------------------------
  * Tablero principal para el Guardia.
- * Permite visualizar el estado actual de los bicicleteros, registrar ingresos
- * y procesar retiros de bicicletas.
- * * Características:
- * - Vista de tarjetas con estadísticas diarias.
- * - Buscador en tiempo real (RUT, Nombre, ID).
- * - Vista dual: Tabla para Desktop y Tarjetas para Móvil.
- * - Feedback visual mediante SweetAlert2.
- * * ACTUALIZACIÓN: Se agregó visualización de la MARCA en la tabla y tarjetas.
+ * Se usa 'es-CL' para convertir automáticamente 
+ * la hora UTC del servidor a la hora local de Chile.
  */
 function BicicletasTab() {
   // --- ESTADOS ---
@@ -57,10 +51,6 @@ function BicicletasTab() {
 
   /**
    * Maneja el proceso completo de retiro de una bicicleta.
-   * 1. Solicita confirmación visual (SweetAlert).
-   * 2. Llama a la API.
-   * 3. Muestra resultado (Éxito/Error).
-   * @param {string|number} idBicicleta - ID de la bicicleta a retirar
    */
   const handleRetirar = async (idBicicleta) => {
     // 1. Confirmación con UI personalizada
@@ -111,7 +101,6 @@ function BicicletasTab() {
 
   /**
    * Utilidad para limpiar textos (quitar acentos, pasar a minúsculas).
-   * Facilita la búsqueda insensible a mayúsculas/tildes.
    */
   const normalizeText = (text) => {
     if (!text) return "";
@@ -120,6 +109,28 @@ function BicicletasTab() {
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
+  };
+
+  // --- HELPER PARA CORREGIR LA HORA (FIX FINAL) ---
+  // Transforma la hora UTC del servidor a la hora local del dispositivo (Chile)
+  const formatDateTime = (dateString) => {
+    if (!dateString) return { date: '-', time: '-' };
+    const date = new Date(dateString);
+    
+    // 'es-CL' forzará el formato día/mes/año y la hora chilena
+    const fecha = date.toLocaleDateString('es-CL', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric' 
+    });
+    
+    const hora = date.toLocaleTimeString('es-CL', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        hour12: false // Formato 24 horas (ej: 14:30)
+    });
+    
+    return { date: fecha, time: hora };
   };
 
   // --- LÓGICA DE FILTRADO ---
@@ -250,19 +261,22 @@ function BicicletasTab() {
                     <th className="px-6 py-3 font-semibold w-[15%]">ID Bicicleta</th>
                     <th className="px-6 py-3 font-semibold w-[15%]">RUT</th>
                     <th className="px-6 py-3 font-semibold w-[20%]">Nombre</th>
-                    <th className="px-6 py-3 font-semibold w-[20%]">Bicicleta</th> {/* CAMBIO: Tipo/Color -> Bicicleta */}
+                    <th className="px-6 py-3 font-semibold w-[20%]">Bicicleta</th> 
                     <th className="px-6 py-3 font-semibold w-[20%]">Fecha/Hora</th>
                     <th className="px-6 py-3 font-semibold w-[10%] text-center">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {listaBicis.map((reg) => (
+                  {listaBicis.map((reg) => {
+                    // AQUÍ USAMOS LA CORRECCIÓN DE HORA
+                    const { date, time } = formatDateTime(reg.fechaIngreso);
+
+                    return (
                     <tr key={reg.id_registro || reg.idRegistro || Math.random()} className="hover:bg-blue-50 transition-colors">
                       <td className="px-6 py-4 font-medium text-gray-900 truncate">{reg.bicycle.id_bicicleta}</td>
                       <td className="px-6 py-4 text-gray-600 truncate">{reg.bicycle.owner.rut}</td>
                       <td className="px-6 py-4 text-gray-600 truncate">{reg.bicycle.owner.nombre} {reg.bicycle.owner.apellido}</td>
                       
-                      {/* CAMBIO: Mostrar Marca + Modelo + Color */}
                       <td className="px-6 py-4 text-gray-600 truncate">
                           {reg.bicycle.marca ? `${reg.bicycle.marca} ` : ''} 
                           {reg.bicycle.modelo} 
@@ -270,7 +284,7 @@ function BicicletasTab() {
                       </td>
 
                       <td className="px-6 py-4 text-gray-600 truncate">
-                        {new Date(reg.fechaIngreso).toLocaleDateString()} <span className="text-gray-300 mx-1">|</span> {new Date(reg.fechaIngreso).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        {date} <span className="text-gray-300 mx-1">|</span> {time}
                       </td>
                       <td className="px-6 py-4 text-center">
                         <button 
@@ -281,7 +295,7 @@ function BicicletasTab() {
                         </button>
                       </td>
                     </tr>
-                  ))}
+                  )})}
                 </tbody>
               </table>
             </div>
@@ -289,9 +303,8 @@ function BicicletasTab() {
             {/* --- VISTA MÓVIL (TARJETAS) --- */}
             <div className="md:hidden flex flex-col gap-4 p-4 bg-gray-50">
               {listaBicis.map((reg) => {
-                const fechaObj = new Date(reg.fechaIngreso);
-                const fechaStr = fechaObj.toLocaleDateString();
-                const horaStr = fechaObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false});
+                // AQUÍ USAMOS LA CORRECCIÓN DE HORA TAMBIÉN EN MÓVIL
+                const { date, time } = formatDateTime(reg.fechaIngreso);
 
                 return (
                 <div key={reg.id_registro || reg.idRegistro || Math.random()} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 font-sans">
@@ -300,7 +313,7 @@ function BicicletasTab() {
                       {reg.bicycle.id_bicicleta}
                     </span>
                     <span className="text-gray-400 text-sm">
-                      {fechaStr}
+                      {date}
                     </span>
                   </div>
 
@@ -314,7 +327,6 @@ function BicicletasTab() {
                       <span className="font-bold ml-1">{reg.bicycle.owner.rut}</span>
                     </div>
                     
-                    {/* CAMBIO: Mostrar Marca también en móvil */}
                     <div>
                       <span className="text-gray-500">Bicicleta: </span>
                       <span className="font-bold ml-1">
@@ -325,7 +337,7 @@ function BicicletasTab() {
 
                     <div>
                       <span className="text-gray-500">Hora ingreso: </span>
-                      <span className="font-bold ml-1">{horaStr}</span>
+                      <span className="font-bold ml-1">{time}</span>
                     </div>
                   </div>
                   
