@@ -1,106 +1,66 @@
-import api from "../../../config/axios.config";
+import api from "../../../config/axios.config"; 
 
 /**
  * @object guardService
- * @description Servicio encargado de todas las operaciones HTTP relacionadas con el rol de Guardia.
- * Utiliza la instancia centralizada 'api' para manejar base URL y tokens automáticamente.
+ * @description Servicio conectado a la instancia 'api' para despliegue.
  */
 export const guardService = {
   
   /**
    * @function getRegistrosActivos
-   * @description Obtiene la lista de todas las bicicletas que se encuentran actualmente dentro del recinto.
-   * @returns {Promise<Array>} Promesa que resuelve con la lista de registros activos.
    */
   getRegistrosActivos: async () => {
-    try {
-      const response = await api.get('/guards/activos');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || { message: "Error al obtener registros activos" };
-    }
+    // Al usar api.get, si falla, Axios lanza el error automáticamente.
+    // Dejamos que ese error suba hasta el componente.
+    const response = await api.get('/guards/activos');
+    return response.data;
   },
 
   /**
    * @function getCapacidades
-   * @description Consulta el estado de ocupación de cada bicicletero en tiempo real.
-   * @returns {Promise<Array>} Promesa con lista de bicicleteros y ocupación.
    */
   getCapacidades: async () => {
-    try {
-      const response = await api.get('/guards/capacidades');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || { message: "Error al obtener capacidades" };
-    }
+    const response = await api.get('/guards/capacidades');
+    return response.data;
   },
 
   /**
    * @function getBicicleteros
-   * @description Obtiene el catálogo de ubicaciones (racks) disponibles.
-   * @returns {Promise<Array>} Promesa con la lista de bicicleteros.
    */
   getBicicleteros: async () => {
-    try {
-      const response = await api.get('/bicicleteros');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || { message: "Error al cargar bicicleteros" };
-    }
+    const response = await api.get('/bicicleteros');
+    return response.data;
   },
 
   /**
    * @function registrarRetiro
-   * @description Registra la salida de una bicicleta del recinto.
-   * @param {number|string} id_bicicleta - ID único de la bicicleta que se retira.
    */
   registrarRetiro: async (id_bicicleta) => {
-    try {
-      const response = await api.put('/guards/retiro', { id_bicicleta });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || { message: "Error al registrar retiro" };
-    }
+    const response = await api.put('/guards/retiro', { id_bicicleta });
+    return response.data;
   },
 
   /**
    * @function registrarIngreso
-   * @description Registra la entrada de una bicicleta al recinto.
-   * @param {Object} data - Datos del ingreso (rut_owner, id_bicicleta, id_bicicletero).
    */
   registrarIngreso: async (data) => {
-    try {
-      const response = await api.post('/guards/ingreso', data);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || { message: "Error al registrar ingreso" };
-    }
+    const response = await api.post('/guards/ingreso', data);
+    return response.data;
   },
 
   /**
    * @function getOwnerWithBicycles
-   * @description Busca un dueño por su RUT y trae sus bicicletas.
-   * @param {string} rut - RUT del usuario a buscar.
    */
   getOwnerWithBicycles: async (rut) => {
-    try {
-      const response = await api.get(`/bicycles/owner-full/${rut}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || { message: "Error al buscar usuario" };
-    }
+    const response = await api.get(`/bicycles/owner-full/${rut}`);
+    return response.data;
   },
 
   /**
    * @function getEstadisticas
-   * @description Obtiene métricas rápidas del día.
    */
   getEstadisticas: async () => {
-    try {
-      const response = await api.get('/guards/estadisticas');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || { message: "Error al obtener estadísticas" };
-    }
+    const response = await api.get('/guards/estadisticas');
+    return response.data;
   },
 };

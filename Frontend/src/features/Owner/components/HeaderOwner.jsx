@@ -1,3 +1,18 @@
+
+/**
+ * @component HeaderOwner
+ * @brief Encabezado superior visual para el panel del Dueño.
+ *
+ * Muestra la información de bienvenida personalizada y el avatar del usuario conectado.
+ * Se adapta visualmente dejando espacio a la izquierda en dispositivos móviles para
+ * no solaparse con el botón del menú lateral (Hamburguesa).
+ *
+ * @param {Object} props Props del componente.
+ * @param {Object} props.user Objeto con la información del usuario logueado.
+ * @param {string} props.user.nombre Nombre del usuario.
+ * @param {string} props.user.apellido Apellido del usuario.
+ * @returns {JSX.Element} Renderiza el header con saludo y avatar.
+ */
 const HeaderOwner = ({ user }) => {
   return (
     <header

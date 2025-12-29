@@ -71,7 +71,7 @@ const Bikes = ({ user, bike, setBikes }) => {
         
         <div className="flex items-center justify-between gap-4 mb-6">
           <div className="space-y-1 text-left">
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
               Mis Bicicletas
             </h1>
             <p className="hidden sm:block text-sm sm:text-base text-slate-500 max-w-2xl">

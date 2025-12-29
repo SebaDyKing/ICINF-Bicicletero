@@ -4,6 +4,21 @@ import { useAuth } from "../../Context/useAuth.js";
 import { formatRut } from "../utils/rutUtils.js";
 import { Eye, EyeOff } from "lucide-react";
 
+/**
+ * @component LoginPage
+ * @brief Pantalla de autenticación y punto de entrada a la plataforma.
+ *
+ * Este componente gestiona el inicio de sesión para todos los tipos de usuarios (Dueños, Guardias, Central).
+ *
+ * Funcionalidades principales:
+ * 1. **Manejo de Credenciales:** Captura RUT y contraseña con validaciones básicas.
+ * 2. **Formateo de UX:** Aplica formato automático al RUT (puntos y guion) mientras el usuario escribe.
+ * 3. **Autenticación:** Consume el contexto `useAuth` para validar credenciales contra el backend.
+ * 4. **Enrutamiento Inteligente:** Redirige al usuario a su dashboard específico basándose en el rol
+ * retornado por la base de datos ('Owner', 'Guard', 'Central').
+ *
+ * @returns {JSX.Element} Formulario de login centrado con gestión de errores y carga.
+ */
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -18,6 +33,11 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  /**
+   * Maneja los cambios en los inputs.
+   * * Caso especial RUT: Aplica la utilidad `formatRut` en tiempo real
+   * para mejorar la experiencia de usuario y evitar errores de formato.
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -34,13 +54,17 @@ const LoginPage = () => {
     }
   };
 
+  /**
+   * Procesa el envío del formulario.
+   * Orquesta la autenticación y la redirección basada en roles.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
     try {
-      // 1. Llamamos al servicio
+      // Llamada al servicio
       const userData = await login(credentials.rut, credentials.contrasenia);
 
       if (!userData) {
@@ -49,11 +73,11 @@ const LoginPage = () => {
         return;
       }
 
-      // 2. Verificamos el rol que viene en userData.tipo_usuario
+      // Verificamos el rol que viene en userData.tipo_usuario
       // Tu backend devuelve "Owner" (con mayúscula inicial según tu JSON)
       const rol = userData.tipo_usuario;
 
-      // 3. Redirección Inteligente
+      // Redirección Inteligente
       if (rol === "Owner") {
         navigate("/owner/home"); // Página principal de dueños
       } else if (rol === "Guard") {

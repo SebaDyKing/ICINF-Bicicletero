@@ -76,7 +76,7 @@ const RegisterPage = () => {
         position: "center",
         icon: "success",
         title: "Registro exitoso",
-        text: "Se ha enviado un correo de verificación a su email.",
+        text: "Se ha enviado un correo de verificación a su email. Este código tiene una duración de 10 minutos.",
         confirmButtonText: "Aceptar",
         confirmButtonColor: "#2563EB",
       });

@@ -31,60 +31,92 @@ import {
 export async function createOwner(req, res) {
   try {
     const { rut, email, contrasenia, telefono, nombre, apellido } = req.body;
-    // Validacion del cuerpo de la solicitud
 
     const { error } = validateOwnerBody(req.body);
     if (error) {
-      const errorMessages = error.details.map((detail) => detail.message);
-      return handleErrorClient(res, 400, errorMessages);
+      return handleErrorClient(
+        res,
+        400,
+        error.details.map((d) => d.message)
+      );
     }
 
-    // Repositorio de Owner y Users
     const ownerRepository = AppDataSource.getRepository(Owner);
     const userRepository = AppDataSource.getRepository(Users);
 
-    // Verifica que los rut existan
-    const rutExists =
-      (await ownerRepository.findOneBy({ rut })) ||
-      (await userRepository.findOneBy({ rut }));
+    // Buscamos si existe algun usuario con ese RUT o Email
+    let existingUser = await userRepository.findOne({
+      where: [{ rut: rut }, { email: email }],
+    });
 
-    if (rutExists)
-      return handleErrorClient(
+    if (existingUser) {
+      // Error si ya esta verificado
+      if (existingUser.verificado) {
+        return handleErrorClient(
+          res,
+          409,
+          "El usuario o RUT ya está registrado y verificado."
+        );
+      }
+
+      // Existe pero NO está verificado -> Actualizamos los datos antiguos
+
+      // Encriptamos la (posible nueva) contraseña
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(contrasenia, salt);
+
+      // Generamos NUEVO código y NUEVA expiración
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      const expirationTime = Date.now() + 10 * 60 * 1000; // 10 min
+      const verificationCodeWithExpiry = `${code}|${expirationTime}`;
+
+      // Actualizamos los datos del User existente
+      existingUser.rut = rut;
+      existingUser.email = email;
+      existingUser.telefono = telefono;
+      existingUser.contrasenia = hashedPassword;
+      existingUser.codigo_verificacion = verificationCodeWithExpiry;
+
+      let existingOwner = await ownerRepository.findOneBy({
+        rut: existingUser.rut,
+      });
+
+      // Si por alguna razón no existe el Owner (inconsistencia), lo creamos, si existe, lo actualizamos
+      if (!existingOwner) {
+        existingOwner = ownerRepository.create({ rut, nombre, apellido });
+      } else {
+        existingOwner.nombre = nombre;
+        existingOwner.apellido = apellido;
+        existingOwner.rut = rut;
+      }
+
+      // Guardamos cambios
+      await userRepository.save(existingUser);
+      await ownerRepository.save(existingOwner);
+
+      // Reenviamos email
+      await sendVerificationEmail(existingUser.email, code);
+
+      return handleSuccess(
         res,
-        409,
-        `El RUT ${rut} ya está registrado.`,
-        "Error"
+        200,
+        "Usuario pendiente detectado. Se ha enviado un nuevo código de verificación.",
+        { rut: existingOwner.rut, email: existingUser.email }
       );
+    }
 
-    // Verifica que el correo exista
-    const emailExists = await userRepository.findOneBy({ email });
-    if (emailExists)
-      return handleErrorClient(
-        res,
-        409,
-        `El Email ${email} ya está registrado.`,
-        "Error"
-      );
+    // SI NO EXISTE
 
-    // Encripta la contraseña
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(contrasenia, salt);
 
-    // Genera el codigo de verificacion de 6 digitos
-    const verificationCode = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expirationTime = Date.now() + 10 * 60 * 1000; // 10 min
+    const verificationCodeWithExpiry = `${code}|${expirationTime}`;
 
     const tipo_usuario = "Owner";
 
-    // Crea la entidad Owner
-    const newOwner = ownerRepository.create({
-      rut,
-      nombre,
-      apellido,
-    });
-
-    // Crea la entidad User
+    const newOwner = ownerRepository.create({ rut, nombre, apellido });
     const newUser = userRepository.create({
       rut,
       email,
@@ -92,28 +124,19 @@ export async function createOwner(req, res) {
       contrasenia: hashedPassword,
       tipo_usuario,
       verificado: false,
-      codigo_verificacion: verificationCode,
+      codigo_verificacion: verificationCodeWithExpiry,
     });
 
-    // Guarda el Owner y el User en la base de datos
     await ownerRepository.save(newOwner);
     await userRepository.save(newUser);
 
-    // Envia el email de verificacion
-    await sendVerificationEmail(newUser.email, verificationCode);
+    await sendVerificationEmail(newUser.email, code);
 
-    // Respuesta exitosa
-    handleSuccess(
-      res,
-      201,
-      "Usuario creado, revisar email para verificar la cuenta",
-      {
-        rut: newOwner.rut,
-        email: newUser.email,
-      }
-    );
+    handleSuccess(res, 201, "Usuario creado, el código expira en 1 minuto.", {
+      rut: newOwner.rut,
+      email: newUser.email,
+    });
   } catch (error) {
-    // Manejo de errores del servidor
     handleErrorServer(res, 500, "Error interno del servidor", error.message);
   }
 }
@@ -134,7 +157,7 @@ export async function getOwner(req, res) {
     if (!rut) {
       return handleErrorClient(res, 400, "El campo rut es obligatorio.");
     }
-    const {error } = ownerBodyPartialValidation({rut})
+    const { error } = ownerBodyPartialValidation({ rut });
     if (error) {
       return handleErrorClient(res, 400, error.message);
     }
@@ -252,12 +275,14 @@ export const solicitarGuard = async (req, res) => {
     const result = await solicitarGuardService(lat, lon, req.io);
 
     handleSuccess(res, 200, result.message, result);
-
   } catch (error) {
-    if (error.message.includes("No hay bicicletarios") || error.message.includes("requeridos")) {
-        return handleErrorClient(res, 400, error.message);
+    if (
+      error.message.includes("No hay bicicletarios") ||
+      error.message.includes("requeridos")
+    ) {
+      return handleErrorClient(res, 400, error.message);
     }
-    
+
     console.error("Error en solicitarGuard Controller:", error);
     handleErrorServer(res, 404, error.message);
   }
@@ -385,9 +410,8 @@ export async function updateOwner(req, res) {
  * @param {import("express").Response} res Objeto de respuesta HTTP.
  */
 export async function deleteOwner(req, res) {
+  const { rut } = req.body;
   try {
-    const { rut } = req.body;
-
     // Ejecutamos la operación dentro de una transacción
     await AppDataSource.manager.transaction(
       async (transactionalEntityManager) => {
@@ -437,11 +461,10 @@ export async function deleteOwner(req, res) {
   }
 }
 
-
 /**
  * @function getOwnerHistory
  * @brief Obtiene el historial cronológico de movimientos (Ingresos y Salidas) de un dueño.
- * * @description 
+ * * @description
  * Esta función ejecuta una consulta SQL compleja para transformar los registros de estacionamiento
  * en una línea de tiempo lineal.
  * * **Lógica SQL implementada:**
@@ -502,22 +525,21 @@ export async function getOwnerHistory(req, res) {
     const historial = await AppDataSource.query(query, [rut]);
 
     handleSuccess(res, 200, "Historial obtenido", historial);
-
   } catch (error) {
-    console.error("ERROR SQL HISTORIAL:", error); 
+    console.error("ERROR SQL HISTORIAL:", error);
     handleErrorServer(res, 500, "Error al obtener historial", error.message);
   }
 }
 
 export const getOwnersByBicicletero = async (req, res) => {
-    const {id_bicicletero} = req.query
-    //verifica que la bdd este iniciada
-    if (!AppDataSource.isInitialized) {
-        await AppDataSource.initialize();
-    }
+  const { id_bicicletero } = req.query;
+  //verifica que la bdd este iniciada
+  if (!AppDataSource.isInitialized) {
+    await AppDataSource.initialize();
+  }
 
-    // consulta SQL para ingresar a tabla Users
-    const query = `
+  // consulta SQL para ingresar a tabla Users
+  const query = `
         SELECT DISTINCT
         u.email
         FROM owner o
@@ -527,13 +549,13 @@ export const getOwnersByBicicletero = async (req, res) => {
         WHERE s.id_bicicletero = $1
         AND s.fecha_salida IS NULL;
     `;
-    try {
-        // Ejecuta consultas (consulta, valoresConsulta)
-        const resultQuery = await AppDataSource.query(query, [id_bicicletero]);
-        handleSuccess(res, 200, "Usuarios obtenido correctamente", {
-            resultQuery
-        });
-    } catch (error) {
-        return handleErrorServer(res, 500, "Error del servidor", error.message);
-    }
-}
+  try {
+    // Ejecuta consultas (consulta, valoresConsulta)
+    const resultQuery = await AppDataSource.query(query, [id_bicicletero]);
+    handleSuccess(res, 200, "Usuarios obtenido correctamente", {
+      resultQuery,
+    });
+  } catch (error) {
+    return handleErrorServer(res, 500, "Error del servidor", error.message);
+  }
+};

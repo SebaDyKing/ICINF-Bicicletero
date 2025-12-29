@@ -8,6 +8,25 @@ import bcrypt from 'bcrypt'
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../Handlers/responseHandlers.js"
 import { AppDataSource } from "../config/configDb.js"
 
+/**
+ * @function loginUser
+ * @brief Controlador de inicio de sesión unificado.
+ *
+ * Gestiona la autenticación para cualquier tipo de usuario (Guardia Dueño o Central) registrado en la tabla `Users`.
+ *
+ * Flujo del proceso:
+ * 1. **Validación:** Verifica formato de RUT y contraseña.
+ * 2. **Búsqueda:** Localiza al usuario en la tabla base `Users` por su RUT.
+ * 3. **Verificación:** Confirma que la cuenta esté activada (email verificado).
+ * 4. **Seguridad:** Compara la contraseña encriptada usando Bcrypt.
+ * 5. **Enriquecimiento de Datos:** Dependiendo del `tipo_usuario` ('Guard' u 'Owner'),
+ * consulta la tabla específica correspondiente para recuperar el Nombre y Apellido real.
+ * 6. **Token:** Genera un JWT con la identidad del usuario y retorna los datos de sesión.
+ *
+ * @param {import("express").Request} req Objeto de solicitud (body: { rut, contrasenia }).
+ * @param {import("express").Response} res Objeto de respuesta.
+ * @returns {Promise<void>} Retorna un JSON con el token y datos del usuario o un error.
+ */
 export const loginUser = async (req, res) => {
     const {rut, contrasenia} = req.body
 
@@ -91,6 +110,21 @@ export const loginUser = async (req, res) => {
     }
 }
 
+/**
+ * @function verifyAccount
+ * @brief Procesa la verificación de cuenta mediante código OTP.
+ *
+ * Este controlador valida el código ingresado por el usuario contra el almacenado en la base de datos.
+ *
+ * Lógica de Validación:
+ * 1. **Existencia:** Verifica que el usuario exista y no esté ya verificado.
+ * 2. **Formato:** Desglosa el código almacenado que sigue el patrón `CODIGO|EXPIRACION`.
+ * 3. **Coincidencia:** Compara el código ingresado con el guardado.
+ * 4. **Temporalidad:** Verifica que el tiempo actual (`Date.now()`) no supere el tiempo de expiración.
+ *
+ * @param {import("express").Request} req Objeto de solicitud (body: { email, codigo }).
+ * @param {import("express").Response} res Objeto de respuesta.
+ */
 export async function verifyAccount(req, res) {
   try {
     const { email, codigo } = req.body;
@@ -104,10 +138,27 @@ export async function verifyAccount(req, res) {
     if (user.verificado) {
        return handleErrorClient(res, 400, "Esta cuenta ya ha sido verificada.");
     }
-    if (user.codigo_verificacion !== codigo) {
+
+    const code = user.codigo_verificacion;
+
+    if(!code){
+        return handleErrorClient(res, 400, "No hay un código de verificación pendiente.");
+    }
+
+    const [savedCode, expiryTime] = code.split('|');
+
+    if (savedCode !== codigo) {
       return handleErrorClient(res, 400, "Código de verificación incorrecto.");
     }
     
+    if (Date.now() > Number(expiryTime)) {
+      return handleErrorClient(
+        res, 
+        400, 
+        "El código ha expirado. Por favor solicita uno nuevo."
+      );
+    }
+
     //Verificacion  correcta
     user.verificado = true;
     user.codigo_verificacion = null;
