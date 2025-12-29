@@ -119,7 +119,7 @@ const Profile = ({ user }) => {
       }
 
       // Actualizar el contexto de autenticación
-      updateUser(data);
+      updateUser({...user, ...data});
 
       Swal.fire({
         title: "¡Actualizado!",
