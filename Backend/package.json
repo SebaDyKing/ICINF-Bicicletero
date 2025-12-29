@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --watch src/index.js",
-    "seed-testing": "node src/seed-testing.js"
+    "start": "TZ='America/Santiago' node src/index.js",
+    "dev": "TZ='America/Santiago' node --watch src/index.js",
+    "seed-testing": "TZ='America/Santiago' node src/seed-testing.js"
   },
   "keywords": [],
   "author": "",
