@@ -15,7 +15,7 @@ import {
 /**
  * @component Dashboard
  * @description Panel principal del Dueño. 
- * CORRECCIÓN HORA: Se usa 'es-CL' para convertir automáticamente 
+ * Se usa 'es-CL' para convertir automáticamente 
  * la hora UTC del servidor a la hora local de Chile.
  */
 const Dashboard = ({ user }) => {
@@ -40,7 +40,7 @@ const Dashboard = ({ user }) => {
   // EFECTOS (Lógica)
   // ==========================================
 
-  // 1. Reloj en vivo (Independiente del servidor, siempre hora local correcta)
+  // 1. Reloj en vivo
   useEffect(() => {
     const timer = setInterval(() => setFechaActual(new Date()), 1000);
     return () => clearInterval(timer);
@@ -106,7 +106,6 @@ const Dashboard = ({ user }) => {
   const handleGenerarQR = async (bike) => {
     setLoadingQr(true);
     try {
-      // El QR lleva la hora de generación local (new Date().getTime()), así que siempre estará bien.
       const dataParaQR = {
         rut: user.rut,
         nombre: `${user.nombre} ${user.apellido}`,
@@ -151,7 +150,7 @@ const Dashboard = ({ user }) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
     
-    // 'es-CL' convierte automáticamente la hora UTC (06:00) a hora Chile (03:00)
+    // 'es-CL' forzará el formato día/mes hora:minutos chilena
     const fecha = date.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit' });
     const hora = date.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false });
     
@@ -225,7 +224,6 @@ const Dashboard = ({ user }) => {
                             <h2 className="text-2xl font-bold mb-1">Pase de Acceso</h2>
                             
                             <div className="text-blue-300 font-mono text-sm mb-4">
-                            {/* ESTA HORA ES DEL CLIENTE (PC/CELULAR), NO SE TOCA */}
                             {fechaActual.toLocaleDateString()} <span className="mx-1">|</span> {fechaActual.toLocaleTimeString()}
                             </div>
 
