@@ -21,11 +21,11 @@ const AppRoutes = () => {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/verify" element={<VerifyPage />} />
 
-      {/* <Route path='/incidentes' element={<IncidentesPage/>} /> */}
+      {/* Rutas protegidas para Central */}
       <Route
         path="/central/home"
         element={
-          <ProtectedRoute allowedRoles={['Central', 'Owner']}>
+          <ProtectedRoute allowedRoles={['Central']}>
             <CentralPage />
           </ProtectedRoute>
         }
@@ -33,16 +33,31 @@ const AppRoutes = () => {
       <Route
         path="/central/security"
         element={
-          <ProtectedRoute allowedRoles={['Central', 'Owner']}>
+          <ProtectedRoute allowedRoles={['Central']}>
             <SecurityDashboard />
           </ProtectedRoute>
         }
       />
 
-      <Route path="/guard/home" element={<GuardPages />} />
+      {/* Rutas protegidas para Guardia */}
+      <Route
+        path="/guard/home"
+        element={
+          <ProtectedRoute allowedRoles={['Guard']}>
+            <GuardPages />
+          </ProtectedRoute>
+        }
+      />
 
-
-      <Route path="/owner/home" element={<OwnerPage />} />
+      {/* Rutas protegidas para Owner */}
+      <Route
+        path="/owner/home"
+        element={
+          <ProtectedRoute allowedRoles={['Owner']}>
+            <OwnerPage />
+          </ProtectedRoute>
+        }
+      />
 
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

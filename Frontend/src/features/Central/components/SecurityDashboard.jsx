@@ -161,7 +161,7 @@ export default function SecurityDashboard() {
         title: error.response.data.message || "Error de validación"
       }) : Swal.fire({
         icon: 'error',
-        title: details?.[0] || "Error de validación"
+        title: error || details?.[0] || "Error de validación"
       });
     }
   };
