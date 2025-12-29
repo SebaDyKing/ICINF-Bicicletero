@@ -43,6 +43,8 @@ export default function SecurityDashboard() {
   const [contrasenia, setContrasenia] = useState("");
   const navigate = useNavigate();
 
+  
+  //Se obtiene reportes consultados al sistema y los guarda en el arreglo reports
   useEffect(() => {
     const fetchReports = async () => {
       try {
@@ -55,10 +57,10 @@ export default function SecurityDashboard() {
           descripcion: r.Descripcion,
           bicicletero: r.Bicicletero
         }));
-
-
         setReports(formatted);
       } catch (error) {
+
+        //en caso de algun error avisa al usuario con una alerta
         console.error("Error backend:", error);
         Swal.fire({
           icon: 'error',
@@ -71,6 +73,7 @@ export default function SecurityDashboard() {
     fetchReports();
   }, []);
 
+  ////Se obtienen guardias consultados al sistema y los guarda en el arreglo guards
   useEffect(() => {
     const fetchGuards = async () => {
       try {
@@ -115,7 +118,9 @@ export default function SecurityDashboard() {
     fetchGuards();
   }, []);
 
+  
   useEffect(() => {
+    //Cada que se seleccione un guardia se asignara el valor para email y telefono, de manera que se muestre al momento de clickear "editar"
     if (selectedGuard) {
       setEmail(selectedGuard.email || "");
       setTelefono(selectedGuard.telefono || "");
@@ -123,6 +128,7 @@ export default function SecurityDashboard() {
   }, [selectedGuard]);
 
 
+  //Funcion que llama al servicio de crear guardia
   const handleCreate = async () => {
     try {
       console.log(rut, email, contrasenia, telefono, nombre, apellido)
@@ -135,9 +141,13 @@ export default function SecurityDashboard() {
         timer: 1000
       })
       console.log(res);
+      //Resetea los valores del input paar que se vea mas limpio
       resetDatos()
+      //actualiza la pagina
       navigate(0)
     } catch (error) {
+
+      //en caso de algun error avisa al usuario mediante una alerta
       console.log(error);
       const details = error.response?.data?.errorDetails;
       error.status === 409 ? Swal.fire({
@@ -150,6 +160,7 @@ export default function SecurityDashboard() {
     }
   };
 
+  //Funcion que llama al servicio de eliminar guardia
   const handleDelete = async (rut) => {
     try {
       const res = await deleteGuardService(rut)
@@ -158,7 +169,7 @@ export default function SecurityDashboard() {
         title: res.data.message,
         timer: 2000
       })
-      // actualizar UI — ejemplo filtrando
+      // actualizar UI, donde mostrara a los guardias
       setGuards(prev => prev.filter(g => g.rut !== rut));
     } catch (error) {
       console.error(error);
@@ -170,6 +181,7 @@ export default function SecurityDashboard() {
     }
   };
 
+  //Funcion que llama al servicio de eliminar owner
   const handleDeleteOwner = async (rut) => {
     try {
       const res = await deleteOwnerService(rut)
@@ -178,7 +190,7 @@ export default function SecurityDashboard() {
         title: res.data.message,
         timer: 2000
       })
-      // actualizar UI — ejemplo filtrando
+      // actualizar UI
       setGuards(prev => prev.filter(g => g.rut !== rut));
     } catch (error) {
       console.error(error);
@@ -190,7 +202,7 @@ export default function SecurityDashboard() {
     }
   };
 
-
+  //Funcion que llama al servicio de modificar guardia
   const handleUpdate = async (guard) => {
     try {
       const res = await updateGuardService(guard.rut, email, contrasenia, telefono);
@@ -202,6 +214,7 @@ export default function SecurityDashboard() {
         timer: 5000
       })
       console.log(res.data);
+      //actualiza la pagina
       navigate(0)
 
     } catch (error) {
@@ -214,15 +227,18 @@ export default function SecurityDashboard() {
     }
   };
 
+  //Funcion que llama al servicio de buscar guardia
   const searchGuardByRut = async () => {
     try {
+
+      //se le entrega de parametro el rut ingresado
       const res = await getGuardService(inputRut)
 
       // Guardas el resultado en un estado separado
       setUserSelected(res.data.data)
       console.log(res.data.data)
       console.log(res)
-      setInputRut('')
+      setInputRut('') //Se limpia input
     } catch (error) {
       console.log(error)
       Swal.fire({
@@ -230,17 +246,19 @@ export default function SecurityDashboard() {
         title: error || "Guardia no encontrado.",
         timer: 2000
       })
-      setUserSelected(null); // Limpia
+      setUserSelected(null); // Limpia userSelected
     }
   };
 
+  //Funcion que llama al servicio de crear guardia
   const searchUserByRut = async () => {
     try {
+      //se ingresa como parametro el rut del usuario que se busca
       const res = await getUserService(inputRut)
       // Guardas el resultado en un estado separado
       setUserSelected(res.data.data)
       console.log(res.data.data)
-      setInputRut('')
+      setInputRut('') //Se limpia el input
     } catch (error) {
       console.error(error);
       Swal.fire({
@@ -248,10 +266,11 @@ export default function SecurityDashboard() {
         title: error || "Usuario no encontrado.",
         timer: 2000
       })
-      setUserSelected(null); // Limpia
+      setUserSelected(null); // Limpia userSelected
     }
   };
 
+  //Funcion que formatea la hora, y se muestre en formato DD/MM/AAAA, ya que pgAdmin devuelve en formato AAAA/MM/DD HH/MM/SS
   const formatDate = (fechaHora) => {
     const date = new Date(fechaHora);
 
@@ -262,6 +281,7 @@ export default function SecurityDashboard() {
     return `${dia}/${mes}/${anio}`;
   };
 
+  //Funcion que llama al servicio de eliminar reporte.
   const handleDeleteReport = async (ID_Informe) => {
     try {
       await deleteReportService(ID_Informe)
@@ -272,7 +292,7 @@ export default function SecurityDashboard() {
         timer: 2000
       })
 
-      // actualizar UI — ejemplo filtrando
+      // actualizar UI
       setReports(prev => prev.filter(r => r.ID_Informe !== ID_Informe));
 
     } catch (error) {
@@ -285,6 +305,7 @@ export default function SecurityDashboard() {
     }
   };
 
+  //Funcion que formatea el input que se ingresa, manteniendo el prefijo +56 9 y la forma +56 9 XXXX XXXX
   const formatPhone = (value) => {
     // Quitar el prefijo si viene duplicado
     let clean = value.replace(prefijo, '');
@@ -301,6 +322,7 @@ export default function SecurityDashboard() {
     return prefijo + grouped;
   };
 
+  //Limpia valores
   const resetDatos = () => {
     setNombre('')
     setApellido('')
@@ -528,10 +550,8 @@ export default function SecurityDashboard() {
                   </thead>
                   {reports.length === 0 ? (
                     <tr>
-                      {/* IMPORTANTE: colSpan debe ser igual al número de columnas de tu cabecera (ID, Fecha, etc.) */}
                       <td colSpan="6" className="p-8 text-center text-gray-500">
                         <div className="flex flex-col items-center justify-center gap-2">
-                          {/* Opcional: Un icono para que se vea más bonito */}
                           <span className="text-2xl">📂</span>
                           <p>No se encuentran incidentes registrados.</p>
                         </div>

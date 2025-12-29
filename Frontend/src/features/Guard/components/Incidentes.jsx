@@ -5,6 +5,8 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import { editReportService, getAllReportsService } from '../services/guardReports.service';
 
+
+//Componente de incidentes
 const IncidentesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
@@ -14,41 +16,45 @@ const IncidentesPage = () => {
   const [descripcion, setDescripcion] = useState('')
 
 
+  //Funcion que da valor a la constante reports
   const fetchReports = async () => {
-      try {
-        const res = await getAllReportsService()
-        console.log(res)
-        console.log(res.data.data.resultCant[0].count)
+    try {
+      const res = await getAllReportsService()
+      console.log(res)
+      console.log(res.data.data.resultCant[0].count)
         
-        const formatted = res.data.data.resultQuery.map(r => ({
-          ID_Informe: r.ID_Informe,
-          fecha: r.Fecha,
-          descripcion: r.Descripcion,
-          bicicletero: r.Bicicletero
-        }));
+      const formatted = res.data.data.resultQuery.map(r => ({
+        ID_Informe: r.ID_Informe,
+        fecha: r.Fecha,
+        descripcion: r.Descripcion,
+        bicicletero: r.Bicicletero
+      }));
         
 
-        setReports(formatted);
-        setCantReportes(res.data.data.resultCant[0].count)
-      } catch (error) {
-        console.error("Error backend:", error);
-        Swal.fire({
-                icon: 'error',
-                title: 'Error al cargar los reportes.',
-                timer: 2000
-              })
-      }
-    };
+      setReports(formatted);
+      setCantReportes(res.data.data.resultCant[0].count)
+    } catch (error) { //en caso de algun error, alerta al usuario
+      console.error("Error backend:", error);
+      Swal.fire({
+              icon: 'error',
+              title: 'Error al cargar los reportes.',
+              timer: 2000
+          })
+    }
+  };
 
+  //llama solo una vez a la funcion
   useEffect(() => {
     fetchReports();
   }, []);
 
+  //Funcion que llama de nuevo a la fetchReports al momento de  editar un reporte
   const handleSucess = () => {
     setIsModalOpen(false);
     fetchReports();
   }
 
+  //Funcion que formatea la hora, y se muestre en formato DD/MM/AAAA, ya que pgAdmin devuelve en formato AAAA/MM/DD HH/MM/SS
   const formatDate = (fechaHora) => {
     const date = new Date(fechaHora);
 
@@ -60,6 +66,7 @@ const IncidentesPage = () => {
   };
 
 
+  //Funcion que llama al servicio de editar reporte
   const handleEditReport = async () => {
     console.log(typeof reportSelected.ID_Informe)
 
@@ -71,6 +78,7 @@ const IncidentesPage = () => {
                 title: 'Reporte actualizado correctamente.',
                 timer: 2000
               })
+        //cierra modal de editar reporte y muestra de nuevo los reportes actualizados
         setIsModalOpenEdit(false);
         fetchReports();
     } catch (error) {
@@ -134,10 +142,8 @@ const IncidentesPage = () => {
 
               {reports.length === 0 ? (
                 <tr>
-                  {/* IMPORTANTE: colSpan debe ser igual al número de columnas de tu cabecera (ID, Fecha, etc.) */}
                   <td colSpan="5" className="p-8 text-center text-gray-500">
                     <div className="flex flex-col items-center justify-center gap-2">
-                      {/* Opcional: Un icono para que se vea más bonito */}
                       <span className="text-2xl">📂</span> 
                       <p>No se encuentran reportes registrados</p>
                     </div>
@@ -159,7 +165,7 @@ const IncidentesPage = () => {
                             setReportSelected(r)
                           }}
                         >
-                          <Edit size={18} className="stroke-2"/> {/* Ícono un poco más grande */}
+                          <Edit size={18} className="stroke-2"/>
                           Editar
                         </button>
                     </td>

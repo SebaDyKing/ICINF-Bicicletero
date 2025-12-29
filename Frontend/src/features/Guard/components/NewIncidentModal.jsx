@@ -13,30 +13,33 @@ const NewIncidentModal  = ({ isOpen, onClose, onSuccess }) => {
   const [listaBicicleteros, setListaBicicleteros] = useState([])
 
   useEffect(() => {
-  const fetchBicicleteros = async () => {
-    try {
-      const res = await getBicicleterosService();
-      const bicicleteros = res.data.data
-      console.log(bicicleteros)
-      setListaBicicleteros(bicicleteros);
-    }catch(error){
-      Swal.fire({
-        icon: 'error',
-        title: 'Error.',
-        text: error,
-        timer: 2000
-      })
-    }
-  };
-  fetchBicicleteros();
-}, []);
+    //funcion que da valor al arreglo de listaBicicleteros, esto mantiene actualizado al momento de seleccionar un bicicletero, en caso de que creen otro bicicletero.
+    const fetchBicicleteros = async () => {
+      try {
+        const res = await getBicicleterosService();
+        const bicicleteros = res.data.data
+        console.log(bicicleteros)
+        setListaBicicleteros(bicicleteros);
+      }catch(error){
+        Swal.fire({
+          icon: 'error',
+          title: 'Error.',
+          text: error,
+          timer: 2000
+        })
+      }
+    };
+    fetchBicicleteros();
+  }, []);
 
+  //Funcion que llama al servicio de crear registro 
   const handleCreateRegister = async () => {
     try {
       if (bicicletero === '') throw new Error('Seleccione un bicicletero.')
       console.log(bicicletero)
       console.log(listaBicicleteros[bicicletero-1].nombre)
-        
+      
+      //Obtiene todos los usuario que tengan bicicletas activas en el momento y lugar del incidente.
       const users = await getOwnersByBicicleteroService(bicicletero)
       console.log(users)
       
@@ -54,8 +57,10 @@ const NewIncidentModal  = ({ isOpen, onClose, onSuccess }) => {
             title: 'Se ha registrado el incidente exitosamente',
             timer: 2000
           })
+      //Actualiza el panel de registros
       onSuccess();
     } catch (error) {
+      //en caso de algun error, avisa al usuario con una alerta
       console.log(error);
       error.status === 400 ? Swal.fire({
               icon: 'error',
