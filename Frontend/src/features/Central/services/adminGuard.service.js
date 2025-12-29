@@ -14,7 +14,7 @@ export const createGuardService = async (rut, email, contrasenia, telefono, nomb
       return res
     } catch (error) {
       console.log(error);
-      throw error.response?.data?.message || "Error en la solicitud";
+      throw error || "Error en la solicitud";
     }
 }
 
@@ -87,7 +87,7 @@ export const getUserService = async (rut) => {
 export const getAllReportsService = async () => {
     try {
         const res = await axios.get(
-        `${API_URL}/guards/report/getAllReports`
+        `${API_URL}/central/getAllReports`
       );
       return res
     } catch (error) {
@@ -113,7 +113,7 @@ export const deleteOwnerService = async (rut) => {
 export const deleteReportService = async (ID_Informe) => {
     try {
         const res = await axios.delete(
-          `${API_URL}/guards/report/deleteReport`,
+          `${API_URL}/central/deleteReport`,
           {
             data: { ID_Informe },
           }
