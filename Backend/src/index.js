@@ -5,8 +5,6 @@ import morgan from "morgan";
 import { connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
 import { createCentral } from './config/initialSetup.js'
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { PORT, HOST } from "./config/configEnv.js"
 import http from "http";
 import cors from "cors";

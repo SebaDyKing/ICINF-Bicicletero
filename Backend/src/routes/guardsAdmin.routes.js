@@ -7,7 +7,7 @@ import { authMiddleware, autorizeEntities } from "../middlewares/auth.middleware
 const router = Router()
 
 // /api/central/
-// router.use(authMiddleware, autorizeEntities('Central', 'Owner'))
+router.use(authMiddleware, autorizeEntities('Central', 'Owner'))
 router.post('/createGuard', createGuard)
 router.put('/updateGuard', updateGuard)
 router.delete('/deleteGuard', deleteGuard)
