@@ -57,6 +57,7 @@ export const Store = new EntitySchema({
         name: "id_bicicleta",
         referencedColumnName: "id_bicicleta",
       },
+      onDelete: "CASCADE"
     },
   },
 });
