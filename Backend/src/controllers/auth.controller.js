@@ -31,9 +31,6 @@ export const loginUser = async (req, res) => {
     const {rut, contrasenia} = req.body
 
     try{
-        if (!AppDataSource.isInitialized) {
-            await AppDataSource.initialize();
-        }
 
         // Validaciones de formato
         let validation = guardBodyPartialValidation({rut})
