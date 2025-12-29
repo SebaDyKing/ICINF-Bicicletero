@@ -15,6 +15,16 @@ export const Header = () => {
   const activeClasses = "bg-blue-600 text-white shadow-lg shadow-blue-900/20 ring-1 ring-blue-500";
   const inactiveClasses = "text-slate-400 hover:text-white hover:bg-slate-800";
 
+  // --- FUNCIÓN PARA CERRAR SESIÓN ---
+  const handleLogout = () => {
+    // Eliminar el token del almacenamiento local
+    localStorage.removeItem('token'); 
+    
+    localStorage.removeItem('user'); 
+
+    navigate('/');
+  };
+
   return (
     <>
       <header className="bg-slate-900 border-b border-slate-800 text-white w-full font-sans sticky top-0 z-50">
@@ -59,8 +69,9 @@ export const Header = () => {
                 </div>
               </div>
               
+              {/* FUNCIÓN handleLogout */}
               <button 
-                onClick={() => navigate('/')} 
+                onClick={handleLogout} 
                 className="flex items-center gap-2 text-[10px] md:text-xs font-bold text-red-400 hover:text-white bg-red-500/10 hover:bg-red-600 px-3 md:px-4 py-2 rounded-lg transition-all duration-200 border border-red-500/20"
               >
                 <LogOut size={16} />
@@ -70,7 +81,7 @@ export const Header = () => {
           </div>
         </div>
 
-        {/* --- NAVEGACIÓN MÓVIL (Solo visible en celulares) --- */}
+        {/* --- NAVEGACIÓN MÓVIL --- */}
         <div className="md:hidden border-t border-slate-800 bg-slate-900/50 backdrop-blur-md px-4 py-2 overflow-x-auto">
           <nav className="flex items-center gap-2">
             <Link 
