@@ -8,9 +8,8 @@ import Swal from 'sweetalert2';
  * Componente BicicletasTab
  * ------------------------
  * Tablero principal para el Guardia.
- * CORRECCIÓN HORA FINAL: Se usan métodos UTC puros.
- * Esto evita que el navegador reste las 3 horas de Chile a una fecha
- * que el servidor ya podría estar enviando ajustada.
+ * Se usa 'es-CL' para convertir automáticamente 
+ * la hora UTC del servidor a la hora local de Chile.
  */
 function BicicletasTab() {
   // --- ESTADOS ---
@@ -28,6 +27,7 @@ function BicicletasTab() {
 
   /**
    * Obtiene los registros activos y estadísticas desde el backend.
+   * Incluye normalización de datos para prevenir errores si la API devuelve null.
    */
   const cargarDatos = async () => {
     try {
@@ -59,7 +59,7 @@ function BicicletasTab() {
       text: "La bicicleta quedará registrada como 'Salida'.",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33', 
+      confirmButtonColor: '#d33', // Rojo para indicar acción de salida
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Sí, retirar',
       cancelButtonText: 'Cancelar'
@@ -100,7 +100,7 @@ function BicicletasTab() {
   };
 
   /**
-   * Utilidad para limpiar textos.
+   * Utilidad para limpiar textos (quitar acentos, pasar a minúsculas).
    */
   const normalizeText = (text) => {
     if (!text) return "";
@@ -111,32 +111,42 @@ function BicicletasTab() {
       .replace(/[\u0300-\u036f]/g, "");
   };
 
-  // --- HELPER PARA CORREGIR LA HORA (MODO UTC "RAW") ---
-  // Extrae los números tal cual vienen del servidor sin aplicar zona horaria.
+  // --- HELPER PARA CORREGIR LA HORA (FIX FINAL) ---
+  // Transforma la hora UTC del servidor a la hora local del dispositivo (Chile)
   const formatDateTime = (dateString) => {
     if (!dateString) return { date: '-', time: '-' };
     const date = new Date(dateString);
-    const pad = (n) => n.toString().padStart(2, '0');
     
-    return {
-        // Usamos getUTC... para leer el dato exacto de la base de datos
-        // ignorando si el navegador está en Chile, China o Marte.
-        date: `${pad(date.getUTCDate())}/${pad(date.getUTCMonth() + 1)}/${date.getUTCFullYear()}`,
-        time: `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`
-    };
+    // 'es-CL' forzará el formato día/mes/año y la hora chilena
+    const fecha = date.toLocaleDateString('es-CL', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric' 
+    });
+    
+    const hora = date.toLocaleTimeString('es-CL', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        hour12: false // Formato 24 horas (ej: 14:30)
+    });
+    
+    return { date: fecha, time: hora };
   };
 
   // --- LÓGICA DE FILTRADO ---
   const registrosFiltrados = registros.filter((reg) => {
+    // Protección contra datos corruptos (si owner es null)
     if (!reg?.bicycle?.owner) return false;
 
     const term = normalizeText(busqueda); 
+    // Normalizamos todos los campos buscables
     const rut = normalizeText(reg.bicycle.owner.rut);
     const nombre = normalizeText(reg.bicycle.owner.nombre);
     const apellido = normalizeText(reg.bicycle.owner.apellido);
     const idBici = normalizeText(reg.bicycle.id_bicicleta);
     const nombreCompleto = `${nombre} ${apellido}`;
 
+    // Retorna true si hay coincidencia en cualquiera de los campos
     return (
       rut.includes(term) ||
       nombre.includes(term) ||
@@ -147,6 +157,7 @@ function BicicletasTab() {
   });
 
   // --- LÓGICA DE AGRUPACIÓN ---
+  // Agrupa los registros filtrados según el nombre del Bicicletero (Rack)
   const registrosAgrupados = registrosFiltrados.reduce((acc, curr) => {
     const nombreRack = curr.bicycleRack?.nombre || 'Sin Ubicación';
     if (!acc[nombreRack]) acc[nombreRack] = [];
@@ -154,14 +165,18 @@ function BicicletasTab() {
     return acc;
   }, {});
 
+  // Renderizados condicionales de carga y error
   if (loading) return <div className="p-10 text-center text-gray-500">Cargando información...</div>;
   if (error) return <div className="p-10 text-center text-red-600 font-bold bg-red-50 rounded-lg mx-4 mt-4">{error}</div>;
 
   return (
     <div className="animate-fade-in pb-20">
       
-      {/* 1. SECCIÓN DE ESTADÍSTICAS */}
+      {/* =================================================================
+          1. SECCIÓN DE ESTADÍSTICAS (TARJETAS SUPERIORES)
+         ================================================================= */}
       <div className="grid grid-cols-3 gap-2 md:gap-6 mb-4 md:mb-8">
+        {/* Card: Activas */}
         <div className="bg-white p-2 md:p-6 rounded-lg shadow-sm border border-gray-200 flex justify-between items-start">
           <div className="flex flex-col justify-between h-full">
             <p className="text-gray-500 text-[10px] md:text-sm font-medium leading-tight">Bicis Activas</p>
@@ -170,6 +185,7 @@ function BicicletasTab() {
           <Bike className="text-gray-300 w-5 h-5 md:w-6 md:h-6 shrink-0" />
         </div>
 
+        {/* Card: Retiros */}
         <div className="bg-white p-2 md:p-6 rounded-lg shadow-sm border border-gray-200 flex justify-between items-start">
           <div className="flex flex-col justify-between h-full">
             <p className="text-gray-500 text-[10px] md:text-sm font-medium leading-tight">Retiradas Hoy</p>
@@ -178,6 +194,7 @@ function BicicletasTab() {
           <Minus className="text-gray-300 w-5 h-5 md:w-6 md:h-6 shrink-0" />
         </div>
 
+        {/* Card: Ingresos */}
         <div className="bg-white p-2 md:p-6 rounded-lg shadow-sm border border-gray-200 flex justify-between items-start">
           <div className="flex flex-col justify-between h-full">
             <p className="text-gray-500 text-[10px] md:text-sm font-medium leading-tight">Ingresos Hoy</p>
@@ -187,13 +204,16 @@ function BicicletasTab() {
         </div>
       </div>
 
-      {/* 2. BARRA DE HERRAMIENTAS */}
+      {/* =================================================================
+          2. BARRA DE HERRAMIENTAS (BÚSQUEDA Y BOTÓN INGRESO)
+         ================================================================= */}
       <div className="mb-6">
         <div className="mb-2">
           <h2 className="font-bold text-gray-800 text-lg">Bicicletas Registradas</h2>
           <p className="text-xs text-gray-500">Gestione el ingreso y retiro de bicicletas</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-row gap-4 items-center">
+          {/* Input Buscador */}
           <div className="relative flex-1">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="text-gray-400" size={18} />
@@ -206,6 +226,7 @@ function BicicletasTab() {
               onChange={(e) => setBusqueda(e.target.value)}
             />
           </div>
+          {/* Botón Modal */}
           <button 
             onClick={() => setShowModal(true)}
             className="bg-[#003366] text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-blue-900 transition flex items-center gap-2 whitespace-nowrap shadow-sm"
@@ -215,7 +236,9 @@ function BicicletasTab() {
         </div>
       </div>
 
-      {/* 3. LISTADO DE REGISTROS */}
+      {/* =================================================================
+          3. LISTADO DE REGISTROS (AGRUPADOS POR BICICLETERO)
+         ================================================================= */}
       {Object.keys(registrosAgrupados).length === 0 ? (
         <div className="bg-white p-10 rounded-lg shadow-sm text-center text-gray-500 border border-gray-200">
           {busqueda ? 'No se encontraron resultados.' : 'No hay bicicletas activas.'}
@@ -224,12 +247,13 @@ function BicicletasTab() {
         Object.entries(registrosAgrupados).map(([nombreBicicletero, listaBicis]) => (
           <div key={nombreBicicletero} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-8">
             
+            {/* Encabezado del Grupo (Nombre del Bicicletero) */}
             <div className="bg-[#003366] px-6 py-3 flex justify-between items-center">
               <h3 className="text-white font-bold text-sm uppercase tracking-wide">{nombreBicicletero}</h3>
               <span className="bg-white text-[#003366] text-xs font-bold px-2 py-0.5 rounded-full shadow-sm">{listaBicis.length} bicicletas</span>
             </div>
 
-            {/* --- VISTA DE ESCRITORIO --- */}
+            {/* --- VISTA DE ESCRITORIO (TABLA) --- */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm text-left table-fixed">
                 <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
@@ -244,6 +268,7 @@ function BicicletasTab() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {listaBicis.map((reg) => {
+                    // AQUÍ USAMOS LA CORRECCIÓN DE HORA
                     const { date, time } = formatDateTime(reg.fechaIngreso);
 
                     return (
@@ -275,9 +300,10 @@ function BicicletasTab() {
               </table>
             </div>
 
-            {/* --- VISTA MÓVIL --- */}
+            {/* --- VISTA MÓVIL (TARJETAS) --- */}
             <div className="md:hidden flex flex-col gap-4 p-4 bg-gray-50">
               {listaBicis.map((reg) => {
+                // AQUÍ USAMOS LA CORRECCIÓN DE HORA TAMBIÉN EN MÓVIL
                 const { date, time } = formatDateTime(reg.fechaIngreso);
 
                 return (
@@ -330,6 +356,7 @@ function BicicletasTab() {
         ))
       )}
 
+      {/* MODAL DE INGRESO */}
       {showModal && (
         <IngresoModal 
           onClose={() => setShowModal(false)} 
