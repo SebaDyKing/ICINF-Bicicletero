@@ -15,7 +15,8 @@ import {
 /**
  * @component Dashboard
  * @description Panel principal del Dueño. 
- * CORRECCIÓN HORA FINAL: Uso estricto de getUTC para leer la hora "cruda" del servidor.
+ * CORRECCIÓN HORA: Se usa 'es-CL' para convertir automáticamente 
+ * la hora UTC del servidor a la hora local de Chile.
  */
 const Dashboard = ({ user }) => {
   // ==========================================
@@ -39,7 +40,7 @@ const Dashboard = ({ user }) => {
   // EFECTOS (Lógica)
   // ==========================================
 
-  // 1. Reloj en vivo
+  // 1. Reloj en vivo (Independiente del servidor, siempre hora local correcta)
   useEffect(() => {
     const timer = setInterval(() => setFechaActual(new Date()), 1000);
     return () => clearInterval(timer);
@@ -105,6 +106,7 @@ const Dashboard = ({ user }) => {
   const handleGenerarQR = async (bike) => {
     setLoadingQr(true);
     try {
+      // El QR lleva la hora de generación local (new Date().getTime()), así que siempre estará bien.
       const dataParaQR = {
         rut: user.rut,
         nombre: `${user.nombre} ${user.apellido}`,
@@ -143,15 +145,17 @@ const Dashboard = ({ user }) => {
       return 'bg-green-400';                         
   };
 
-  // --- HELPER FIX HORA (UTC RAW) ---
-  // Muestra la fecha exacta que llega del servidor, ignorando la zona horaria del navegador.
+  // --- HELPER PARA CORREGIR LA HORA (FIX FINAL) ---
+  // Transforma la hora UTC del servidor a la hora local (Chile)
   const formatDateTime = (dateString) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
-    const pad = (n) => n.toString().padStart(2, '0');
     
-    // getUTC... obtiene el valor numérico tal cual está guardado
-    return `${pad(date.getUTCDate())}/${pad(date.getUTCMonth() + 1)} ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`;
+    // 'es-CL' convierte automáticamente la hora UTC (06:00) a hora Chile (03:00)
+    const fecha = date.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit' });
+    const hora = date.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false });
+    
+    return `${fecha} ${hora}`;
   };
 
   // ==========================================
@@ -221,6 +225,7 @@ const Dashboard = ({ user }) => {
                             <h2 className="text-2xl font-bold mb-1">Pase de Acceso</h2>
                             
                             <div className="text-blue-300 font-mono text-sm mb-4">
+                            {/* ESTA HORA ES DEL CLIENTE (PC/CELULAR), NO SE TOCA */}
                             {fechaActual.toLocaleDateString()} <span className="mx-1">|</span> {fechaActual.toLocaleTimeString()}
                             </div>
 
