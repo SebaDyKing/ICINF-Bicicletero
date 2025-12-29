@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import NewIncidentModal from './NewIncidentModal'; // Componente del modal
-import { User, LogOut, Bell, FileText, Calendar, Plus, Edit, X, Trash2 } from 'lucide-react';
+import { Bell, Plus, Edit, X} from 'lucide-react';
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import { useNavigate } from 'react-router-dom';
 import { editReportService, getAllReportsService } from '../services/guardReports.service';
 
+
+//Componente de incidentes
 const IncidentesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
@@ -13,42 +14,47 @@ const IncidentesPage = () => {
   const [reportSelected, setReportSelected] = useState(null)
   const [cantReportes, setCantReportes] = useState(null)
   const [descripcion, setDescripcion] = useState('')
-  const navigate = useNavigate()
 
 
+  //Funcion que da valor a la constante reports
+  const fetchReports = async () => {
+    try {
+      const res = await getAllReportsService()
+      console.log(res)
+      console.log(res.data.data.resultCant[0].count)
+        
+      const formatted = res.data.data.resultQuery.map(r => ({
+        ID_Informe: r.ID_Informe,
+        fecha: r.Fecha,
+        descripcion: r.Descripcion,
+        bicicletero: r.Bicicletero
+      }));
+        
+
+      setReports(formatted);
+      setCantReportes(res.data.data.resultCant[0].count)
+    } catch (error) { //en caso de algun error, alerta al usuario
+      console.error("Error backend:", error);
+      Swal.fire({
+              icon: 'error',
+              title: 'Error al cargar los reportes.',
+              timer: 2000
+          })
+    }
+  };
+
+  //llama solo una vez a la funcion
   useEffect(() => {
-    // if (!emailFromRegister) {
-    //   navigate("/login");
-    // }
-    const fetchReports = async () => {
-      try {
-        const res = await getAllReportsService()
-        console.log(res)
-        console.log(res.data.data.resultCant[0].count)
-        
-        const formatted = res.data.data.resultQuery.map(r => ({
-          ID_Informe: r.ID_Informe,
-          fecha: r.Fecha,
-          descripcion: r.Descripcion,
-          bicicletero: r.Bicicletero
-        }));
-        
-
-        setReports(formatted);
-        setCantReportes(res.data.data.resultCant[0].count)
-      } catch (error) {
-        console.error("Error backend:", error);
-        Swal.fire({
-                icon: 'error',
-                title: 'Error al cargar los reportes.',
-                timer: 2000
-              })
-      }
-    };
-
     fetchReports();
   }, []);
 
+  //Funcion que llama de nuevo a la fetchReports al momento de  editar un reporte
+  const handleSucess = () => {
+    setIsModalOpen(false);
+    fetchReports();
+  }
+
+  //Funcion que formatea la hora, y se muestre en formato DD/MM/AAAA, ya que pgAdmin devuelve en formato AAAA/MM/DD HH/MM/SS
   const formatDate = (fechaHora) => {
     const date = new Date(fechaHora);
 
@@ -60,6 +66,7 @@ const IncidentesPage = () => {
   };
 
 
+  //Funcion que llama al servicio de editar reporte
   const handleEditReport = async () => {
     console.log(typeof reportSelected.ID_Informe)
 
@@ -71,7 +78,9 @@ const IncidentesPage = () => {
                 title: 'Reporte actualizado correctamente.',
                 timer: 2000
               })
-        navigate(0)
+        //cierra modal de editar reporte y muestra de nuevo los reportes actualizados
+        setIsModalOpenEdit(false);
+        fetchReports();
     } catch (error) {
         console.log(error);
         Swal.fire({
@@ -133,10 +142,8 @@ const IncidentesPage = () => {
 
               {reports.length === 0 ? (
                 <tr>
-                  {/* IMPORTANTE: colSpan debe ser igual al número de columnas de tu cabecera (ID, Fecha, etc.) */}
                   <td colSpan="5" className="p-8 text-center text-gray-500">
                     <div className="flex flex-col items-center justify-center gap-2">
-                      {/* Opcional: Un icono para que se vea más bonito */}
                       <span className="text-2xl">📂</span> 
                       <p>No se encuentran reportes registrados</p>
                     </div>
@@ -158,7 +165,7 @@ const IncidentesPage = () => {
                             setReportSelected(r)
                           }}
                         >
-                          <Edit size={18} className="stroke-2"/> {/* Ícono un poco más grande */}
+                          <Edit size={18} className="stroke-2"/>
                           Editar
                         </button>
                     </td>
@@ -225,6 +232,7 @@ const IncidentesPage = () => {
       <NewIncidentModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
+        onSuccess = {handleSucess}
       />
     </div>
   );

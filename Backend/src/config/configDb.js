@@ -1,6 +1,13 @@
 import { DataSource } from 'typeorm';
 import { db } from './configEnv.js';
 
+/**
+ * Configuración de la fuente de datos (DataSource) de TypeORM.
+ * Establece la conexión con la base de datos PostgreSQL utilizando
+ * las variables de entorno importadas.
+ * * @type {DataSource}
+ */
+
 export const AppDataSource = new DataSource({
   type: "postgres",
   host: db.host,
@@ -13,6 +20,7 @@ export const AppDataSource = new DataSource({
   logging: false,
 });
 
+//Conecta la base de datos y en caso que haya un error avisa con un console.error
 export async function connectDB() {
   try {
     await AppDataSource.initialize();
