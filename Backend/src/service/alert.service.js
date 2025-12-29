@@ -1,8 +1,10 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 
+//Se utiliza para importar credenciales de .env
 dotenv.config();
 
+//Se crea variable que se utilizara para enviar email
 const mailMan = nodemailer.createTransport({
   service: 'gmail', 
   auth: {
@@ -14,6 +16,19 @@ const mailMan = nodemailer.createTransport({
   }
 });
 
+/**
+ * Envía un correo de alerta de seguridad a un usuario específico.
+ * * Esta función construye un correo en formato HTML con los detalles de un siniestro
+ * ocurrido en un bicicletero y proporciona un enlace a la plataforma web.
+ * * @async
+ * @function sendAlertEmail
+ * @param {string} toEmail - La dirección de correo electrónico del destinatario (el dueño de la bicicleta).
+ * @param {string|Date} fecha - La fecha y hora en que ocurrió o se reportó el suceso.
+ * @param {string} bicicletero - El nombre o identificador del bicicletero donde ocurrió el incidente.
+ * @param {string} descripcion - Detalles descriptivos sobre el suceso o el estado de la bicicleta.
+ * @returns {Promise<void>} Una promesa que se resuelve cuando el intento de envío finaliza (ya sea con éxito o capturando un error en consola).
+ * 
+ */
 const sendAlertEmail = async (toEmail, fecha, bicicletero, descripcion) => {
   try {
       const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173'
@@ -43,8 +58,6 @@ const sendAlertEmail = async (toEmail, fecha, bicicletero, descripcion) => {
           </div>
           `,
       };
-
-    
         // Enviar el correo
         await mailMan.sendMail(mailOptions);
         console.log(`Alerta de enviado a ${toEmail}`);
