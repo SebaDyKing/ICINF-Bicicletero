@@ -1,19 +1,28 @@
+import e from "express";
 import { AppDataSource } from "../config/configDb.js";
 import {handleErrorClient, handleErrorServer, handleSuccess} from '../Handlers/responseHandlers.js'
 import { Reports } from "../models/reports.entity.js";
 import sendAlertEmail from "../service/alert.service.js";
+import { BicycleRack } from "../models/bicycleRack.entity.js";
+import validarFecha from "../validations/fecha.validations.js";
 
 export const createReport = async (req, res) => {
     try {
         const {emails, fecha, descripcion, bicicletero} = req.body
-        console.log(emails)
+        console.log(emails.length)
+        console.log(fecha)
+        console.log(bicicletero)
 
         if (fecha.length === 0) {
             return handleErrorClient(res, 400, "Fecha es requerida.")
         }
 
-        if (descripcion.length === 0) {
+        if (descripcion.length === 0) { 
             return handleErrorClient(res, 400, "El incidente debe tener una descripción breve.")
+        }
+
+        if (bicicletero.length === 0) { 
+            return handleErrorClient(res, 400, "Debe seleccionar un bicicletero.")
         }
         
         //verifica que la bdd este iniciada
@@ -22,6 +31,18 @@ export const createReport = async (req, res) => {
         }
 
         const reportRepository = AppDataSource.getRepository(Reports);
+
+
+        const queryBR = `
+        SELECT nombre FROM "bicycleRack";
+        `;    
+        const resultBR = await AppDataSource.query(queryBR); 
+        
+        const isValid = resultBR.some(
+            item => item.nombre.includes(bicicletero)
+        )
+
+        if(!isValid) throw new Error('Bicicletero no se encuentra.')
 
         const newReport = reportRepository.create({
         fecha,
@@ -37,19 +58,17 @@ export const createReport = async (req, res) => {
               descripcion, 
               bicicletero
             });
-        console.log(emails.length)
-        
         if (emails.length !== 0){
             for (const email of emails){
-            console.log(email)
-            await sendAlertEmail(email, fecha, bicicletero, descripcion)
+                console.log(email)
+                await sendAlertEmail(email, fecha, bicicletero, descripcion)
             }
         } else {
-            console.log('No hay usuarios afectados.')
+            console.log('No se encontraron emails para enviar.')
         }
         
     } catch (error) {
-        return handleErrorServer(res, 500, "Error del servidor", error.message);
+        return handleErrorServer(res, 500, 'Error al crear reporte.', error.message);
     }
 }
 
@@ -117,40 +136,6 @@ export const updateReport = async (req, res) => {
             });
     } catch (error) {
         return handleErrorServer(res, 500, error.message);
-    }
-}
-
-export const getReport = async (req, res) => {
-    const {ID_Informe} = req.body
-
-    if(typeof ID_Informe !== 'number') return handleErrorClient(res, 404, `El ID debe ser un número.`);
-
-    const reportRepository = AppDataSource.getRepository(Reports);
-    const isValid = await reportRepository.findOneBy({ID_Informe});
-    if (!isValid) return handleErrorClient(res, 404, `El ID ${ID_Informe} no se encuentra asociado a ningún reporte.`);
-
-    
-    //verifica que la bdd este iniciada
-    if (!AppDataSource.isInitialized) {
-        await AppDataSource.initialize();
-    }
-
-    // consulta SQL para ingresar a tabla Users
-    const query = `
-        SELECT * from reports WHERE "ID_Informe" = $1;
-    `;
-    try {
-        // Ejecuta consultas (consulta, valoresConsulta)
-        const resultQuery = await AppDataSource.query(query, [ID_Informe]);
-        console.log(resultQuery)
-        handleSuccess(res, 200, "Reporte obtenido correctamente", {
-            id: resultQuery[0].ID_Informe,
-            fecha: resultQuery[0].Fecha,
-            descripcion: resultQuery[0].Descripcion,
-            bicicletero: resultQuery[0].Bicicletero
-        });
-    } catch (error) {
-        return handleErrorServer(res, 500, "Error del servidor", error.message);
     }
 }
 

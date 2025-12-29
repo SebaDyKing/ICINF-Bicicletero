@@ -2,6 +2,22 @@ import { useState } from "react";
 import { Bike, User, QrCode, ChevronLeft, ChevronRight, SquareMenu, Zap, Shield } from "lucide-react";
 import { useAuth } from "../../../Context/useAuth";
 
+
+/**
+ * @component SideBar
+ * @brief Barra de navegación lateral adaptable para el panel del dueño.
+ *
+ * Este componente proporciona la navegación principal de la aplicación para el usuario "Dueño".
+ * * Funcionalidades clave:
+ * 1. **Navegación por Pestañas:** Permite cambiar entre las vistas principales (Dashboard, Mis Bicicletas, Solicitar Guardia, Perfil).
+ * 2. **Colapsable (Escritorio):** Incluye un botón para minimizar el ancho de la barra, optimizando el espacio en pantalla.
+ * 3. **Responsivo (Móvil):** Se oculta automáticamente en pantallas pequeñas y se despliega mediante un botón de menú ("Hamburguesa") con un overlay oscuro.
+ * 4. **Gestión de Sesión:** Integra el botón de cierre de sesión conectado al contexto de autenticación.
+ *
+ * @param {Object} props Props del componente.
+ * @param {string} props.activeTab Identificador de la pestaña actual visible (ej: "dashboard", "bikes").
+ * @param {Function} props.setActiveTab Función para actualizar el estado de la pestaña activa en el componente padre.
+ */
 const SideBar = ({activeTab, setActiveTab}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
