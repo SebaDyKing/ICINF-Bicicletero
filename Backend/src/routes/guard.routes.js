@@ -10,8 +10,8 @@ import {
 
 // Importaciones necesarias para las utilidades extras (Dropdowns, reportes)
 import { getBicicleteros } from "../controllers/bicicletero.controller.js";
-import Report from './reports.routes.js';
-
+import { getOwnersByBicicletero } from "../controllers/owner.controller.js";
+import Report from './reports.routes.js'
 import { authMiddleware, autorizeEntities } from "../middlewares/auth.middleware.js";
 
 const router = Router();
@@ -23,7 +23,8 @@ router.use('/report', Report);
 
 // Nota: Esta ruta suele usarse para llenar el "Select" de bicicleteros en el Frontend.
 // Debería tener protección si no es pública.
-router.get('/getBicicleteros', authMiddleware, getBicicleteros); 
+router.get('/getBicicleteros', getBicicleteros); 
+router.get('/getOwnersByBicicletero', getOwnersByBicicletero); 
 
 // ==========================================
 //          OPERACIONES DE GUARDIA

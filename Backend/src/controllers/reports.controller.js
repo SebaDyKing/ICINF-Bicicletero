@@ -3,8 +3,6 @@ import { AppDataSource } from "../config/configDb.js";
 import {handleErrorClient, handleErrorServer, handleSuccess} from '../Handlers/responseHandlers.js'
 import { Reports } from "../models/reports.entity.js";
 import sendAlertEmail from "../service/alert.service.js";
-import { BicycleRack } from "../models/bicycleRack.entity.js";
-import validarFecha from "../validations/fecha.validations.js";
 
 export const createReport = async (req, res) => {
     try {

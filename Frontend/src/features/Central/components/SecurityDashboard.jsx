@@ -224,7 +224,7 @@ export default function SecurityDashboard() {
       console.log(error);
       Swal.fire({
         icon: 'error',
-        title: error.response?.data?.message || "Error en la solicitud",
+        title: error || error.response?.data?.message || "Error en la solicitud",
         timer: 2000
       })
     }
@@ -328,31 +328,43 @@ export default function SecurityDashboard() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans flex flex-col">
+    <div className="min-h-screen bg-slate-100 font-sans flex flex-col">
       <Header />
       {/* --- Contenido Principal --- */}
-      <main className="p-8 max-w-7xl mx-auto grow w-full">
+      <main className="p-6 max-w-7xl mx-auto grow w-full">
 
-        {/* Header y Botón Nuevo Guardia */}
-        <div className="flex justify-between items-start mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">Centro de Seguridad</h1>
-            <p className="text-gray-500 mt-1">Gestión integral de guardias e incidentes</p>
+        {/* Header con ícono y título */}
+        <header className="mb-8">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-linear-to-br from-[#003366] to-[#0066cc] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/30 animate-pulse-soft">
+                <Shield size={28} strokeWidth={2.5} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900">Centro de Seguridad</h2>
+                <p className="text-slate-500 text-sm">Gestión integral de guardias e incidentes</p>
+              </div>
+            </div>
+            {activeTab === 'guards' && (
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-linear-to-br from-[#003366] to-[#0066cc] hover:from-[#002244] hover:to-[#0055aa] text-white px-5 py-3 rounded-xl flex items-center gap-2 font-semibold transition-all shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-105"
+              >
+                <Plus size={18} /> Nuevo Guardia
+              </button>
+            )}
           </div>
-          {activeTab === 'guards' && (
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors"
-            >
-              <Plus size={18} /> Nuevo Guardia
-            </button>
-          )}
-        </div>
+        </header>
 
         {/*BUSQUEDA DE USUARIO*/}
         {activeTab === 'guards' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-3">
-            <h2 className="text-xl font-semibold text-gray-800 mb-1">Buscar usuario en el sistema</h2>
+          <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-6 mb-6 hover:shadow-2xl hover:scale-[1.01] transition-all duration-300">
+            <div className="relative bg-linear-to-r from-blue-700 to-blue-900 -m-6 mb-6 px-6 py-4 overflow-hidden rounded-t-3xl">
+              <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent shimmer" />
+              <div className="relative">
+                <h2 className="text-xl font-bold text-white tracking-tight">Buscar usuario en el sistema</h2>
+              </div>
+            </div>
 
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -360,7 +372,7 @@ export default function SecurityDashboard() {
                 type="text"
                 placeholder="Buscar por RUT..."
                 value={inputRut}
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                 onChange={(e) => {
                   const formattedRut = formatRut(e.target.value);
                   setInputRut(formattedRut);
@@ -369,7 +381,7 @@ export default function SecurityDashboard() {
               />
             </div>
 
-            <select className="bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-3"
+            <select className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-3 shadow-sm hover:shadow-md transition-all"
               value={rol}
               onChange={(e) => setRol(e.target.value)}>
               <option value="">Seleccionar rol</option>
@@ -378,7 +390,7 @@ export default function SecurityDashboard() {
             </select>
 
             <div className="relative mb-6">
-              <button className="mt-5 flex items-center gap-1 text-white bg-blue-800 px-3 py-1.5 rounded-lg text-sm hover:bg-blue-600 font-medium" onClick={() => {
+              <button className="mt-5 flex items-center gap-2 text-white bg-linear-to-br from-blue-700 to-blue-900 px-4 py-2.5 rounded-xl text-sm hover:shadow-lg hover:scale-105 font-semibold transition-all shadow-md" onClick={() => {
                 rol === '' ? Swal.fire({
                   icon: 'warning',
                   title: 'Seleccione rol de usuario.',
@@ -406,7 +418,7 @@ export default function SecurityDashboard() {
                         <td className="p-4">{userSelected.correo || userSelected.email}</td>
                         <td className="p-4">{userSelected.telefono}</td>
                         <td>
-                          <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium mt-3" onClick={async () => { userSelected.tipo_usuario === 'Guard' ? handleDelete(userSelected.rut) : handleDeleteOwner(userSelected.rut); setTimeout(() => { navigate(0) }, 1300) }}>
+                          <button className="flex items-center gap-1 text-white bg-linear-to-br from-red-600 to-red-700 px-3 py-2 rounded-xl text-sm hover:shadow-lg hover:scale-105 font-semibold transition-all mt-3" onClick={async () => { userSelected.tipo_usuario === 'Guard' ? handleDelete(userSelected.rut) : handleDeleteOwner(userSelected.rut); setTimeout(() => { navigate(0) }, 1300) }}>
                             <Trash2 size={14} /> Eliminar
                           </button>
                         </td>
@@ -421,18 +433,18 @@ export default function SecurityDashboard() {
 
 
         {/* --- Pestañas de Navegación (Toggle) --- */}
-        <div className="flex mb-6 bg-white rounded-full p-1 shadow-sm border border-gray-200 w-full max-w-4xl mx-auto">
+        <div className="flex mb-6 bg-white rounded-full p-1.5 shadow-lg border border-gray-200 w-full max-w-4xl mx-auto">
           <button
             onClick={() => setActiveTab('guards')}
-            className={`flex-1 py-2 rounded-full font-medium text-sm flex justify-center items-center gap-2 transition-all ${activeTab === 'guards' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'}`}
+            className={`flex-1 py-3 rounded-full font-semibold text-sm flex justify-center items-center gap-2 transition-all ${activeTab === 'guards' ? 'bg-linear-to-br from-[#003366] to-[#0066cc] text-white shadow-lg shadow-blue-500/30' : 'text-gray-600 hover:bg-slate-100'}`}
           >
-            <Shield size={16} /> Guardias ({guards.length})
+            <Shield size={18} /> Guardias ({guards.length})
           </button>
           <button
             onClick={() => setActiveTab('reports')}
-            className={`flex-1 py-2 rounded-full font-medium text-sm flex justify-center items-center gap-2 transition-all ${activeTab === 'reports' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'}`}
+            className={`flex-1 py-3 rounded-full font-semibold text-sm flex justify-center items-center gap-2 transition-all ${activeTab === 'reports' ? 'bg-linear-to-br from-[#003366] to-[#0066cc] text-white shadow-lg shadow-blue-500/30' : 'text-gray-600 hover:bg-slate-100'}`}
           >
-            <AlertTriangle size={16} /> Incidentes ({reports.length})
+            <AlertTriangle size={18} /> Incidentes ({reports.length})
           </button>
         </div>
 
@@ -440,61 +452,68 @@ export default function SecurityDashboard() {
         {/* --- VISTA: GUARDIAS --- */}
 
         {activeTab === 'guards' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-1">Personal de Seguridad</h2>
-            <p className="text-gray-500 text-sm mb-6">Gestión completa de guardias asignados a bicicleteros</p>
+          <div className="bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-2xl hover:scale-[1.01] transition-all duration-300">
+            <div className="relative bg-linear-to-r from-blue-700 to-blue-900 px-6 py-4 overflow-hidden">
+              <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent shimmer" />
+              <div className="relative">
+                <h3 className="font-bold text-lg text-white tracking-tight">Personal de Seguridad</h3>
+                <p className="text-blue-100 text-sm mt-1">Gestión completa de guardias asignados a bicicleteros</p>
+              </div>
+            </div>
+            <div className="p-6">
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-gray-50 text-gray-600 text-sm font-semibold">
-                  <tr>
-                    <th className="p-4 rounded-tl-lg">Nombre</th>
-                    <th className="p-4">RUT</th>
-                    <th className="p-4">Email</th>
-                    <th className="p-4">Teléfono</th>
-                    <th className="p-4 rounded-tr-lg text-right">Acciones</th>
-                  </tr>
-                </thead>
-                {guards.length === 0 ? (
-                  <tr>
-                    {/* IMPORTANTE: colSpan debe ser igual al número de columnas de tu cabecera (ID, Fecha, etc.) */}
-                    <td colSpan="6" className="p-8 text-center text-gray-500">
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        {/* Opcional: Un icono para que se vea más bonito */}
-                        <span className="text-2xl">👥</span>
-                        <p>No se encuentran guardias registrados.</p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  <tbody className="divide-y divide-gray-100">
-                    {guards.map((guard) => (
-                      <tr key={guard.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="p-4 font-medium text-gray-800">{guard.nombre}</td>
-                        <td className="p-4 text-gray-600">{guard.rut}</td>
-                        <td className="p-4 text-gray-600">{guard.email}</td>
-                        <td className="p-4 text-gray-600">{guard.telefono}</td>
-                        <td className="p-4 flex justify-end gap-2">
-                          <button className="flex items-center gap-1 text-blue-600 border border-blue-200 px-3 py-1.5 rounded-lg text-sm hover:bg-blue-50 font-medium" onClick={() => {
-                            setIsModalOpenEdit(true);
-                            setSelectedGuard(guard);
-                            console.log(selectedGuard)
-                            console.log(guard)
-                            console.log(email)
-                            console.log(telefono)
-                          }}>
-                            <Edit size={14} /> Editar
-                          </button>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-slate-50 text-slate-600 text-sm font-semibold">
+                    <tr>
+                      <th className="p-4 rounded-tl-lg">Nombre</th>
+                      <th className="p-4">RUT</th>
+                      <th className="p-4">Email</th>
+                      <th className="p-4">Teléfono</th>
+                      <th className="p-4 rounded-tr-lg text-right">Acciones</th>
+                    </tr>
+                  </thead>
+                  {guards.length === 0 ? (
+                    <tr>
+                      {/* IMPORTANTE: colSpan debe ser igual al número de columnas de tu cabecera (ID, Fecha, etc.) */}
+                      <td colSpan="6" className="p-8 text-center text-gray-500">
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          {/* Opcional: Un icono para que se vea más bonito */}
+                          <span className="text-2xl">👥</span>
+                          <p>No se encuentran guardias registrados.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    <tbody className="divide-y divide-gray-100">
+                      {guards.map((guard) => (
+                        <tr key={guard.id} className="hover:bg-blue-50/50 transition-colors">
+                          <td className="p-4 font-medium text-gray-800">{guard.nombre}</td>
+                          <td className="p-4 text-gray-600">{guard.rut}</td>
+                          <td className="p-4 text-gray-600">{guard.email}</td>
+                          <td className="p-4 text-gray-600">{guard.telefono}</td>
+                          <td className="p-4 flex justify-end gap-2">
+                            <button className="flex items-center gap-1 text-blue-600 border border-blue-300 px-3 py-2 rounded-xl text-sm hover:bg-blue-50 hover:shadow-md hover:scale-105 font-semibold transition-all" onClick={() => {
+                              setIsModalOpenEdit(true);
+                              setSelectedGuard(guard);
+                              console.log(selectedGuard)
+                              console.log(guard)
+                              console.log(email)
+                              console.log(telefono)
+                            }}>
+                              <Edit size={14} /> Editar
+                            </button>
 
-                          <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium" onClick={() => handleDelete(guard.rut)}>
-                            <Trash2 size={14} /> Eliminar
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                )}
-              </table>
+                            <button className="flex items-center gap-1 text-white bg-linear-to-br from-red-600 to-red-700 px-3 py-2 rounded-xl text-sm hover:shadow-lg hover:scale-105 font-semibold transition-all" onClick={() => handleDelete(guard.rut)}>
+                              <Trash2 size={14} /> Eliminar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  )}
+                </table>
+              </div>
             </div>
           </div>
         )}
@@ -502,50 +521,57 @@ export default function SecurityDashboard() {
 
         {/* --- VISTA: INCIDENTES --- */}
         {activeTab === 'reports' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-1">Incidentes de Robo</h2>
-            <p className="text-gray-500 text-sm mb-6">Gestión y seguimiento de incidentes de los estudiantes</p>
+          <div className="bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-2xl hover:scale-[1.01] transition-all duration-300">
+            <div className="relative bg-linear-to-r from-blue-700 to-blue-900 px-6 py-4 overflow-hidden">
+              <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent shimmer" />
+              <div className="relative">
+                <h3 className="font-bold text-lg text-white tracking-tight">Incidentes de Robo</h3>
+                <p className="text-blue-100 text-sm mt-1">Gestión y seguimiento de incidentes de los estudiantes</p>
+              </div>
+            </div>
+            <div className="p-6">
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-gray-50 text-gray-600 font-semibold">
-                  <tr>
-                    <th className="p-4 rounded-tl-lg">ID</th>
-                    <th className="p-4">Fecha</th>
-                    <th className="p-4">Bicicletero</th>
-                    <th className="p-4 w-64">Descripción</th>
-                    <th className="p-4">Acciones</th>
-                  </tr>
-                </thead>
-                {reports.length === 0 ? (
-                  <tr>
-                    {/* IMPORTANTE: colSpan debe ser igual al número de columnas de tu cabecera (ID, Fecha, etc.) */}
-                    <td colSpan="6" className="p-8 text-center text-gray-500">
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        {/* Opcional: Un icono para que se vea más bonito */}
-                        <span className="text-2xl">📂</span>
-                        <p>No se encuentran incidentes registrados.</p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  <tbody className="divide-y divide-gray-100">
-                    {reports.map((r) => (
-                      <tr key={r.ID_Informe} className="hover:bg-gray-50 transition-colors">
-                        <td className="p-4 font-medium">{r.ID_Informe}</td>
-                        <td className="p-4">{formatDate(r.fecha)}</td>
-                        <td className="p-4">{r.bicicletero}</td>
-                        <td className="p-4 truncate max-w-xs" title={r.descripcion}>{r.descripcion}</td>
-                        <td className='p-4'>
-                          <button className="flex items-center gap-1 text-white bg-red-600 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 font-medium" onClick={() => handleDeleteReport(r.ID_Informe)}>
-                            <Trash2 size={14} /> Eliminar
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                )}
-              </table>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-slate-50 text-slate-600 font-semibold">
+                    <tr>
+                      <th className="p-4 rounded-tl-lg">ID</th>
+                      <th className="p-4">Fecha</th>
+                      <th className="p-4">Bicicletero</th>
+                      <th className="p-4 w-64">Descripción</th>
+                      <th className="p-4">Acciones</th>
+                    </tr>
+                  </thead>
+                  {reports.length === 0 ? (
+                    <tr>
+                      {/* IMPORTANTE: colSpan debe ser igual al número de columnas de tu cabecera (ID, Fecha, etc.) */}
+                      <td colSpan="6" className="p-8 text-center text-gray-500">
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          {/* Opcional: Un icono para que se vea más bonito */}
+                          <span className="text-2xl">📂</span>
+                          <p>No se encuentran incidentes registrados.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    <tbody className="divide-y divide-gray-100">
+                      {reports.map((r) => (
+                        <tr key={r.ID_Informe} className="hover:bg-blue-50/50 transition-colors">
+                          <td className="p-4 font-medium">{r.ID_Informe}</td>
+                          <td className="p-4">{formatDate(r.fecha)}</td>
+                          <td className="p-4">{r.bicicletero}</td>
+                          <td className="p-4 wrap-break-word" title={r.descripcion}>{r.descripcion}</td>
+                          <td className='p-4'>
+                            <button className="flex items-center gap-1 text-white bg-linear-to-br from-red-600 to-red-700 px-3 py-2 rounded-xl text-sm hover:shadow-lg hover:scale-105 font-semibold transition-all" onClick={() => handleDeleteReport(r.ID_Informe)}>
+                              <Trash2 size={14} /> Eliminar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  )}
+                </table>
+              </div>
             </div>
           </div>
         )}
@@ -677,11 +703,11 @@ export default function SecurityDashboard() {
             <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-100">
               <button
                 onClick={() => { setIsModalOpen(false); resetDatos() }}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition-colors"
+                className="px-5 py-2.5 border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-100 hover:scale-105 transition-all"
               >
                 Cancelar
               </button>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 shadow-md shadow-blue-200 transition-all" onClick={handleCreate}>
+              <button className="px-5 py-2.5 bg-linear-to-br from-[#003366] to-[#0066cc] text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 shadow-lg shadow-blue-500/30 transition-all" onClick={handleCreate}>
                 Agregar Guardia
               </button>
             </div>
@@ -762,11 +788,11 @@ export default function SecurityDashboard() {
             <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-100">
               <button
                 onClick={() => { setIsModalOpenEdit(false); resetDatos() }}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition-colors"
+                className="px-5 py-2.5 border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-100 hover:scale-105 transition-all"
               >
                 Cancelar
               </button>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 shadow-md shadow-blue-200 transition-all" onClick={() => handleUpdate(selectedGuard)}>
+              <button className="px-5 py-2.5 bg-linear-to-br from-[#003366] to-[#0066cc] text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 shadow-lg shadow-blue-500/30 transition-all" onClick={() => handleUpdate(selectedGuard)}>
                 Guardar Cambios
               </button>
             </div>
