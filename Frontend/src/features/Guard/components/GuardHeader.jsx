@@ -79,9 +79,9 @@ function GuardHeader() {
 
     const handleNuevaSolicitud = (data) => {
       const newNotification = {
-        id: data.id || Date.now(),
+        id: data.id,
         message: data.message,
-        location: data.bicicletarioNombre || "Ubicación desconocida",
+        location: data.bicicletarioNombre,
         time: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",

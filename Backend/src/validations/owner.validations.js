@@ -1,5 +1,6 @@
 "use strict";
 import Joi from "joi";
+import { validarRut } from "../utils/validarRut.js";
 
 const ownerCreationSchema = Joi.object({
   rut: Joi.string()
@@ -7,6 +8,12 @@ const ownerCreationSchema = Joi.object({
     .max(12)
     .pattern(/^(\d{1,2}\.\d{3}\.\d{3}-[\dkK]|\d{7,8}-[\dkK])$/)
     .required()
+    .custom((value, helpers) => {
+      if (!validarRut(value)) {
+        return helpers.message("El RUT ingresado no es válido.");
+      }
+      return value;
+    })
     .messages({
       "string.pattern.base": "El formato del rut no es válido.",
       "string.empty": "El campo rut no puede estar vacío.",
