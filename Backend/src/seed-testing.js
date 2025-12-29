@@ -37,7 +37,7 @@ const seedTestingDatabase = async () => {
     console.log("🏗️ Creando 4 bicicleteros...");
     const racksData = [
       { nombre: "Bicicletero Central", capacidad_maxima: 15, latitud: -36.8222, longitud: -73.0122 },
-      { nombre: "Bicicletero FACE", capacidad_maxima: 15, latitud: -36.8235, longitud: -73.0145 },
+      { nombre: "Bicicletero FACE", capacidad_maxima: 15, latitud: -36.82189575, longitud: -73.01120192 },
       { nombre: "Bicicletero Idiomas", capacidad_maxima: 15, latitud: -36.8210, longitud: -73.0110 },
       { nombre: "Bicicletero Biblioteca", capacidad_maxima: 15, latitud: -36.8240, longitud: -73.0150 }
     ];
