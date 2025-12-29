@@ -10,13 +10,12 @@ export const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(user.tipo_usuario)) {
-    // Si el usuario no tiene el rol permitido, redirigir a login o dashboard correspondiente
-    // Por ahora redirigimos a login, pero idealmente sería una página 403
-    return <Navigate to="/login" replace />;
+    // Si el usuario no tiene el rol permitido, redirigir a home page
+    return <Navigate to="/" replace />;
   }
 
   return children;
