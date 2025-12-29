@@ -1,5 +1,4 @@
-import axios from "axios";
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+import api from "../../../config/axios.config";
 
 /**
  * @async
@@ -16,7 +15,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
  */
 export const createGuardService = async (rut, email, contrasenia, telefono, nombre, apellido) => {
   try {
-    const res = await axios.post(`${API_URL}/central/createGuard`, {
+    const res = await api.post(`/central/createGuard`, {
       rut,
       email,
       contrasenia,
@@ -44,8 +43,8 @@ export const createGuardService = async (rut, email, contrasenia, telefono, nomb
  */
 export const updateGuardService = async (rut, email, contrasenia, telefono) => {
   try {
-    const res = await axios.put(
-      `${API_URL}/central/updateGuard`,
+    const res = await api.put(
+      `/central/updateGuard`,
       {
         rut,
         email,
@@ -70,8 +69,8 @@ export const updateGuardService = async (rut, email, contrasenia, telefono) => {
  */
 export const deleteGuardService = async (rut) => {
   try {
-    const res = await axios.delete(
-      `${API_URL}/central/deleteGuard`,
+    const res = await api.delete(
+      `/central/deleteGuard`,
       {
         data: { rut },
       });
@@ -91,7 +90,7 @@ export const deleteGuardService = async (rut) => {
  */
 export const getAllGuardService = async () => {
   try {
-    const res = await axios.get(`${API_URL}/central/getAllGuards`);
+    const res = await api.get(`/central/getAllGuards`);
     return res
   } catch (error) {
     console.log(error);
@@ -109,8 +108,8 @@ export const getAllGuardService = async () => {
  */
 export const getGuardService = async (rut) => {
   try {
-    const res = await axios.get(
-      `${API_URL}/central/getGuard?rut=${rut}`
+    const res = await api.get(
+      `/central/getGuard?rut=${rut}`
     );
     return res
   } catch (error) {
@@ -129,8 +128,8 @@ export const getGuardService = async (rut) => {
  */
 export const getUserService = async (rut) => {
   try {
-    const res = await axios.get(
-      `${API_URL}/central/getUser?rut=${rut}`
+    const res = await api.get(
+      `/central/getUser?rut=${rut}`
     );
     return res
   } catch (error) {
@@ -148,8 +147,8 @@ export const getUserService = async (rut) => {
  */
 export const getAllReportsService = async () => {
   try {
-    const res = await axios.get(
-      `${API_URL}/guards/report/getAllReports`
+    const res = await api.get(
+      `/guards/report/getAllReports`
     );
     return res
   } catch (error) {
@@ -168,8 +167,8 @@ export const getAllReportsService = async () => {
  */
 export const deleteOwnerService = async (rut) => {
   try {
-    const res = await axios.delete(
-      `${API_URL}/central/deleteOwner`,
+    const res = await api.delete(
+      `/central/deleteOwner`,
       {
         data: { rut },
       });
@@ -190,8 +189,8 @@ export const deleteOwnerService = async (rut) => {
  */
 export const deleteReportService = async (ID_Informe) => {
   try {
-    const res = await axios.delete(
-      `${API_URL}/guards/report/deleteReport`,
+    const res = await api.delete(
+      `/guards/report/deleteReport`,
       {
         data: { ID_Informe },
       }
