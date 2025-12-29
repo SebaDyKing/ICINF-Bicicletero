@@ -15,6 +15,23 @@ import {
 import Swal from "sweetalert2";
 import { useAuth } from "../../../Context/useAuth.js";
 
+/**
+ * @component Profile
+ * @brief Vista de gestión del perfil de usuario (Dueño).
+ *
+ * Este componente permite al usuario visualizar y editar su información personal
+ * y actualizar sus credenciales de seguridad.
+ *
+ * Funcionalidades principales:
+ * 1. **Gestión de Datos Personales:** Edición de nombre, apellido y teléfono con validación
+ * de formato chileno (+569).
+ * 2. **Seguridad:** Cambio de contraseña con validación de coincidencia y visualización (toggle show/hide).
+ * 3. **Sincronización de Estado:** Actualiza el contexto global (`useAuth`) tras una modificación exitosa
+ * para reflejar los cambios en toda la aplicación sin recargar.
+ *
+ * @param {Object} props Props del componente.
+ * @param {Object} props.user Objeto con la información actual del usuario logueado.
+ */
 const Profile = ({ user }) => {
   const { updateUser } = useAuth();
 
@@ -182,14 +199,14 @@ const Profile = ({ user }) => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* HEADER */}
       <HeaderOwner user={user} />
 
